@@ -266,7 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeModal = () => {
     applyModal.classList.remove("open");
     applyModal.setAttribute("aria-hidden", "true");
-    body.style.overflow = "visible"; // Unlock page scroll
+    body.style.overflow = ""; // Unlock page scroll
     
     // Clear inputs
     applicantName.value = "";

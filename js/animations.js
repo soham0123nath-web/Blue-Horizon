@@ -83,7 +83,19 @@ function initSplashScreen() {
 function initPageEntrance() {
   if (prefersReducedMotion) return;
 
-  const tl = gsap.timeline();
+  // Safety: force-show hero after 3s in case animation stalls
+  const heroEls = "#mainNav, .hero-eyebrow, .hero-3d-title .char, .hero-tagline, .hero-content > p, .hero-buttons .btn";
+  const safetyTimer = setTimeout(() => {
+    gsap.set(heroEls, { opacity: 1, y: 0, scale: 1, rotateX: 0, clearProps: "all" });
+  }, 3000);
+
+  const tl = gsap.timeline({
+    onComplete: () => {
+      clearTimeout(safetyTimer);
+      // Force final state visible
+      gsap.set(heroEls, { clearProps: "all" });
+    }
+  });
 
   // Nav slides down
   tl.from("#mainNav", {

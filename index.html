@@ -990,8 +990,9 @@
     });
   </script>
 
-  <!-- SAFETY FALLBACK: Kill splash + show content if GSAP fails -->
+  <!-- SAFETY FALLBACK: Kill splash + force content visible -->
   <script>
+    // Fast fallback: kill splash after 3s
     setTimeout(function() {
       var splash = document.getElementById("splash-screen");
       if (splash && splash.parentNode) {
@@ -999,17 +1000,22 @@
         splash.remove();
       }
       document.body.classList.add("splash-done");
+    }, 3000);
 
-      // Force all content visible if GSAP didn't run
-      if (typeof gsap === "undefined") {
-        var all = document.querySelectorAll("nav, section, .hero-content, .stat-item, .why-card, .process-step, .job-card, .testimonial-card, .faq-item, .contact-card, .badge, .division-line, .country-switcher, .salary-highlight, .social-box, footer, .hero-eyebrow, .hero-tagline, .hero-buttons, .hero-3d-title, .section-title, .tracker-cta-box");
-        for (var i = 0; i < all.length; i++) {
-          all[i].style.opacity = "1";
-          all[i].style.transform = "none";
-          all[i].style.visibility = "visible";
+    // Slower fallback: force ALL content visible after 5s
+    // Catches cases where GSAP loaded but ScrollTrigger stuck elements at opacity:0
+    setTimeout(function() {
+      var all = document.querySelectorAll("nav, section, .hero-content, .hero-eyebrow, .hero-tagline, .hero-3d-title, .hero-3d-title .char, .hero-buttons, .hero-buttons .btn, .hero-content > p, .stat-item, .why-card, .process-step, .step-num, .job-card, .testimonial-card, .faq-item, .contact-card, .badge, .division-line, .country-switcher, .salary-highlight, .social-box, footer, .section-title, .section-title h2, .section-title p, .footer-top > div, .tracker-cta-box, .stats-bar");
+      for (var i = 0; i < all.length; i++) {
+        var el = all[i];
+        var style = window.getComputedStyle(el);
+        if (parseFloat(style.opacity) < 0.1) {
+          el.style.opacity = "1";
+          el.style.transform = "none";
+          el.style.visibility = "visible";
         }
       }
-    }, 3000);
+    }, 5000);
   </script>
 
 </body>
