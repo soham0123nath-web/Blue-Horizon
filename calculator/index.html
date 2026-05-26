@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Salary Calculator — Blue Horizon Overseas</title>
+  <meta name="description" content="Calculate your potential overseas earnings with Blue Horizon Overseas. Compare salaries for jobs in Israel and Vietnam with detailed breakdowns.">
+  <meta name="theme-color" content="#071426">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+
+  <style>
+    .calc-page { min-height: 100vh; padding: 120px 6% 80px; }
+    .calc-header { text-align: center; margin-bottom: 50px; }
+    .calc-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(32px, 5vw, 52px);
+      background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+      background-size: 200% 100%;
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+    .calc-header p { color: var(--text-dim); font-size: 16px; max-width: 550px; margin: 0 auto; }
+
+    .calc-container { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+
+    /* Input Panel */
+    .calc-input {
+      background: var(--navy-card); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius); padding: 36px; backdrop-filter: blur(12px);
+    }
+    .calc-input h3 { font-size: 18px; color: white; margin-bottom: 24px; }
+    .calc-input .form-group { margin-bottom: 20px; }
+    .calc-input label { display: block; font-size: 13px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px; }
+    .calc-input select, .calc-input input[type="range"] { width: 100%; }
+    .calc-input select {
+      padding: 14px 18px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04); color: var(--text); font-size: 15px;
+      font-family: 'Poppins', sans-serif; outline: none; transition: var(--transition);
+      appearance: none; cursor: pointer;
+    }
+    .calc-input select:focus { border-color: var(--gold); box-shadow: 0 0 20px rgba(212,175,55,0.15); }
+    .calc-input select option { background: var(--navy-mid); color: var(--text); }
+
+    /* Slider */
+    .slider-row { display: flex; justify-content: space-between; align-items: center; }
+    .slider-value {
+      font-size: 20px; font-weight: 800; color: var(--gold);
+      font-family: 'Playfair Display', serif; min-width: 60px; text-align: right;
+    }
+    input[type="range"] {
+      -webkit-appearance: none; appearance: none; height: 6px;
+      background: rgba(255,255,255,0.1); border-radius: 3px; outline: none; margin-top: 8px;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--gold); cursor: pointer; box-shadow: 0 0 10px rgba(212,175,55,0.4);
+    }
+
+    /* Country Toggle */
+    .calc-country-toggle {
+      display: flex; gap: 8px; background: rgba(255,255,255,0.03);
+      padding: 4px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.08);
+    }
+    .calc-country-btn {
+      flex: 1; padding: 10px 16px; border: none; border-radius: 46px;
+      background: none; color: var(--text-dim); font-size: 14px; font-weight: 700;
+      font-family: 'Poppins', sans-serif; cursor: pointer; transition: var(--transition);
+    }
+    .calc-country-btn.active { background: var(--gold); color: var(--navy); }
+
+    /* Results Panel */
+    .calc-result {
+      background: var(--navy-card); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius); padding: 36px; backdrop-filter: blur(12px);
+    }
+    .calc-result h3 { font-size: 18px; color: white; margin-bottom: 24px; }
+
+    .breakdown-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .breakdown-item:last-of-type { border-bottom: none; }
+    .breakdown-label { font-size: 14px; color: var(--text-dim); display: flex; align-items: center; gap: 8px; }
+    .breakdown-value { font-size: 16px; font-weight: 700; color: white; }
+    .breakdown-value .inr { display: block; font-size: 12px; color: var(--text-dim); font-weight: 400; }
+
+    /* Total */
+    .breakdown-total {
+      background: rgba(212,175,55,0.08); border: 1px solid rgba(212,175,55,0.2);
+      border-radius: 16px; padding: 20px; margin-top: 20px; text-align: center;
+    }
+    .total-label { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+    .total-value {
+      font-size: 36px; font-weight: 800; color: var(--gold);
+      font-family: 'Playfair Display', serif; line-height: 1;
+    }
+    .total-inr { font-size: 16px; color: var(--gold-light); margin-top: 4px; }
+
+    .annual-box {
+      background: rgba(var(--accent-rgb), 0.08); border: 1px solid rgba(var(--accent-rgb), 0.2);
+      border-radius: 16px; padding: 16px; margin-top: 16px; text-align: center;
+    }
+    .annual-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); }
+    .annual-value { font-size: 24px; font-weight: 800; color: var(--accent); font-family: 'Playfair Display', serif; }
+    .annual-inr { font-size: 14px; color: var(--text-dim); }
+
+    /* AI Advice */
+    .ai-advice-section { margin-top: 30px; max-width: 900px; margin-left: auto; margin-right: auto; }
+    .ai-advice-btn {
+      width: 100%; padding: 16px; border: 1px solid rgba(212,175,55,0.3);
+      border-radius: 14px; background: rgba(212,175,55,0.08); color: var(--gold);
+      font-size: 15px; font-weight: 700; font-family: 'Poppins', sans-serif;
+      cursor: pointer; transition: var(--transition);
+    }
+    .ai-advice-btn:hover { background: rgba(212,175,55,0.15); transform: translateY(-2px); }
+    .ai-advice-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .ai-advice-result {
+      display: none; margin-top: 16px; background: var(--navy-card);
+      border: 1px solid rgba(212,175,55,0.15); border-radius: var(--radius);
+      padding: 28px; backdrop-filter: blur(12px);
+    }
+    .ai-advice-result.show { display: block; }
+    .ai-advice-result h4 { font-size: 16px; color: var(--gold); margin-bottom: 12px; }
+    .ai-advice-result p, .ai-advice-result li {
+      font-size: 14px; color: var(--text); line-height: 1.8;
+    }
+
+    /* Apply CTA */
+    .calc-cta { text-align: center; margin-top: 40px; }
+    .calc-cta a { display: inline-flex; }
+
+    /* Loading Placeholder */
+    .calc-loading { text-align: center; padding: 60px; color: var(--text-dim); font-size: 14px; }
+
+    @media (max-width: 768px) {
+      .calc-container { grid-template-columns: 1fr; }
+      .calc-page { padding: 100px 5% 60px; }
+      .total-value { font-size: 28px; }
+    }
+  </style>
+</head>
+
+<body class="theme-israel splash-done">
+
+  <nav id="mainNav" aria-label="Primary Navigation">
+    <a href="../index.html" class="logo">BLUE <span>HORIZON</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html#jobs">Find Jobs</a></li>
+      <li><a href="../index.html#why-us">Why Us</a></li>
+      <li><a href="./" class="nav-cta" style="background: var(--accent); color: white;">💰 Calculator</a></li>
+    </ul>
+    <button type="button" class="hamburger" id="hamburger" aria-label="Open Navigation Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <main class="calc-page" id="main-content">
+    <a href="../index.html" class="back-link" style="display:inline-flex;align-items:center;gap:8px;margin-bottom:30px;color:var(--text-dim);text-decoration:none;font-size:14px;">← Back to Blue Horizon</a>
+
+    <div class="calc-header">
+      <h1>💰 Salary Calculator</h1>
+      <p>See exactly how much you could earn working overseas. Select a role and adjust overtime to see your full earnings breakdown.</p>
+    </div>
+
+    <div class="calc-container">
+      <!-- Input Panel -->
+      <div class="calc-input" id="calcInput">
+        <h3>⚙️ Configure</h3>
+
+        <div class="form-group">
+          <label>Select Country</label>
+          <div class="calc-country-toggle">
+            <button type="button" class="calc-country-btn active" data-country="Israel">🇮🇱 Israel</button>
+            <button type="button" class="calc-country-btn" data-country="Vietnam">🇻🇳 Vietnam</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="roleSelect">Job Role</label>
+          <select id="roleSelect">
+            <option value="">Loading roles...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Monthly Overtime Hours</label>
+          <div class="slider-row">
+            <input type="range" id="otSlider" min="0" max="80" value="20" step="5">
+            <span class="slider-value" id="otValue">20 hrs</span>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top:24px;">
+          <label for="currentSalary">Your Current Salary in India (₹/month, optional)</label>
+          <select id="currentSalary" style="padding:14px 18px;border-radius:14px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:var(--text);font-size:15px;font-family:'Poppins',sans-serif;width:100%;outline:none;appearance:none;">
+            <option value="">Not specified</option>
+            <option value="15000">₹15,000/month</option>
+            <option value="20000">₹20,000/month</option>
+            <option value="25000">₹25,000/month</option>
+            <option value="30000">₹30,000/month</option>
+            <option value="40000">₹40,000/month</option>
+            <option value="50000">₹50,000/month</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Results Panel -->
+      <div class="calc-result" id="calcResult">
+        <h3>📊 Earnings Breakdown</h3>
+
+        <div id="breakdownList">
+          <div class="calc-loading">Select a role to see your earnings breakdown</div>
+        </div>
+
+        <div class="breakdown-total" id="totalBox" style="display:none;">
+          <div class="total-label">Total Monthly Value</div>
+          <div class="total-value" id="totalUSD">$0</div>
+          <div class="total-inr" id="totalINR">₹0</div>
+        </div>
+
+        <div class="annual-box" id="annualBox" style="display:none;">
+          <div class="annual-label">Annual Savings Potential</div>
+          <div class="annual-value" id="annualUSD">$0</div>
+          <div class="annual-inr" id="annualINR">₹0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Advice -->
+    <div class="ai-advice-section">
+      <button type="button" class="ai-advice-btn" id="aiAdviceBtn" disabled>
+        🤖 Get Personalized AI Savings Advice
+      </button>
+      <div class="ai-advice-result" id="aiAdviceResult">
+        <h4>🤖 AI Savings Advisor</h4>
+        <div id="aiAdviceContent"></div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="calc-cta">
+      <a href="../index.html#jobs" class="btn btn-primary">📋 Apply For This Role</a>
+    </div>
+
+  </main>
+
+  <script>
+    // ── Fallback data (when API not connected) ──
+    const FALLBACK_ROLES = [
+      { id: 'f1', job_title: 'Production Technician', country: 'Israel', base_salary_usd: 1550, overtime_rate_per_hour: 12, accommodation_value_usd: 400, food_value_usd: 200, medical_value_usd: 100, deductions_usd: 50, currency_rate: 85 },
+      { id: 'f2', job_title: 'Cable Machine Operator', country: 'Israel', base_salary_usd: 1550, overtime_rate_per_hour: 12, accommodation_value_usd: 400, food_value_usd: 200, medical_value_usd: 100, deductions_usd: 50, currency_rate: 85 },
+      { id: 'f3', job_title: 'Electrical Technician', country: 'Israel', base_salary_usd: 1550, overtime_rate_per_hour: 11, accommodation_value_usd: 400, food_value_usd: 200, medical_value_usd: 100, deductions_usd: 50, currency_rate: 85 },
+      { id: 'f4', job_title: 'Truck Driver', country: 'Israel', base_salary_usd: 1700, overtime_rate_per_hour: 13, accommodation_value_usd: 400, food_value_usd: 200, medical_value_usd: 100, deductions_usd: 50, currency_rate: 85 },
+      { id: 'f5', job_title: 'Civil Supervisor', country: 'Israel', base_salary_usd: 1900, overtime_rate_per_hour: 15, accommodation_value_usd: 500, food_value_usd: 250, medical_value_usd: 150, deductions_usd: 60, currency_rate: 85 },
+      { id: 'f6', job_title: 'Welder (3G/6G)', country: 'Israel', base_salary_usd: 1400, overtime_rate_per_hour: 11, accommodation_value_usd: 400, food_value_usd: 200, medical_value_usd: 100, deductions_usd: 50, currency_rate: 85 },
+      { id: 'f7', job_title: 'Bartender', country: 'Vietnam', base_salary_usd: 470, overtime_rate_per_hour: 4, accommodation_value_usd: 200, food_value_usd: 150, medical_value_usd: 50, deductions_usd: 30, currency_rate: 85 },
+      { id: 'f8', job_title: 'Continental CDP', country: 'Vietnam', base_salary_usd: 735, overtime_rate_per_hour: 6, accommodation_value_usd: 250, food_value_usd: 200, medical_value_usd: 50, deductions_usd: 30, currency_rate: 85 },
+      { id: 'f9', job_title: 'Paneer Maker', country: 'Vietnam', base_salary_usd: 380, overtime_rate_per_hour: 3, accommodation_value_usd: 200, food_value_usd: 150, medical_value_usd: 50, deductions_usd: 20, currency_rate: 85 },
+      { id: 'f10', job_title: 'Accountant', country: 'Vietnam', base_salary_usd: 530, overtime_rate_per_hour: 4, accommodation_value_usd: 200, food_value_usd: 150, medical_value_usd: 50, deductions_usd: 30, currency_rate: 85 },
+    ];
+
+    let allRoles = [];
+    let selectedCountry = 'Israel';
+    let selectedRole = null;
+
+    const roleSelect = document.getElementById('roleSelect');
+    const otSlider = document.getElementById('otSlider');
+    const otValue = document.getElementById('otValue');
+    const breakdownList = document.getElementById('breakdownList');
+    const totalBox = document.getElementById('totalBox');
+    const annualBox = document.getElementById('annualBox');
+    const aiAdviceBtn = document.getElementById('aiAdviceBtn');
+
+    // ── Load Roles ──
+    async function loadRoles() {
+      try {
+        const res = await fetch('/api/salary?action=getRoles');
+        const data = await res.json();
+        allRoles = data.roles && data.roles.length > 0 ? data.roles : FALLBACK_ROLES;
+      } catch {
+        allRoles = FALLBACK_ROLES;
+      }
+      populateRoleSelect();
+    }
+
+    function populateRoleSelect() {
+      const filtered = allRoles.filter(r => r.country === selectedCountry);
+      roleSelect.innerHTML = '<option value="">Select a role...</option>';
+      filtered.forEach(role => {
+        const opt = document.createElement('option');
+        opt.value = role.id;
+        opt.textContent = `${role.job_title} — $${role.base_salary_usd}/mo`;
+        roleSelect.appendChild(opt);
+      });
+    }
+
+    // ── Country Toggle ──
+    document.querySelectorAll('.calc-country-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.calc-country-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedCountry = btn.dataset.country;
+        populateRoleSelect();
+        clearResults();
+        if (typeof gsap !== 'undefined') {
+          gsap.fromTo(btn, { scale: 0.95 }, { scale: 1, duration: 0.4, ease: 'elastic.out(1,0.4)' });
+        }
+      });
+    });
+
+    // ── Slider ──
+    otSlider.addEventListener('input', () => {
+      otValue.textContent = otSlider.value + ' hrs';
+      if (selectedRole) calculate();
+    });
+
+    // ── Role Select ──
+    roleSelect.addEventListener('change', () => {
+      const id = roleSelect.value;
+      selectedRole = allRoles.find(r => String(r.id) === id) || null;
+      if (selectedRole) {
+        calculate();
+        aiAdviceBtn.disabled = false;
+      } else {
+        clearResults();
+        aiAdviceBtn.disabled = true;
+      }
+    });
+
+    // ── Calculate ──
+    function calculate() {
+      if (!selectedRole) return;
+      const ot = parseInt(otSlider.value) || 0;
+      const rate = selectedRole.currency_rate || 85;
+      const base = parseFloat(selectedRole.base_salary_usd);
+      const otEarn = ot * (selectedRole.overtime_rate_per_hour || 0);
+      const accom = parseFloat(selectedRole.accommodation_value_usd || 0);
+      const food = parseFloat(selectedRole.food_value_usd || 0);
+      const medical = parseFloat(selectedRole.medical_value_usd || 0);
+      const deductions = parseFloat(selectedRole.deductions_usd || 0);
+      const totalMonthly = base + otEarn + accom + food + medical;
+      const totalINR = totalMonthly * rate;
+      const annualUSD = (totalMonthly - deductions) * 12;
+      const annualINR = annualUSD * rate;
+
+      const items = [
+        { icon: '💵', label: 'Base Salary', usd: base, rate },
+        { icon: '⏰', label: `Overtime (${ot} hrs)`, usd: otEarn, rate },
+        { icon: '🏠', label: 'Accommodation Savings', usd: accom, rate },
+        { icon: '🍽️', label: 'Food Savings', usd: food, rate },
+        { icon: '🏥', label: 'Medical Coverage', usd: medical, rate },
+      ];
+
+      breakdownList.innerHTML = items.map(item => `
+        <div class="breakdown-item">
+          <span class="breakdown-label">${item.icon} ${item.label}</span>
+          <span class="breakdown-value">$${item.usd.toLocaleString()}<span class="inr">₹${Math.round(item.usd * item.rate).toLocaleString()}</span></span>
+        </div>
+      `).join('');
+
+      if (deductions > 0) {
+        breakdownList.innerHTML += `
+          <div class="breakdown-item" style="color: #ff6b6b;">
+            <span class="breakdown-label">📉 Monthly Deductions</span>
+            <span class="breakdown-value" style="color: #ff6b6b;">-$${deductions.toLocaleString()}</span>
+          </div>`;
+      }
+
+      document.getElementById('totalUSD').textContent = '$' + Math.round(totalMonthly).toLocaleString();
+      document.getElementById('totalINR').textContent = '₹' + Math.round(totalINR).toLocaleString() + ' INR';
+      document.getElementById('annualUSD').textContent = '$' + Math.round(annualUSD).toLocaleString();
+      document.getElementById('annualINR').textContent = '₹' + Math.round(annualINR).toLocaleString() + ' INR/year';
+
+      totalBox.style.display = 'block';
+      annualBox.style.display = 'block';
+
+      // Animate numbers
+      if (typeof gsap !== 'undefined') {
+        gsap.from('.breakdown-item', { x: -20, opacity: 0, stagger: 0.06, duration: 0.3, ease: 'power2.out' });
+        gsap.from(totalBox, { scale: 0.9, opacity: 0, duration: 0.4, delay: 0.3, ease: 'back.out(1.5)' });
+        gsap.from(annualBox, { scale: 0.9, opacity: 0, duration: 0.4, delay: 0.4, ease: 'back.out(1.5)' });
+      }
+    }
+
+    function clearResults() {
+      breakdownList.innerHTML = '<div class="calc-loading">Select a role to see your earnings breakdown</div>';
+      totalBox.style.display = 'none';
+      annualBox.style.display = 'none';
+      selectedRole = null;
+      document.getElementById('aiAdviceResult').classList.remove('show');
+    }
+
+    // ── AI Advice ──
+    aiAdviceBtn.addEventListener('click', async () => {
+      if (!selectedRole) return;
+      aiAdviceBtn.disabled = true;
+      aiAdviceBtn.textContent = '🤖 Generating advice...';
+
+      try {
+        const res = await fetch('/api/salary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'aiAdvice',
+            role_id: selectedRole.id,
+            overtime_hours: otSlider.value,
+            current_salary_inr: document.getElementById('currentSalary').value || null,
+            family_size: null
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('aiAdviceContent').innerHTML = data.advice.replace(/\n/g, '<br>');
+          document.getElementById('aiAdviceResult').classList.add('show');
+        } else {
+          generateLocalAdvice();
+        }
+      } catch {
+        generateLocalAdvice();
+      }
+
+      aiAdviceBtn.disabled = false;
+      aiAdviceBtn.textContent = '🤖 Get Personalized AI Savings Advice';
+    });
+
+    function generateLocalAdvice() {
+      if (!selectedRole) return;
+      const rate = selectedRole.currency_rate || 85;
+      const monthly = parseFloat(selectedRole.base_salary_usd);
+      const monthlyINR = Math.round(monthly * rate);
+      const annualINR = monthlyINR * 12;
+      const currentSalary = document.getElementById('currentSalary').value;
+      let advice = `<p>Based on the <strong>${selectedRole.job_title}</strong> role in <strong>${selectedRole.country}</strong>:</p><ul>`;
+      advice += `<li>💵 <strong>Monthly earnings:</strong> ~₹${monthlyINR.toLocaleString()} with free accommodation & food</li>`;
+      advice += `<li>📈 <strong>Annual savings potential:</strong> ~₹${annualINR.toLocaleString()} (since expenses are covered)</li>`;
+      if (currentSalary) {
+        const diff = monthlyINR - parseInt(currentSalary);
+        advice += `<li>🚀 <strong>Salary increase:</strong> ₹${diff.toLocaleString()}/month more than your current salary</li>`;
+      }
+      advice += `<li>🏠 With these savings, you could invest in property, children's education, or build a strong emergency fund within 2-3 years</li>`;
+      advice += `<li>💪 Apply now — these positions fill quickly and early applicants get priority processing!</li></ul>`;
+      document.getElementById('aiAdviceContent').innerHTML = advice;
+      document.getElementById('aiAdviceResult').classList.add('show');
+    }
+
+    // ── Init ──
+    document.addEventListener('DOMContentLoaded', () => {
+      loadRoles();
+      if (typeof gsap !== 'undefined') {
+        gsap.from('#mainNav', { y: -100, opacity: 0, duration: 0.6, ease: 'power3.out' });
+        gsap.from('.calc-header h1', { scale: 0.9, opacity: 0, duration: 0.5, delay: 0.2, ease: 'back.out(1.5)' });
+        gsap.from('.calc-input', { x: -50, opacity: 0, duration: 0.6, delay: 0.3, ease: 'power3.out' });
+        gsap.from('.calc-result', { x: 50, opacity: 0, duration: 0.6, delay: 0.4, ease: 'power3.out' });
+      }
+    });
+
+    // Hamburger
+    const hamburger = document.getElementById('hamburger');
+    if (hamburger) hamburger.addEventListener('click', () => hamburger.classList.toggle('open'));
+  </script>
+</body>
+</html>

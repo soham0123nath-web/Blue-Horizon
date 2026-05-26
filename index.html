@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <!-- SEO Best Practices -->
-  <title>Blue Horizon Overseas – Global Careers in Israel & Vietnam</title>
+  <title>Blue Horizon Overseas – Global Careers in Israel &amp; Vietnam</title>
   <meta name="description" content="Blue Horizon Overseas is a licensed manpower consultancy. Discover high-paying, verified jobs in Israel and Vietnam with visa support and free accommodation. Apply today.">
   <meta name="theme-color" content="#071426">
   
   <!-- Open Graph Protocol -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Blue Horizon Overseas – Global Careers in Israel & Vietnam">
+  <meta property="og:title" content="Blue Horizon Overseas – Global Careers in Israel &amp; Vietnam">
   <meta property="og:description" content="Government licensed recruitment for international job placements. Premium industrial, hospitality, and corporate roles with smooth WhatsApp application.">
   <meta property="og:locale" content="en_IN">
   
@@ -22,9 +22,45 @@
   
   <!-- Centralized Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
+
+  <!-- GSAP Animation Library + ScrollTrigger Plugin -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
 </head>
 
 <body class="theme-israel">
+
+  <!-- SPLASH SCREEN CINEMATIC INTRO -->
+  <div id="splash-screen" class="splash-screen">
+    <div class="splash-content">
+      <div class="splash-title">
+        <span class="splash-letter">B</span>
+        <span class="splash-letter">L</span>
+        <span class="splash-letter">U</span>
+        <span class="splash-letter">E</span>
+        <span class="splash-letter splash-space">&nbsp;</span>
+        <span class="splash-letter splash-gold">H</span>
+        <span class="splash-letter splash-gold">O</span>
+        <span class="splash-letter splash-gold">R</span>
+        <span class="splash-letter splash-gold">I</span>
+        <span class="splash-letter splash-gold">Z</span>
+        <span class="splash-letter splash-gold">O</span>
+        <span class="splash-letter splash-gold">N</span>
+      </div>
+      <p class="splash-tagline">Connecting Indian Talent to Global Careers</p>
+    </div>
+    <button type="button" id="splash-skip" class="splash-skip" aria-label="Skip intro">Skip ›</button>
+  </div>
+
+  <!-- CUSTOM CURSOR (desktop only) -->
+  <div id="custom-cursor" class="custom-cursor"></div>
+  <div id="cursor-follower" class="cursor-follower"></div>
+
+  <!-- PARTICLE BACKGROUND CANVAS -->
+  <canvas id="particle-canvas" class="particle-canvas" aria-hidden="true"></canvas>
+
+  <!-- FLOATING DECORATIVE SHAPES -->
+  <div id="floating-shapes" class="floating-shapes" aria-hidden="true"></div>
 
   <!-- ACCESSIBILITY: SKIP LINK -->
   <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -42,6 +78,7 @@
       <li><a href="#testimonials">Testimonials</a></li>
       <li><a href="#faq">FAQ</a></li>
       <li><a href="#contact">Contact</a></li>
+      <li><a href="tracker/" style="color: var(--accent);">📍 Track</a></li>
       <li class="nav-cta-li"><a href="#jobs" class="nav-cta">Apply Now →</a></li>
     </ul>
     <button type="button" class="hamburger" id="hamburger" aria-label="Open Navigation Menu" aria-expanded="false" aria-controls="mobileMenu">
@@ -57,6 +94,7 @@
     <a href="#testimonials" class="mobile-link">Testimonials</a>
     <a href="#faq" class="mobile-link">FAQ</a>
     <a href="#contact" class="mobile-link">Contact</a>
+    <a href="tracker/" class="mobile-link" style="color: var(--accent);">📍 Track Application</a>
     <a href="#jobs" class="nav-cta mobile-link">Apply Now →</a>
   </div>
 
@@ -128,7 +166,7 @@
       <div class="why-grid">
         <div class="why-card">
           <span class="why-icon" aria-hidden="true">🏛️</span>
-          <h3>Licensed & Authorized</h3>
+          <h3>Licensed &amp; Authorized</h3>
           <p>Fully compliant recruitment consultant conducting all international placements with valid regulatory authorizations.</p>
         </div>
         <div class="why-card">
@@ -184,7 +222,7 @@
         </div>
         <div class="process-step">
           <div class="step-num">4</div>
-          <h4>Visa & Documentation</h4>
+          <h4>Visa &amp; Documentation</h4>
           <p>Stress-free processing of employment contracts and immigration approvals.</p>
         </div>
         <div class="process-step">
@@ -550,7 +588,7 @@
                 <li>Total Vacancies: 2 Positions</li>
                 <li>Beverage customization and inventory management</li>
                 <li>High-end resort/bar environment in Vietnam</li>
-                <li>Benefits: Food & Accommodation fully provided</li>
+                <li>Benefits: Food &amp; Accommodation fully provided</li>
                 <li>Leave: Monthly 2 days off included</li>
               </ul>
               <button type="button" class="apply-btn" data-job="Bartender (Vietnam)">💬 Apply via WhatsApp</button>
@@ -569,10 +607,10 @@
             <div class="job-details" hidden>
               <ul>
                 <li>Experience: 8 Years required</li>
-                <li>Fluent English & Reporting knowledge essential</li>
+                <li>Fluent English &amp; Reporting knowledge essential</li>
                 <li>Prepare and manage continental cuisine divisions</li>
                 <li>Premium hotel kitchen setup</li>
-                <li>Benefits: Free Food & comfortable Accommodation</li>
+                <li>Benefits: Free Food &amp; comfortable Accommodation</li>
                 <li>Leave: Monthly 2 days off provided</li>
               </ul>
               <button type="button" class="apply-btn" data-job="Continental CDP (Vietnam)">💬 Apply via WhatsApp</button>
@@ -583,7 +621,7 @@
 
         <!-- FOOD PROCESSING DIVISION -->
         <div class="division-line" id="div-processing">
-          <span>✦ FOOD PROCESSING & PRODUCTION ✦</span>
+          <span>✦ FOOD PROCESSING &amp; PRODUCTION ✦</span>
         </div>
         <div class="job-grid" id="grid-processing">
           
@@ -600,9 +638,9 @@
               <ul>
                 <li>Large-scale milk processing experience</li>
                 <li>Must produce paneer from at least 100 kg milk daily</li>
-                <li>Adherence to strict milk hygiene & quality standards</li>
+                <li>Adherence to strict milk hygiene &amp; quality standards</li>
                 <li>Duty Hours: 11 hours per day shift</li>
-                <li>Benefits: Free Food & clean Accommodation</li>
+                <li>Benefits: Free Food &amp; clean Accommodation</li>
                 <li>Direct company recruitment without delays</li>
               </ul>
               <button type="button" class="apply-btn" data-job="Paneer Maker (Vietnam)">💬 Apply via WhatsApp</button>
@@ -613,7 +651,7 @@
 
         <!-- CORPORATE DIVISION -->
         <div class="division-line" id="div-corporate">
-          <span>✦ OFFICE & CORPORATE DIVISION ✦</span>
+          <span>✦ OFFICE &amp; CORPORATE DIVISION ✦</span>
         </div>
         <div class="job-grid" id="grid-corporate">
           
@@ -651,10 +689,10 @@
             <div class="job-details" hidden>
               <ul>
                 <li>Experience: 3+ Years required</li>
-                <li>Fluent English & Graduate degree required</li>
-                <li>Coordinate corporate client leads & coordinate sales pipeline</li>
+                <li>Fluent English &amp; Graduate degree required</li>
+                <li>Coordinate corporate client leads &amp; coordinate sales pipeline</li>
                 <li>Benefits: High performance sales commissions</li>
-                <li>Professional onboarding & training provided</li>
+                <li>Professional onboarding &amp; training provided</li>
               </ul>
               <button type="button" class="apply-btn" data-job="Sales Coordinator (Vietnam)">💬 Apply via WhatsApp</button>
             </div>
@@ -794,11 +832,21 @@
         </div>
         <div class="contact-card">
           <span class="contact-icon" aria-hidden="true">📞</span>
-          <h3>Call & WhatsApp Support</h3>
+          <h3>Call &amp; WhatsApp Support</h3>
           <p>Recruitment Hotline: <a href="tel:+918942069079">+91 89420 69079</a></p>
           <p>Support Helpline: <a href="tel:+919230859550">+91 92308 59550</a></p>
           <p>WhatsApp Apply: <a href="https://wa.me/918942069079" target="_blank" rel="noopener">Chat with Recruiter</a></p>
         </div>
+      </div>
+    </section>
+
+    <!-- TRACK YOUR APPLICATION CTA -->
+    <section class="tracker-cta-section" id="track-cta">
+      <div class="tracker-cta-box">
+        <div class="tracker-cta-icon">📍</div>
+        <h2>Already Applied?</h2>
+        <p>Track your application pipeline in real time. Enter your tracking ID to see where you are in the hiring process.</p>
+        <a href="tracker/" class="btn btn-primary">🔍 Track My Application</a>
       </div>
     </section>
 
@@ -838,6 +886,34 @@
       </div>
     </div>
   </footer>
+
+  <!-- AI CHATBOT WIDGET -->
+  <div class="chatbot-widget" id="chatbotWidget">
+    <button type="button" class="chatbot-toggle" id="chatbotToggle" aria-label="Open AI Assistant">
+      <span class="chatbot-icon">🤖</span>
+      <span class="chatbot-close-icon" style="display:none;">✕</span>
+    </button>
+    <div class="chatbot-window" id="chatbotWindow">
+      <div class="chatbot-header">
+        <div class="chatbot-header-info">
+          <span class="chatbot-avatar">🤖</span>
+          <div>
+            <div class="chatbot-name">Blue Horizon AI</div>
+            <div class="chatbot-status">Online • Ask me anything</div>
+          </div>
+        </div>
+      </div>
+      <div class="chatbot-messages" id="chatbotMessages">
+        <div class="cb-msg bot">
+          <div class="cb-bubble">👋 Hi! I'm the Blue Horizon AI assistant. Ask me about jobs, salaries, visa process, or track your application!</div>
+        </div>
+      </div>
+      <div class="chatbot-input-row">
+        <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Type your question..." autocomplete="off">
+        <button type="button" class="chatbot-send" id="chatbotSend">➤</button>
+      </div>
+    </div>
+  </div>
 
   <!-- WHATSAPP FLOATING FLOATER -->
   <a href="https://wa.me/918942069079" class="whatsapp" id="whatsapp-float" target="_blank" rel="noopener" aria-label="Chat with recruiter on WhatsApp">💬</a>
@@ -888,6 +964,9 @@
 
   <!-- Shared Javascript Engine -->
   <script src="js/main.js"></script>
+
+  <!-- GSAP Animation Engine -->
+  <script src="js/animations.js" defer></script>
 
   <!-- Dynamic FAQ Accordion Logic -->
   <script>

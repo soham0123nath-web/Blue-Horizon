@@ -1,0 +1,46 @@
+{
+  "outputDirectory": ".",
+  "functions": {
+    "api/applications.js":  { "maxDuration": 20 },
+    "api/jobs.js":          { "maxDuration": 15 },
+    "api/testimonials.js":  { "maxDuration": 15 },
+    "api/salary.js":        { "maxDuration": 15 },
+    "api/admin-data.js":    { "maxDuration": 20 },
+    "api/admin-chat.js":    { "maxDuration": 30 },
+    "api/ai-chatbot.js":    { "maxDuration": 20 }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Frame-Options",           "value": "DENY" },
+        { "key": "X-Content-Type-Options",    "value": "nosniff" },
+        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+        { "key": "X-XSS-Protection",          "value": "1; mode=block" },
+        { "key": "Referrer-Policy",            "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy",         "value": "camera=(), microphone=(), geolocation=()" },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; base-uri 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' https: blob:; connect-src 'self' https: wss://*.supabase.co; frame-src https://www.youtube.com; object-src 'none'; worker-src 'self' blob:;"
+        }
+      ]
+    },
+    {
+      "source": "/admin(.*)",
+      "headers": [
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+      ]
+    },
+    {
+      "source": "/favicon.png",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/tracker",    "destination": "/tracker/index.html" },
+    { "source": "/calculator", "destination": "/calculator/index.html" },
+    { "source": "/admin",      "destination": "/admin/index.html" }
+  ]
+}

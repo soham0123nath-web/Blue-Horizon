@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Track Your Application — Blue Horizon Overseas</title>
+  <meta name="description" content="Track the status of your overseas job application with Blue Horizon Overseas. Enter your tracking ID and phone number to see real-time updates.">
+  <meta name="theme-color" content="#071426">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+
+  <!-- Shared Styles -->
+  <link rel="stylesheet" href="../css/style.css">
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+
+  <style>
+    /* ── Tracker Page Specific Styles ── */
+    .tracker-page {
+      min-height: 100vh;
+      padding: 120px 6% 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .tracker-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .tracker-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(32px, 5vw, 52px);
+      background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+
+    .tracker-header p {
+      color: var(--text-dim);
+      font-size: 16px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* ── Search Form ── */
+    .tracker-form {
+      background: var(--navy-card);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius);
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .tracker-form .form-group {
+      margin-bottom: 20px;
+    }
+
+    .tracker-form label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .tracker-form input {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      font-size: 15px;
+      font-family: 'Poppins', sans-serif;
+      transition: var(--transition);
+      outline: none;
+    }
+
+    .tracker-form input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+    }
+
+    .tracker-form input::placeholder {
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .tracker-submit {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tracker-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(212, 175, 55, 0.35);
+    }
+
+    .tracker-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .tracker-error {
+      display: none;
+      background: rgba(255, 75, 75, 0.1);
+      border: 1px solid rgba(255, 75, 75, 0.3);
+      border-radius: 12px;
+      padding: 14px 18px;
+      color: #ff6b6b;
+      font-size: 14px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .tracker-error.show {
+      display: block;
+    }
+
+    /* ── Result Card ── */
+    .tracker-result {
+      display: none;
+      max-width: 700px;
+      width: 100%;
+      margin-top: 40px;
+    }
+
+    .tracker-result.show {
+      display: block;
+    }
+
+    .result-header {
+      background: var(--navy-card);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .result-id {
+      display: inline-block;
+      background: rgba(212, 175, 55, 0.12);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 30px;
+      padding: 6px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+    }
+
+    .result-name {
+      font-size: 28px;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 4px;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .result-job {
+      font-size: 16px;
+      color: var(--text-dim);
+    }
+
+    .result-country-badge {
+      display: inline-block;
+      background: rgba(var(--accent-rgb), 0.12);
+      border: 1px solid rgba(var(--accent-rgb), 0.3);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-top: 10px;
+    }
+
+    /* ── Pipeline Visualization ── */
+    .pipeline {
+      background: var(--navy-card);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .pipeline-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 24px;
+    }
+
+    .pipeline-stages {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      position: relative;
+    }
+
+    .pipeline-stage {
+      flex: 1;
+      min-width: 80px;
+      text-align: center;
+      position: relative;
+    }
+
+    .stage-dot {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      margin: 0 auto 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      background: var(--navy-mid);
+      color: var(--text-dim);
+      transition: all 0.5s ease;
+      position: relative;
+      z-index: 2;
+    }
+
+    .pipeline-stage.completed .stage-dot {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--navy);
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+    }
+
+    .pipeline-stage.current .stage-dot {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+      box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.4);
+      animation: currentPulse 2s ease-in-out infinite;
+    }
+
+    .pipeline-stage.rejected .stage-dot {
+      background: #ff4b4b;
+      border-color: #ff4b4b;
+      color: white;
+      box-shadow: 0 0 15px rgba(255, 75, 75, 0.3);
+    }
+
+    @keyframes currentPulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.4); }
+      50% { box-shadow: 0 0 30px rgba(var(--accent-rgb), 0.6), 0 0 50px rgba(var(--accent-rgb), 0.2); }
+    }
+
+    .stage-label {
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .pipeline-stage.completed .stage-label,
+    .pipeline-stage.current .stage-label {
+      color: white;
+    }
+
+    /* ── Timeline ── */
+    .timeline {
+      background: var(--navy-card);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .timeline-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 24px;
+    }
+
+    .timeline-list {
+      position: relative;
+      padding-left: 30px;
+    }
+
+    .timeline-list::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--gold), rgba(212, 175, 55, 0.1));
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-bottom: 24px;
+      padding-left: 20px;
+    }
+
+    .timeline-item:last-child {
+      padding-bottom: 0;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -26px;
+      top: 4px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--gold);
+      border: 2px solid var(--navy-mid);
+      z-index: 2;
+    }
+
+    .timeline-item:first-child::before {
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.4);
+    }
+
+    .timeline-status {
+      font-size: 14px;
+      font-weight: 700;
+      color: white;
+      text-transform: capitalize;
+      margin-bottom: 4px;
+    }
+
+    .timeline-date {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    /* ── Next Steps Card ── */
+    .next-steps {
+      background: rgba(212, 175, 55, 0.08);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+
+    .next-steps-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .next-steps p {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    .next-steps .whatsapp-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 16px;
+      padding: 10px 20px;
+      border-radius: 30px;
+      background: #25D366;
+      color: white;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      transition: var(--transition);
+    }
+
+    .next-steps .whatsapp-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3);
+    }
+
+    /* ── Back Link ── */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 30px;
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .back-link:hover {
+      color: var(--gold);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .tracker-page { padding: 100px 5% 60px; }
+      .tracker-form { padding: 28px 22px; }
+      .result-header { padding: 24px; }
+      .pipeline { padding: 24px 16px; }
+      .pipeline-stages { gap: 4px; }
+      .pipeline-stage { min-width: 60px; }
+      .stage-dot { width: 28px; height: 28px; font-size: 11px; }
+      .stage-label { font-size: 8px; }
+      .result-name { font-size: 22px; }
+    }
+  </style>
+</head>
+
+<body class="theme-israel splash-done">
+
+  <!-- NAV -->
+  <nav id="mainNav" aria-label="Primary Navigation">
+    <a href="../index.html" class="logo">BLUE <span>HORIZON</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html#jobs">Find Jobs</a></li>
+      <li><a href="../index.html#why-us">Why Us</a></li>
+      <li><a href="./" class="nav-cta" style="background: var(--accent); color: white;">📍 Tracker</a></li>
+    </ul>
+    <button type="button" class="hamburger" id="hamburger" aria-label="Open Navigation Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <main class="tracker-page" id="main-content">
+
+    <a href="../index.html" class="back-link">← Back to Blue Horizon</a>
+
+    <div class="tracker-header">
+      <h1>Track Your Application</h1>
+      <p>Enter your tracking ID and registered phone number to view your application pipeline in real time.</p>
+    </div>
+
+    <!-- Search Form -->
+    <div class="tracker-form" id="trackerForm">
+      <div class="tracker-error" id="trackerError"></div>
+
+      <div class="form-group">
+        <label for="trackingId">Tracking ID *</label>
+        <input type="text" id="trackingId" placeholder="BH-20260526-A1B2" autocomplete="off" style="text-transform: uppercase;">
+      </div>
+
+      <div class="form-group">
+        <label for="trackingPhone">Registered Phone Number *</label>
+        <input type="tel" id="trackingPhone" placeholder="+91 XXXXX XXXXX" autocomplete="tel">
+      </div>
+
+      <button type="button" class="tracker-submit" id="trackBtn">
+        🔍 Track Application
+      </button>
+    </div>
+
+    <!-- Result -->
+    <div class="tracker-result" id="trackerResult">
+
+      <!-- Header Card -->
+      <div class="result-header" id="resultHeader">
+        <div class="result-id" id="resultId"></div>
+        <div class="result-name" id="resultName"></div>
+        <div class="result-job" id="resultJob"></div>
+        <div class="result-country-badge" id="resultCountry"></div>
+      </div>
+
+      <!-- Pipeline -->
+      <div class="pipeline">
+        <div class="pipeline-title">📊 Application Pipeline</div>
+        <div class="pipeline-stages" id="pipelineStages"></div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="timeline">
+        <div class="timeline-title">📅 Status Timeline</div>
+        <div class="timeline-list" id="timelineList"></div>
+      </div>
+
+      <!-- Next Steps -->
+      <div class="next-steps">
+        <div class="next-steps-title">💡 What's Next?</div>
+        <p id="nextStepsText"></p>
+        <a href="https://wa.me/918942069079" target="_blank" rel="noopener" class="whatsapp-link">💬 Contact Support on WhatsApp</a>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    // ── Pipeline Stage Labels ──
+    const STAGES = [
+      { key: 'applied', label: 'Applied', icon: '📝' },
+      { key: 'screening', label: 'Screening', icon: '🔍' },
+      { key: 'shortlisted', label: 'Shortlisted', icon: '⭐' },
+      { key: 'interview', label: 'Interview', icon: '🎯' },
+      { key: 'selected', label: 'Selected', icon: '✅' },
+      { key: 'documentation', label: 'Docs', icon: '📋' },
+      { key: 'visa_processing', label: 'Visa', icon: '🛂' },
+      { key: 'medical_clearance', label: 'Medical', icon: '🏥' },
+      { key: 'ticket_booked', label: 'Ticket', icon: '✈️' },
+      { key: 'deployed', label: 'Deployed', icon: '🎉' }
+    ];
+
+    const trackBtn = document.getElementById('trackBtn');
+    const trackerError = document.getElementById('trackerError');
+    const trackerResult = document.getElementById('trackerResult');
+
+    trackBtn.addEventListener('click', async () => {
+      const id = document.getElementById('trackingId').value.trim().toUpperCase();
+      const phone = document.getElementById('trackingPhone').value.trim().replace(/\s/g, '');
+
+      // Validation
+      if (!id || !phone) {
+        showError('Please enter both your tracking ID and phone number.');
+        return;
+      }
+
+      trackBtn.disabled = true;
+      trackBtn.textContent = '⏳ Tracking...';
+      trackerError.classList.remove('show');
+
+      try {
+        const res = await fetch(`/api/applications?action=track&id=${encodeURIComponent(id)}&phone=${encodeURIComponent(phone)}`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          showError(data.error || 'Application not found.');
+          trackerResult.classList.remove('show');
+          return;
+        }
+
+        renderResult(data);
+      } catch (err) {
+        showError('Connection error. Please try again later.');
+        trackerResult.classList.remove('show');
+      } finally {
+        trackBtn.disabled = false;
+        trackBtn.textContent = '🔍 Track Application';
+      }
+    });
+
+    // ── For demo/testing: also support Enter key ──
+    document.querySelectorAll('#trackingId, #trackingPhone').forEach(input => {
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') trackBtn.click();
+      });
+    });
+
+    function showError(msg) {
+      trackerError.textContent = msg;
+      trackerError.classList.add('show');
+    }
+
+    function renderResult(data) {
+      // Header
+      document.getElementById('resultId').textContent = data.tracking_id;
+      document.getElementById('resultName').textContent = data.full_name;
+      document.getElementById('resultJob').textContent = data.job_title;
+
+      const countryBadge = document.getElementById('resultCountry');
+      countryBadge.textContent = data.country === 'Israel' ? '🇮🇱 Israel' : '🇻🇳 Vietnam';
+
+      // Pipeline
+      const pipelineEl = document.getElementById('pipelineStages');
+      pipelineEl.innerHTML = '';
+
+      const currentIndex = data.current_stage - 1;
+      const isRejected = data.status === 'rejected';
+
+      STAGES.forEach((stage, i) => {
+        const div = document.createElement('div');
+        div.className = 'pipeline-stage';
+        if (isRejected) {
+          div.classList.add(i <= currentIndex ? 'completed' : '');
+          if (i === currentIndex) div.classList.add('rejected');
+        } else {
+          if (i < currentIndex) div.classList.add('completed');
+          if (i === currentIndex) div.classList.add('current');
+        }
+
+        div.innerHTML = `
+          <div class="stage-dot">${i < currentIndex ? '✓' : (i === currentIndex ? stage.icon : i + 1)}</div>
+          <div class="stage-label">${stage.label}</div>
+        `;
+        pipelineEl.appendChild(div);
+      });
+
+      // Timeline
+      const timelineEl = document.getElementById('timelineList');
+      timelineEl.innerHTML = '';
+
+      // Reverse timeline (newest first)
+      const timeline = [...data.timeline].reverse();
+      timeline.forEach(entry => {
+        const item = document.createElement('div');
+        item.className = 'timeline-item';
+        const date = new Date(entry.date);
+        const formatted = date.toLocaleDateString('en-IN', {
+          day: 'numeric', month: 'short', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        });
+        item.innerHTML = `
+          <div class="timeline-status">${entry.status.replace(/_/g, ' ')}</div>
+          <div class="timeline-date">${formatted}</div>
+        `;
+        timelineEl.appendChild(item);
+      });
+
+      // Next Steps
+      document.getElementById('nextStepsText').textContent = data.next_steps;
+
+      // Show result
+      trackerResult.classList.add('show');
+
+      // Animate result in
+      if (typeof gsap !== 'undefined') {
+        gsap.from('.result-header', { y: 40, opacity: 0, duration: 0.5, ease: 'power3.out' });
+        gsap.from('.pipeline', { y: 40, opacity: 0, duration: 0.5, delay: 0.1, ease: 'power3.out' });
+        gsap.from('.pipeline-stage', { scale: 0, opacity: 0, stagger: 0.06, duration: 0.3, delay: 0.3, ease: 'back.out(2)' });
+        gsap.from('.timeline', { y: 40, opacity: 0, duration: 0.5, delay: 0.4, ease: 'power3.out' });
+        gsap.from('.timeline-item', { x: -30, opacity: 0, stagger: 0.08, duration: 0.3, delay: 0.5, ease: 'power2.out' });
+        gsap.from('.next-steps', { y: 40, opacity: 0, duration: 0.5, delay: 0.6, ease: 'power3.out' });
+      }
+
+      // Smooth scroll to result
+      trackerResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ── Hamburger for mobile ──
+    const hamburger = document.getElementById('hamburger');
+    if (hamburger) {
+      hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('open');
+      });
+    }
+
+    // ── Page entrance animation ──
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof gsap !== 'undefined') {
+        gsap.from('#mainNav', { y: -100, opacity: 0, duration: 0.6, ease: 'power3.out' });
+        gsap.from('.tracker-header', { y: 40, opacity: 0, duration: 0.6, delay: 0.2, ease: 'power2.out' });
+        gsap.from('.tracker-header h1', { scale: 0.9, opacity: 0, duration: 0.5, delay: 0.3, ease: 'back.out(1.5)' });
+        gsap.from('.tracker-form', { y: 50, opacity: 0, duration: 0.6, delay: 0.4, ease: 'power3.out' });
+        gsap.from('.tracker-form .form-group', { x: -30, opacity: 0, stagger: 0.1, duration: 0.4, delay: 0.5, ease: 'power2.out' });
+        gsap.from('.tracker-submit', { scale: 0.8, opacity: 0, duration: 0.4, delay: 0.7, ease: 'back.out(2)' });
+      }
+    });
+  </script>
+
+</body>
+</html>
