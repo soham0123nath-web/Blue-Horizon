@@ -45,10 +45,10 @@ module.exports = async function handler(req, res) {
         const { message, history } = body;
         if (!message) return res.status(400).json({ error: 'Message required.' });
 
-        // Check for OpenAI key
-        if (!process.env.OPENAI_API_KEY) {
+        // Check for Groq key
+        if (!process.env.GROQ_API_KEY) {
             return res.status(200).json({
-                reply: "AI assistant is not configured. Please add your OPENAI_API_KEY environment variable to enable AI features.\n\nIn the meantime, you can manage applications, jobs, and testimonials using the dashboard tabs above."
+                reply: "AI assistant is not configured. Please add your GROQ_API_KEY environment variable to enable AI features.\n\nIn the meantime, you can manage applications, jobs, and testimonials using the dashboard tabs above."
             });
         }
 
@@ -82,7 +82,10 @@ Current data snapshot:
 `;
 
         const OpenAI = require('openai');
-        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+        const openai = new OpenAI({ 
+            apiKey: process.env.GROQ_API_KEY,
+            baseURL: "https://api.groq.com/openai/v1"
+        });
 
         const messages = [
             { role: 'system', content: SYSTEM_PROMPT + '\n\n' + dataContext },
@@ -91,7 +94,7 @@ Current data snapshot:
         ];
 
         const completion = await openai.chat.completions.create({
-            model: 'gpt-4o-mini',
+            model: 'llama3-70b-8192',
             messages,
             max_tokens: 500,
             temperature: 0.7

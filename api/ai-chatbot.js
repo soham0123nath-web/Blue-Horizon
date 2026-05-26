@@ -52,8 +52,8 @@ module.exports = async function handler(req, res) {
 
         const sid = session_id || 'anonymous_' + Date.now();
 
-        // Check for OpenAI key — use fallback responses if not available
-        if (!process.env.OPENAI_API_KEY) {
+        // Check for Groq key — use fallback responses if not available
+        if (!process.env.GROQ_API_KEY) {
             const reply = getFallbackResponse(message);
             return res.status(200).json({ reply, session_id: sid });
         }
@@ -75,10 +75,13 @@ module.exports = async function handler(req, res) {
         ];
 
         const OpenAI = require('openai');
-        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+        const openai = new OpenAI({ 
+            apiKey: process.env.GROQ_API_KEY,
+            baseURL: "https://api.groq.com/openai/v1"
+        });
 
         const completion = await openai.chat.completions.create({
-            model: 'gpt-4o-mini',
+            model: 'llama3-8b-8192',
             messages,
             max_tokens: 200,
             temperature: 0.7

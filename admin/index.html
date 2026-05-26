@@ -819,6 +819,11 @@
         const data = await res.json();
         SUPABASE_URL = data.SUPABASE_URL;
         SUPABASE_ANON_KEY = data.SUPABASE_ANON_KEY;
+        
+        if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+            const { createClient } = supabase;
+            supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
       } catch (err) {
         console.error('Failed to load config:', err);
       }
@@ -837,7 +842,7 @@
         return;
       }
 
-      if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+      if (!supabaseClient) {
         // Demo mode — skip auth
         errorEl.textContent = 'Demo Mode (No Vercel Config Found)';
         showDashboard(email);
@@ -845,9 +850,6 @@
       }
 
       try {
-        const { createClient } = supabase;
-        supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
         if (error) {
