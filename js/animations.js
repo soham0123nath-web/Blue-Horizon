@@ -132,7 +132,10 @@ function initScrollAnimations() {
       stagger: opts.stagger || 0,
       duration: opts.duration || 0.6,
       delay: opts.delay || 0,
-      ease: "power2.out"
+      ease: "power2.out",
+      onComplete: function() {
+        gsap.set(selector, { clearProps: "all" });
+      }
     });
   }
 

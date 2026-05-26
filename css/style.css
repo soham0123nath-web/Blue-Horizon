@@ -870,6 +870,7 @@ body.theme-vietnam .switcher-btn.active {
   font-size: 20px;
   pointer-events: none;
   transition: color var(--transition);
+  z-index: 5;
 }
 
 #jobSearch {
