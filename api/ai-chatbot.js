@@ -8,33 +8,26 @@
 const { getSupabase } = require('../lib/supabase');
 const { setCors }     = require('../lib/cors');
 
-const CHATBOT_PROMPT = `You are the Blue Horizon Overseas AI Assistant — a friendly, helpful chatbot on the recruitment website. You help candidates with:
-
-1. Job information (Israel and Vietnam placements)
-2. Visa and documentation process
-3. Eligibility requirements
-4. Salary and benefits details
-5. Application tracking (if they provide a tracking ID)
+const CHATBOT_PROMPT = `You are Aisha, the lead recruitment specialist for Blue Horizon Overseas — a friendly, highly empathetic human recruiter.
+You are chatting with a candidate on our recruitment website. Your goal is to be incredibly warm, encouraging, and helpful.
 
 Key facts about Blue Horizon Overseas:
-- Licensed Government recruitment consultancy based in West Bengal, India
-- Places Indian workers in Israel (industrial/construction) and Vietnam (hospitality/food/corporate)
-- Israel: $1000-$1900 USD/month, free accommodation & food, overtime available
-- Vietnam: ₹30,000-₹65,000/month, free accommodation & food
-- Accepts ECR and ECNR passports
-- Freshers welcome for most positions
-- Process: Apply → CV Screening → Employer Selection → Visa & Docs → Deployment
-- WhatsApp is the main application channel: +91 89420 69079
-- Office: Divya Kunj, Opp Northern Flour Mill, Sevoke Road, Salugara, Jalpaiguri-734008
-- Email: global@bluehorizonoverseas.in
+- Licensed Government recruitment consultancy based in West Bengal, India.
+- Places Indian workers in Israel (industrial/construction) and Vietnam (hospitality/food/corporate).
+- Accepts ECR and ECNR passports. Freshers welcome.
+- Process: Apply → CV Screening → Employer Selection → Visa & Docs → Deployment.
+- WhatsApp is the main application channel: +91 89420 69079.
+
+Current Live Jobs (Offer these if they ask what's available):
+{DYNAMIC_JOBS}
 
 Rules:
-- Be warm, encouraging, and professional
-- Keep responses under 150 words
-- Use simple English (many candidates are not fluent English speakers)
-- If you can't answer, say "For more details, please contact us on WhatsApp: +91 89420 69079"
-- Never make up job listings or salary figures
-- Don't discuss competitor agencies`;
+- Speak like a caring human recruiter (use "I", "we", "my team").
+- Use emojis naturally but don't overdo it.
+- Keep responses short, scannable, and under 150 words.
+- If you can't answer, warmly suggest they contact the team on WhatsApp: +91 89420 69079.
+- NEVER invent jobs or salaries. Only use the ones listed above.
+- If they want to apply, enthusiastically tell them to click "Apply" on the job card, or contact us on WhatsApp.`;
 
 module.exports = async function handler(req, res) {
     if (setCors(req, res)) return res.status(200).end();
@@ -60,6 +53,19 @@ module.exports = async function handler(req, res) {
 
         const supabase = getSupabase();
 
+        // Fetch live jobs dynamically and token-optimize them
+        const { data: activeJobs } = await supabase
+            .from('job_listings')
+            .select('title, country, salary_display')
+            .eq('is_active', true);
+
+        let jobsString = "No open positions right now.";
+        if (activeJobs && activeJobs.length > 0) {
+            jobsString = activeJobs.map(j => `- ${j.title} in ${j.country} (Pays: ${j.salary_display})`).join('\n');
+        }
+
+        const finalPrompt = CHATBOT_PROMPT.replace('{DYNAMIC_JOBS}', jobsString);
+
         // Get recent chat history for context
         const { data: history } = await supabase
             .from('chat_logs')
@@ -69,7 +75,7 @@ module.exports = async function handler(req, res) {
             .limit(6);
 
         const messages = [
-            { role: 'system', content: CHATBOT_PROMPT },
+            { role: 'system', content: finalPrompt },
             ...((history || []).reverse().map(h => ({ role: h.role, content: h.message }))),
             { role: 'user', content: message }
         ];
@@ -81,7 +87,7 @@ module.exports = async function handler(req, res) {
         });
 
         const completion = await openai.chat.completions.create({
-            model: 'llama3-8b-8192',
+            model: 'llama-3.1-8b-instant',
             messages,
             max_tokens: 200,
             temperature: 0.7

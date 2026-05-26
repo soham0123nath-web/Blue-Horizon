@@ -671,12 +671,12 @@
     // ── Page entrance animation ──
     document.addEventListener('DOMContentLoaded', () => {
       if (typeof gsap !== 'undefined') {
-        gsap.from('#mainNav', { y: -100, opacity: 0, duration: 0.6, ease: 'power3.out' });
-        gsap.from('.tracker-header', { y: 40, opacity: 0, duration: 0.6, delay: 0.2, ease: 'power2.out' });
-        gsap.from('.tracker-header h1', { scale: 0.9, opacity: 0, duration: 0.5, delay: 0.3, ease: 'back.out(1.5)' });
-        gsap.from('.tracker-form', { y: 50, opacity: 0, duration: 0.6, delay: 0.4, ease: 'power3.out' });
-        gsap.from('.tracker-form .form-group', { x: -30, opacity: 0, stagger: 0.1, duration: 0.4, delay: 0.5, ease: 'power2.out' });
-        gsap.from('.tracker-submit', { scale: 0.8, opacity: 0, duration: 0.4, delay: 0.7, ease: 'back.out(2)' });
+        gsap.from('#mainNav', { y: -100, opacity: 0, duration: 0.6, ease: 'power3.out', clearProps: 'all' });
+        gsap.from('.tracker-header', { y: 40, opacity: 0, duration: 0.6, delay: 0.2, ease: 'power2.out', clearProps: 'all' });
+        gsap.from('.tracker-header h1', { scale: 0.9, opacity: 0, duration: 0.5, delay: 0.3, ease: 'back.out(1.5)', clearProps: 'all' });
+        gsap.from('.tracker-form', { y: 50, opacity: 0, duration: 0.6, delay: 0.4, ease: 'power3.out', clearProps: 'all' });
+        gsap.from('.tracker-form .form-group', { x: -30, opacity: 0, stagger: 0.1, duration: 0.4, delay: 0.5, ease: 'power2.out', clearProps: 'all' });
+        gsap.from('.tracker-submit', { scale: 0.8, opacity: 0, duration: 0.4, delay: 0.7, ease: 'back.out(2)', clearProps: 'all' });
       }
     });
   </script>

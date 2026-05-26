@@ -775,14 +775,14 @@
 
     <!-- ADMINS TAB -->
     <div class="tab-panel" id="tab-admins">
-      <div class="page-header">
-        <h2>👥 Admin Users</h2>
-        <p>Manage who can access this admin dashboard. Super admin only.</p>
+      <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h2>👥 Admin Users</h2>
+          <p>Manage who can access this admin dashboard. Super admin only.</p>
+        </div>
+        <button class="action-btn" onclick="document.getElementById('addAdminModal').classList.remove('hidden')">➕ Add Admin</button>
       </div>
-      <div class="empty-state">
-        <div class="icon">👥</div>
-        <p>Manage who can access this admin dashboard.</p>
-      </div>
+      <div id="adminsTable"></div>
     </div>
 
     <!-- AI ASSISTANT TAB -->
@@ -806,6 +806,26 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- ADD ADMIN MODAL -->
+  <div class="login-screen hidden" id="addAdminModal" style="background: rgba(7, 20, 38, 0.9);">
+    <div class="login-box">
+      <h1 style="font-size:24px;">Add New Admin</h1>
+      <p style="margin-bottom: 20px;">Grant dashboard access to a team member.</p>
+      <input type="email" id="newAdminEmail" placeholder="Email Address">
+      <input type="text" id="newAdminName" placeholder="Full Name (Optional)">
+      <select id="newAdminRole" style="width: 100%; padding: 14px 18px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.04); color: var(--text); margin-bottom: 20px; outline: none; font-size:15px; font-family:'Poppins',sans-serif;">
+        <option value="admin">Admin (Standard)</option>
+        <option value="viewer">Viewer (Read-only)</option>
+        <option value="superadmin">Superadmin (Full Access)</option>
+      </select>
+      <div id="addAdminError" class="login-error"></div>
+      <div style="display: flex; gap: 10px;">
+        <button class="login-btn" style="background: rgba(255,255,255,0.1); color: white;" onclick="document.getElementById('addAdminModal').classList.add('hidden')">Cancel</button>
+        <button class="login-btn" id="submitAddAdminBtn">Save Admin</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -912,6 +932,7 @@
 
         if (tab === 'applications') loadApplications();
         if (tab === 'dashboard') loadDashboardStats();
+        if (tab === 'admins') loadAdmins();
       });
     });
 
@@ -993,7 +1014,21 @@
             <td>${app.country}</td>
             <td><span class="status-badge ${app.status}">${app.status.replace(/_/g, ' ')}</span></td>
             <td style="font-size:12px;color:var(--text-dim);">${new Date(app.created_at).toLocaleDateString('en-IN')}</td>
-            <td><button class="action-btn secondary" onclick="alert('Status update: Connect Supabase for full CRUD')">Update</button></td>
+            <td>
+              <select class="filter-select" style="padding:4px 8px; font-size:12px; height:auto;" onchange="window.updateApplicationStatus('${app.id}', this.value, '${app.tracking_id}')">
+                <option value="applied" ${app.status==='applied'?'selected':''}>Applied</option>
+                <option value="screening" ${app.status==='screening'?'selected':''}>Screening</option>
+                <option value="shortlisted" ${app.status==='shortlisted'?'selected':''}>Shortlisted</option>
+                <option value="interview" ${app.status==='interview'?'selected':''}>Interview</option>
+                <option value="selected" ${app.status==='selected'?'selected':''}>Selected</option>
+                <option value="documentation" ${app.status==='documentation'?'selected':''}>Documentation</option>
+                <option value="visa_processing" ${app.status==='visa_processing'?'selected':''}>Visa</option>
+                <option value="medical_clearance" ${app.status==='medical_clearance'?'selected':''}>Medical</option>
+                <option value="ticket_booked" ${app.status==='ticket_booked'?'selected':''}>Ticket</option>
+                <option value="deployed" ${app.status==='deployed'?'selected':''}>Deployed</option>
+                <option value="rejected" ${app.status==='rejected'?'selected':''}>Rejected</option>
+              </select>
+            </td>
           </tr>`).join('')}</tbody>
         </table>
         <div style="margin-top:16px;font-size:13px;color:var(--text-dim);">Showing ${data.applications.length} of ${data.total} applications (Page ${data.page}/${data.pages})</div>`;
@@ -1001,6 +1036,113 @@
         tableEl.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>Failed to load applications.</p></div>';
       }
     }
+
+    window.updateApplicationStatus = async function(id, newStatus, trackingId) {
+      if (!confirm(`Are you sure you want to change the status of ${trackingId} to "${newStatus.replace(/_/g, ' ')}"?`)) {
+        loadApplications(); // Reset the dropdown visually
+        return;
+      }
+      try {
+        const res = await apiFetch('/api/applications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'updateStatus', id, status: newStatus })
+        });
+        
+        if (!res) throw new Error("API request failed. You might need to sign in again.");
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        
+        loadApplications();
+        loadDashboardStats(); // Refresh the stats counts
+      } catch(err) {
+        alert("Error updating status: " + err.message);
+        loadApplications();
+      }
+    };
+
+    // ── Load Admins ──
+    async function loadAdmins() {
+      const tableEl = document.getElementById('adminsTable');
+      try {
+        const res = await apiFetch('/api/admin-data?action=admins');
+        if (!res) {
+          tableEl.innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>Connect Supabase to view admins.</p></div>';
+          return;
+        }
+        
+        if (res.status === 403) {
+          tableEl.innerHTML = '<div class="empty-state"><div class="icon">🔒</div><p>Only Super Admins can view or manage users.</p></div>';
+          return;
+        }
+
+        const data = await res.json();
+        if (!data.admins || data.admins.length === 0) {
+          tableEl.innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>No admins found.</p></div>';
+          return;
+        }
+
+        tableEl.innerHTML = `<table class="data-table">
+          <thead><tr>
+            <th>Name</th><th>Email</th><th>Role</th><th>Actions</th>
+          </tr></thead>
+          <tbody>${data.admins.map(admin => `<tr>
+            <td style="font-weight:700;">${admin.full_name || '—'}</td>
+            <td>${admin.email}</td>
+            <td><span class="status-badge ${admin.role}">${admin.role.toUpperCase()}</span></td>
+            <td>
+              <button class="action-btn secondary" style="background: rgba(255,75,75,0.1); color: #ff6b6b; border-color: rgba(255,75,75,0.3);" onclick="window.removeAdmin('${admin.id}')">Remove</button>
+            </td>
+          </tr>`).join('')}</tbody>
+        </table>`;
+      } catch (err) {
+        tableEl.innerHTML = '<div class="empty-state"><div class="icon">❌</div><p>Failed to load admins.</p></div>';
+      }
+    }
+
+    window.removeAdmin = async function(id) {
+      if(!confirm("Are you sure you want to revoke access for this admin?")) return;
+      try {
+        const res = await apiFetch('/api/admin-data', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'removeAdmin', id })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        loadAdmins();
+      } catch(err) {
+        alert("Failed to remove: " + err.message);
+      }
+    }
+
+    document.getElementById('submitAddAdminBtn').addEventListener('click', async () => {
+      const email = document.getElementById('newAdminEmail').value.trim();
+      const full_name = document.getElementById('newAdminName').value.trim();
+      const role = document.getElementById('newAdminRole').value;
+      const errorEl = document.getElementById('addAdminError');
+      
+      if(!email) { errorEl.textContent = 'Email is required'; errorEl.style.display = 'block'; return; }
+      
+      try {
+        const res = await apiFetch('/api/admin-data', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'addAdmin', email, full_name, role })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        
+        document.getElementById('addAdminModal').classList.add('hidden');
+        document.getElementById('newAdminEmail').value = '';
+        document.getElementById('newAdminName').value = '';
+        errorEl.style.display = 'none';
+        loadAdmins();
+      } catch(err) {
+        errorEl.textContent = err.message;
+        errorEl.style.display = 'block';
+      }
+    });
 
     // Debounced search
     let searchTimeout;

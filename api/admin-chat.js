@@ -9,24 +9,19 @@ const { getSupabase } = require('../lib/supabase');
 const { setCors }     = require('../lib/cors');
 const { requireAdmin } = require('../lib/auth');
 
-const SYSTEM_PROMPT = `You are the AI Recruitment Assistant for Blue Horizon Overseas, a licensed Indian manpower consultancy placing workers in Israel and Vietnam.
+const SYSTEM_PROMPT = `You are the Executive HR Assistant for Blue Horizon Overseas. You are highly intelligent, analytical, and professional, but you speak like a warm, proactive human assistant to the administrator.
 
 Your capabilities:
-- Answer questions about recruitment data, applications, and pipeline status
-- Help draft WhatsApp messages for candidates
-- Provide insights on recruitment metrics
-- Suggest improvements to the hiring process
+- Answer questions about recruitment data, applications, and pipeline status.
+- Help draft WhatsApp messages for candidates.
+- Provide insights on recruitment metrics.
+- Suggest improvements to the hiring process.
 
-Context about Blue Horizon Overseas:
-- Licensed Government recruitment consultancy
-- Places workers in Israel (industrial/construction roles) and Vietnam (hospitality/corporate roles)
-- Israel roles pay $1000-$1900 USD/month with free accommodation and food
-- Vietnam roles pay ₹30,000-₹65,000/month with free accommodation and food
-- Application pipeline: Applied → Screening → Shortlisted → Interview → Selected → Documentation → Visa Processing → Medical Clearance → Ticket Booked → Deployed
-- WhatsApp is the primary communication channel
-- Accepts both ECR and ECNR passport holders
-
-Be concise, professional, and helpful. Use emojis sparingly. Format responses with bullet points when listing data.`;
+Rules:
+- Speak like a highly capable human assistant (use "I", "we", "the team").
+- Be concise, professional, and offer genuine insights rather than just repeating data.
+- Use emojis tastefully (📊 for stats, etc.).
+- Format responses cleanly with bullet points if necessary.`;
 
 module.exports = async function handler(req, res) {
     if (setCors(req, res)) return res.status(200).end();
@@ -54,16 +49,23 @@ module.exports = async function handler(req, res) {
 
         const supabase = getSupabase();
 
-        // Fetch recent data context for AI
+        // Fetch recent apps
         const { data: recentApps } = await supabase
             .from('applications')
             .select('tracking_id, full_name, job_title, country, status, created_at')
             .order('created_at', { ascending: false })
             .limit(10);
 
+        // Fetch overall stats
         const { data: stats } = await supabase
             .from('applications')
             .select('status, country');
+
+        // Fetch active jobs
+        const { data: activeJobs } = await supabase
+            .from('job_listings')
+            .select('title, country')
+            .eq('is_active', true);
 
         const total = stats?.length || 0;
         const byStatus = {};
@@ -73,12 +75,14 @@ module.exports = async function handler(req, res) {
             byCountry[a.country] = (byCountry[a.country] || 0) + 1;
         });
 
+        // Token optimized data injection
         const dataContext = `
-Current data snapshot:
-- Total applications: ${total}
-- By status: ${JSON.stringify(byStatus)}
-- By country: ${JSON.stringify(byCountry)}
-- Recent 10 applications: ${JSON.stringify(recentApps?.map(a => `${a.full_name} - ${a.job_title} (${a.country}) - ${a.status}`) || [])}
+[LIVE DATA SNAPSHOT]
+Total Applications: ${total}
+By Status: ${JSON.stringify(byStatus)}
+By Country: ${JSON.stringify(byCountry)}
+Active Jobs: ${JSON.stringify(activeJobs?.map(j => `${j.title}(${j.country})`) || [])}
+Recent 10 Apps: ${JSON.stringify(recentApps?.map(a => `${a.full_name} - ${a.job_title} - ${a.status}`) || [])}
 `;
 
         const OpenAI = require('openai');
@@ -94,7 +98,7 @@ Current data snapshot:
         ];
 
         const completion = await openai.chat.completions.create({
-            model: 'llama3-70b-8192',
+            model: 'llama-3.1-70b-versatile',
             messages,
             max_tokens: 500,
             temperature: 0.7
