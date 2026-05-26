@@ -729,7 +729,10 @@
           <option value="Israel">Israel</option>
           <option value="Vietnam">Vietnam</option>
         </select>
-        <input type="search" class="filter-search" id="filterSearch" placeholder="🔍 Search by name, ID, or phone...">
+        <div style="position: relative; flex: 1; min-width: 200px;">
+          <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--text-dim); pointer-events: none;">🔍</span>
+          <input type="search" class="filter-search" id="filterSearch" placeholder="Search by name, ID, or phone..." style="width: 100%; padding-left: 36px;">
+        </div>
       </div>
       <div id="applicationsTable"></div>
     </div>
@@ -742,7 +745,7 @@
       </div>
       <div class="empty-state">
         <div class="icon">💼</div>
-        <p>Connect Supabase to manage job listings dynamically.<br>Jobs are currently hardcoded in the HTML.</p>
+        <p>No jobs found.<br>Use the Job Management API to add jobs dynamically.</p>
       </div>
     </div>
 
@@ -754,7 +757,7 @@
       </div>
       <div class="empty-state">
         <div class="icon">🎬</div>
-        <p>Connect Supabase and add video testimonials.<br>They will appear on the public site automatically.</p>
+        <p>No testimonials found.<br>Add testimonials to the database to see them here.</p>
       </div>
     </div>
 
@@ -766,7 +769,7 @@
       </div>
       <div class="empty-state">
         <div class="icon">💰</div>
-        <p>Connect Supabase to manage salary configurations.<br>Data feeds directly into the Salary Calculator page.</p>
+        <p>No salary configurations found.<br>Data feeds directly into the Salary Calculator page.</p>
       </div>
     </div>
 
@@ -778,7 +781,7 @@
       </div>
       <div class="empty-state">
         <div class="icon">👥</div>
-        <p>Connect Supabase to manage admin users.</p>
+        <p>Manage who can access this admin dashboard.</p>
       </div>
     </div>
 
@@ -994,8 +997,8 @@
           </tr>`).join('')}</tbody>
         </table>
         <div style="margin-top:16px;font-size:13px;color:var(--text-dim);">Showing ${data.applications.length} of ${data.total} applications (Page ${data.page}/${data.pages})</div>`;
-      } catch {
-        tableEl.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>Connect Supabase to view applications.</p></div>';
+      } catch (err) {
+        tableEl.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>Failed to load applications.</p></div>';
       }
     }
 
