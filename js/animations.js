@@ -149,7 +149,8 @@ function initScrollAnimations() {
     return;
   }
 
-  gsap.registerPlugin(ScrollTrigger);
+  // ScrollTrigger required for this function
+  if (typeof ScrollTrigger === "undefined") return;
 
   // ── Stats Bar: Animated Counters ──
   const statNumbers = document.querySelectorAll(".stat-number");
@@ -996,6 +997,21 @@ function initSmoothScroll() {
 // MASTER INITIALIZATION
 // ══════════════════════════════════════════════════════════════
 document.addEventListener("DOMContentLoaded", () => {
+  // ── CRITICAL: Check if GSAP loaded ──
+  if (typeof gsap === "undefined") {
+    console.warn("GSAP not loaded — skipping animations, showing all content.");
+    // Remove splash screen
+    const splash = document.getElementById("splash-screen");
+    if (splash) splash.remove();
+    document.body.classList.add("splash-done");
+    return;
+  }
+
+  // Register ScrollTrigger if available
+  if (typeof ScrollTrigger !== "undefined") {
+    gsap.registerPlugin(ScrollTrigger);
+  }
+
   initSplashScreen();
   initParticleSystem();
   initCustomCursor();

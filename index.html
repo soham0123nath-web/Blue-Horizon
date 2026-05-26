@@ -990,5 +990,27 @@
     });
   </script>
 
+  <!-- SAFETY FALLBACK: Kill splash + show content if GSAP fails -->
+  <script>
+    setTimeout(function() {
+      var splash = document.getElementById("splash-screen");
+      if (splash && splash.parentNode) {
+        splash.style.display = "none";
+        splash.remove();
+      }
+      document.body.classList.add("splash-done");
+
+      // Force all content visible if GSAP didn't run
+      if (typeof gsap === "undefined") {
+        var all = document.querySelectorAll("nav, section, .hero-content, .stat-item, .why-card, .process-step, .job-card, .testimonial-card, .faq-item, .contact-card, .badge, .division-line, .country-switcher, .salary-highlight, .social-box, footer, .hero-eyebrow, .hero-tagline, .hero-buttons, .hero-3d-title, .section-title, .tracker-cta-box");
+        for (var i = 0; i < all.length; i++) {
+          all[i].style.opacity = "1";
+          all[i].style.transform = "none";
+          all[i].style.visibility = "visible";
+        }
+      }
+    }, 3000);
+  </script>
+
 </body>
 </html>
