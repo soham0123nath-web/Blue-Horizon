@@ -124,15 +124,15 @@ function initScrollAnimations() {
     gsap.from(selector, {
       scrollTrigger: {
         trigger: trigger || selector,
-        start: "top 88%",
+        start: "top 85%",
         once: true
       },
-      y: opts.y || 30,
+      y: opts.y || 40,
       opacity: 0,
       stagger: opts.stagger || 0,
-      duration: opts.duration || 0.6,
+      duration: opts.duration || 0.85,
       delay: opts.delay || 0,
-      ease: "power2.out",
+      ease: opts.ease || "power3.out",
       onComplete: function() {
         gsap.set(selector, { clearProps: "all" });
       }

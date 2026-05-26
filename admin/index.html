@@ -1003,33 +1003,43 @@
           return;
         }
 
+        const STATUS_ORDER = [
+            'applied', 'screening', 'shortlisted', 'interview',
+            'selected', 'documentation', 'visa_processing',
+            'medical_clearance', 'ticket_booked', 'deployed'
+        ];
+
         tableEl.innerHTML = `<table class="data-table">
           <thead><tr>
             <th>Tracking ID</th><th>Name</th><th>Job</th><th>Country</th><th>Status</th><th>Applied</th><th>Actions</th>
           </tr></thead>
-          <tbody>${data.applications.map(app => `<tr>
-            <td style="font-weight:700;color:var(--gold);font-size:13px;">${app.tracking_id}</td>
-            <td>${app.full_name}</td>
-            <td style="font-size:13px;">${app.job_title}</td>
-            <td>${app.country}</td>
-            <td><span class="status-badge ${app.status}">${app.status.replace(/_/g, ' ')}</span></td>
-            <td style="font-size:12px;color:var(--text-dim);">${new Date(app.created_at).toLocaleDateString('en-IN')}</td>
-            <td>
-              <select class="filter-select" style="padding:4px 8px; font-size:12px; height:auto;" onchange="window.updateApplicationStatus('${app.id}', this.value, '${app.tracking_id}')">
-                <option value="applied" ${app.status==='applied'?'selected':''}>Applied</option>
-                <option value="screening" ${app.status==='screening'?'selected':''}>Screening</option>
-                <option value="shortlisted" ${app.status==='shortlisted'?'selected':''}>Shortlisted</option>
-                <option value="interview" ${app.status==='interview'?'selected':''}>Interview</option>
-                <option value="selected" ${app.status==='selected'?'selected':''}>Selected</option>
-                <option value="documentation" ${app.status==='documentation'?'selected':''}>Documentation</option>
-                <option value="visa_processing" ${app.status==='visa_processing'?'selected':''}>Visa</option>
-                <option value="medical_clearance" ${app.status==='medical_clearance'?'selected':''}>Medical</option>
-                <option value="ticket_booked" ${app.status==='ticket_booked'?'selected':''}>Ticket</option>
-                <option value="deployed" ${app.status==='deployed'?'selected':''}>Deployed</option>
-                <option value="rejected" ${app.status==='rejected'?'selected':''}>Rejected</option>
-              </select>
-            </td>
-          </tr>`).join('')}</tbody>
+          <tbody>${data.applications.map(app => {
+            const currentIndex = STATUS_ORDER.indexOf(app.status);
+            const nextStatus = currentIndex >= 0 && currentIndex < STATUS_ORDER.length - 1 ? STATUS_ORDER[currentIndex + 1] : null;
+            
+            let actionHtml = '';
+            if (app.status === 'rejected') {
+               actionHtml = `<span style="font-size:12px;color:var(--text-dim);">Rejected</span>`;
+            } else if (app.status === 'deployed') {
+               actionHtml = `<span style="font-size:12px;color:var(--gold);">Completed</span>`;
+            } else if (nextStatus) {
+               actionHtml = `
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                  <button class="action-btn" style="padding:6px 10px; font-size:11px;" onclick="window.updateApplicationStatus('${app.id}', '${nextStatus}', '${app.tracking_id}')">Move to ${nextStatus.replace(/_/g, ' ')}</button>
+                  <button class="action-btn secondary" style="padding:4px 10px; font-size:10px; color:#ff6b6b; border-color:rgba(255,107,107,0.3); background:rgba(255,107,107,0.05);" onclick="window.updateApplicationStatus('${app.id}', 'rejected', '${app.tracking_id}')">Reject</button>
+                </div>`;
+            }
+
+            return `<tr>
+              <td style="font-weight:700;color:var(--gold);font-size:13px;">${app.tracking_id}</td>
+              <td>${app.full_name}</td>
+              <td style="font-size:13px;">${app.job_title}</td>
+              <td>${app.country}</td>
+              <td><span class="status-badge ${app.status}">${app.status.replace(/_/g, ' ')}</span></td>
+              <td style="font-size:12px;color:var(--text-dim);">${new Date(app.created_at).toLocaleDateString('en-IN')}</td>
+              <td>${actionHtml}</td>
+            </tr>`;
+          }).join('')}</tbody>
         </table>
         <div style="margin-top:16px;font-size:13px;color:var(--text-dim);">Showing ${data.applications.length} of ${data.total} applications (Page ${data.page}/${data.pages})</div>`;
       } catch (err) {
@@ -1038,8 +1048,7 @@
     }
 
     window.updateApplicationStatus = async function(id, newStatus, trackingId) {
-      if (!confirm(`Are you sure you want to change the status of ${trackingId} to "${newStatus.replace(/_/g, ' ')}"?`)) {
-        loadApplications(); // Reset the dropdown visually
+      if (!confirm(`Are you sure you want to move ${trackingId} to "${newStatus.replace(/_/g, ' ')}"?`)) {
         return;
       }
       try {
