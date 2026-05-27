@@ -579,12 +579,14 @@
           b.classList.remove('active', 'bg-primary/10', 'border-primary/20', 'text-white', 'shadow-[0_0_15px_rgba(37,99,235,0.1)]');
           b.classList.add('text-gray-400', 'border-transparent');
           // Update icon color
-          b.querySelector('i').classList.remove('text-primary');
+          const icon = b.querySelector('i, svg');
+          if (icon) icon.classList.remove('text-primary');
         });
         
         btn.classList.add('active', 'bg-primary/10', 'border-primary/20', 'text-white', 'shadow-[0_0_15px_rgba(37,99,235,0.1)]');
         btn.classList.remove('text-gray-400', 'border-transparent');
-        btn.querySelector('i').classList.add('text-primary');
+        const activeIcon = btn.querySelector('i, svg');
+        if (activeIcon) activeIcon.classList.add('text-primary');
 
         // Switch panels
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
