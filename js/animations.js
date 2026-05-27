@@ -212,7 +212,7 @@ function initParticleSystem() {
 
   function resize() {
     width = canvas.width = window.innerWidth;
-    height = canvas.height = document.documentElement.scrollHeight;
+    height = canvas.height = window.innerHeight;
   }
 
   function getColor() {
@@ -232,6 +232,11 @@ function initParticleSystem() {
     };
   }
 
+  // Canvas is viewport-sized; position it with CSS fixed
+  canvas.style.position = 'fixed';
+  canvas.style.top = '0';
+  canvas.style.left = '0';
+
   function init() {
     resize();
     particles = Array.from({ length: COUNT }, createParticle);
@@ -241,9 +246,6 @@ function initParticleSystem() {
     if (!isVisible) return;
     ctx.clearRect(0, 0, width, height);
     const color = getColor();
-    const scrollY = window.scrollY;
-    const viewTop = scrollY - 100;
-    const viewBottom = scrollY + window.innerHeight + 100;
 
     particles.forEach(p => {
       p.x += p.vx;
@@ -253,29 +255,27 @@ function initParticleSystem() {
       if (p.y < 0) p.y = height;
       if (p.y > height) p.y = 0;
 
-      // Only draw visible particles
-      if (p.y < viewTop || p.y > viewBottom) return;
-
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(${color.r},${color.g},${color.b},${p.alpha})`;
       ctx.fill();
     });
 
-    // Subtle connections
-    for (let i = 0; i < particles.length; i++) {
-      if (particles[i].y < viewTop || particles[i].y > viewBottom) continue;
-      for (let j = i + 1; j < particles.length; j++) {
-        const dx = particles[i].x - particles[j].x;
-        const dy = particles[i].y - particles[j].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < CONNECT_DIST) {
-          ctx.beginPath();
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.strokeStyle = `rgba(${color.r},${color.g},${color.b},${(1 - dist / CONNECT_DIST) * 0.08})`;
-          ctx.lineWidth = 0.5;
-          ctx.stroke();
+    // Subtle connections (skip on mobile for battery)
+    if (!isMobile) {
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < CONNECT_DIST) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(${color.r},${color.g},${color.b},${(1 - dist / CONNECT_DIST) * 0.08})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
         }
       }
     }
@@ -294,9 +294,6 @@ function initParticleSystem() {
     resizeTimeout = setTimeout(resize, 200);
   });
 
-  // Re-color on theme switch
-  new MutationObserver(() => {}).observe(document.body, { attributes: true, attributeFilter: ["class"] });
-
   init();
   animate();
 }
@@ -307,27 +304,27 @@ function initParticleSystem() {
 function initHoverEffects() {
   if (prefersReducedMotion || isMobile) return;
 
-  // Gentle lift on cards
-  const cards = document.querySelectorAll(".why-card, .testimonial-card, .contact-card, .job-card");
-  cards.forEach(card => {
-    card.addEventListener("mouseenter", () => {
-      gsap.to(card, { y: -4, duration: 0.3, ease: "power2.out" });
-    });
-    card.addEventListener("mouseleave", () => {
-      gsap.to(card, { y: 0, duration: 0.4, ease: "power2.out" });
-    });
-  });
+  // Event delegation for card hover (works on dynamic elements)
+  const cardSelector = ".why-card, .testimonial-card, .contact-card, .job-card";
+  document.addEventListener("mouseenter", (e) => {
+    const card = e.target.closest(cardSelector);
+    if (card) gsap.to(card, { y: -4, duration: 0.3, ease: "power2.out" });
+  }, true);
+  document.addEventListener("mouseleave", (e) => {
+    const card = e.target.closest(cardSelector);
+    if (card) gsap.to(card, { y: 0, duration: 0.4, ease: "power2.out" });
+  }, true);
 
-  // Buttons: subtle scale
-  const btns = document.querySelectorAll(".btn, .nav-cta, .quick-apply, .apply-btn");
-  btns.forEach(btn => {
-    btn.addEventListener("mouseenter", () => {
-      gsap.to(btn, { scale: 1.03, duration: 0.2, ease: "power2.out" });
-    });
-    btn.addEventListener("mouseleave", () => {
-      gsap.to(btn, { scale: 1, duration: 0.3, ease: "power2.out" });
-    });
-  });
+  // Buttons: subtle scale (delegation)
+  const btnSelector = ".btn, .nav-cta, .quick-apply, .apply-btn";
+  document.addEventListener("mouseenter", (e) => {
+    const btn = e.target.closest(btnSelector);
+    if (btn) gsap.to(btn, { scale: 1.03, duration: 0.2, ease: "power2.out" });
+  }, true);
+  document.addEventListener("mouseleave", (e) => {
+    const btn = e.target.closest(btnSelector);
+    if (btn) gsap.to(btn, { scale: 1, duration: 0.3, ease: "power2.out" });
+  }, true);
 }
 
 // ══════════════════════════════════════════════════════════════

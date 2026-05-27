@@ -593,7 +593,7 @@
       document.getElementById('resultJob').textContent = data.job_title;
 
       const countryBadge = document.getElementById('resultCountry');
-      countryBadge.textContent = data.country === 'Israel' ? '🇮🇱 Israel' : '🇻🇳 Vietnam';
+      countryBadge.textContent = `📍 ${data.country}`;
 
       // Pipeline
       const pipelineEl = document.getElementById('pipelineStages');

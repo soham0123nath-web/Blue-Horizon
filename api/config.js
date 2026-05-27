@@ -1,14 +1,7 @@
-module.exports = function handler(req, res) {
-    // Enable CORS
-    res.setHeader('Access-Control-Allow-Credentials', true);
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+const { setCors } = require('../lib/cors');
 
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-    }
+module.exports = function handler(req, res) {
+    if (setCors(req, res)) return res.status(200).end();
 
     res.status(200).json({
         SUPABASE_URL: process.env.SUPABASE_URL || '',

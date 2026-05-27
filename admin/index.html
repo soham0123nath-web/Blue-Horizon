@@ -160,6 +160,12 @@
         <button class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent" data-tab="ai">
           <i data-lucide="bot" class="w-5 h-5"></i> AI Assistant
         </button>
+        <button class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent" data-tab="employer-leads">
+          <i data-lucide="building-2" class="w-5 h-5"></i> Employer Leads
+        </button>
+        <button class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent" data-tab="talent-pool">
+          <i data-lucide="user-plus" class="w-5 h-5"></i> Talent Pool
+        </button>
       </nav>
 
       <div class="p-4 border-t border-white/5">
@@ -257,6 +263,20 @@
               <option class="bg-[#050811] text-white" value="">All Countries</option>
               <option class="bg-[#050811] text-white" value="Israel">Israel</option>
               <option class="bg-[#050811] text-white" value="Vietnam">Vietnam</option>
+              <option class="bg-[#050811] text-white" value="UAE">UAE</option>
+              <option class="bg-[#050811] text-white" value="Saudi Arabia">Saudi Arabia</option>
+              <option class="bg-[#050811] text-white" value="Qatar">Qatar</option>
+              <option class="bg-[#050811] text-white" value="Kuwait">Kuwait</option>
+              <option class="bg-[#050811] text-white" value="Singapore">Singapore</option>
+              <option class="bg-[#050811] text-white" value="Malaysia">Malaysia</option>
+              <option class="bg-[#050811] text-white" value="Japan">Japan</option>
+              <option class="bg-[#050811] text-white" value="South Korea">South Korea</option>
+              <option class="bg-[#050811] text-white" value="Germany">Germany</option>
+              <option class="bg-[#050811] text-white" value="Poland">Poland</option>
+              <option class="bg-[#050811] text-white" value="Romania">Romania</option>
+              <option class="bg-[#050811] text-white" value="Croatia">Croatia</option>
+              <option class="bg-[#050811] text-white" value="Canada">Canada</option>
+              <option class="bg-[#050811] text-white" value="Australia">Australia</option>
             </select>
             <div class="relative flex-[2]">
               <i data-lucide="search" class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
@@ -302,25 +322,66 @@
 
         <!-- TESTIMONIALS TAB -->
         <div class="tab-panel hidden" id="tab-testimonials">
-          <div class="mb-8 stagger-elem">
-            <h1 class="text-3xl font-bold text-white mb-2">Video Testimonials</h1>
-            <p class="text-gray-400 text-sm">Manage video testimonials displayed on the public site.</p>
+          <div class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4 stagger-elem">
+            <div>
+              <h1 class="text-3xl font-bold text-white mb-2">Video Testimonials</h1>
+              <p class="text-gray-400 text-sm">Manage video testimonials displayed on the public site.</p>
+            </div>
+            <button onclick="openTestimonialModal()" class="flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-blue-600 text-white rounded-xl shadow-lg transition-all font-medium">
+              <i data-lucide="plus" class="w-4 h-4"></i> Add Testimonial
+            </button>
           </div>
-          <div class="glass-panel rounded-2xl p-10 text-center stagger-elem">
-            <i data-lucide="video" class="w-12 h-12 text-gray-500 mx-auto mb-4"></i>
-            <p class="text-gray-400">No testimonials found.<br>Add testimonials to the database to see them here.</p>
+          <div class="glass-panel rounded-2xl overflow-hidden stagger-elem">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-white/10 text-left">
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Candidate</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Job Title</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Country</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Rating</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Active</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="testimonialsTableBody" class="divide-y divide-white/5">
+                  <tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
         <!-- SALARY TAB -->
         <div class="tab-panel hidden" id="tab-salary">
-          <div class="mb-8 stagger-elem">
-            <h1 class="text-3xl font-bold text-white mb-2">Salary Configuration</h1>
-            <p class="text-gray-400 text-sm">Manage salary data for the public salary calculator tool.</p>
+          <div class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4 stagger-elem">
+            <div>
+              <h1 class="text-3xl font-bold text-white mb-2">Salary Configuration</h1>
+              <p class="text-gray-400 text-sm">Manage salary data for the public salary calculator tool.</p>
+            </div>
+            <button onclick="openSalaryModal()" class="flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-blue-600 text-white rounded-xl shadow-lg transition-all font-medium">
+              <i data-lucide="plus" class="w-4 h-4"></i> Add Salary Config
+            </button>
           </div>
-          <div class="glass-panel rounded-2xl p-10 text-center stagger-elem">
-            <i data-lucide="wallet" class="w-12 h-12 text-gray-500 mx-auto mb-4"></i>
-            <p class="text-gray-400">Data feeds directly into the Salary Calculator page.</p>
+          <div class="glass-panel rounded-2xl overflow-hidden stagger-elem">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-white/10 text-left">
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Job Title</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Country</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Base (USD)</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">OT Rate</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Perks (USD)</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Active</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="salaryTableBody" class="divide-y divide-white/5">
+                  <tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -361,6 +422,61 @@
               <button id="chatSend" class="px-6 py-3 bg-primary hover:bg-blue-600 text-white rounded-xl font-medium transition-colors flex items-center gap-2">
                 <i data-lucide="sparkles" class="w-4 h-4"></i> Send
               </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- EMPLOYER LEADS TAB -->
+        <div class="tab-panel hidden" id="tab-employer-leads">
+          <div class="mb-8 stagger-elem">
+            <h1 class="text-3xl font-bold text-white mb-2">Employer Leads</h1>
+            <p class="text-gray-400 text-sm">Companies that submitted hiring inquiries through the public website.</p>
+          </div>
+          <div class="glass-panel rounded-2xl overflow-hidden stagger-elem">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-white/10 text-left">
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Company</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Contact</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Phone</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Country</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Roles</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="employerLeadsBody" class="divide-y divide-white/5">
+                  <tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TALENT POOL TAB -->
+        <div class="tab-panel hidden" id="tab-talent-pool">
+          <div class="mb-8 stagger-elem">
+            <h1 class="text-3xl font-bold text-white mb-2">Talent Pool</h1>
+            <p class="text-gray-400 text-sm">Candidates who submitted their profiles without applying for a specific job.</p>
+          </div>
+          <div class="glass-panel rounded-2xl overflow-hidden stagger-elem">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-white/10 text-left">
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Name</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Phone</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Trade</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Preferred Country</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="talentPoolBody" class="divide-y divide-white/5">
+                  <tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">Loading...</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -419,10 +535,15 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Country</label>
-            <select id="jobCountry" required class="w-full px-4 py-3 rounded-xl glass-input appearance-none">
-              <option value="Israel" class="bg-darkBg">Israel</option>
-              <option value="Vietnam" class="bg-darkBg">Vietnam</option>
-            </select>
+            <input type="text" id="jobCountry" required list="countryList" placeholder="e.g. Israel, Vietnam, UAE..." class="w-full px-4 py-3 rounded-xl glass-input">
+            <datalist id="countryList">
+              <option value="Israel"><option value="Vietnam"><option value="UAE"><option value="Saudi Arabia">
+              <option value="Qatar"><option value="Kuwait"><option value="Bahrain"><option value="Oman">
+              <option value="Singapore"><option value="Malaysia"><option value="Japan"><option value="South Korea">
+              <option value="Germany"><option value="Poland"><option value="Romania"><option value="Hungary">
+              <option value="Croatia"><option value="Canada"><option value="Australia"><option value="New Zealand">
+              <option value="UK"><option value="USA">
+            </datalist>
           </div>
           <div>
             <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Division</label>
@@ -450,6 +571,133 @@
         <div class="flex gap-3 pt-4">
           <button type="button" onclick="closeJobModal()" class="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors font-medium">Cancel</button>
           <button type="submit" class="flex-[2] py-3 bg-primary hover:bg-blue-600 text-white rounded-xl transition-colors font-medium">Save Job Post</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Testimonial Modal (Create / Edit) -->
+  <div id="testimonialModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div class="glass-panel p-6 md:p-8 rounded-2xl w-full max-w-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <h2 id="testimonialModalTitle" class="text-2xl font-bold text-white mb-2">Add Testimonial</h2>
+      <p class="text-sm text-gray-400 mb-6">Add a candidate testimonial to display on the public site.</p>
+      
+      <form id="testimonialForm" class="space-y-4">
+        <input type="hidden" id="testimonialId">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Candidate Name *</label>
+            <input type="text" id="tmName" required placeholder="e.g. Rakesh Kumar" class="w-full px-4 py-3 rounded-xl glass-input">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Job Title *</label>
+            <input type="text" id="tmJobTitle" required placeholder="e.g. Production Technician" class="w-full px-4 py-3 rounded-xl glass-input">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Country *</label>
+            <input type="text" id="tmCountry" required list="countryList" placeholder="e.g. Israel, Vietnam..." class="w-full px-4 py-3 rounded-xl glass-input">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Rating (1–5)</label>
+            <select id="tmRating" class="w-full px-4 py-3 rounded-xl glass-input appearance-none">
+              <option value="5" class="bg-darkBg">★★★★★ (5)</option>
+              <option value="4" class="bg-darkBg">★★★★☆ (4)</option>
+              <option value="3" class="bg-darkBg">★★★☆☆ (3)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Video URL *</label>
+          <input type="url" id="tmVideoUrl" required placeholder="https://youtube.com/watch?v=..." class="w-full px-4 py-3 rounded-xl glass-input">
+        </div>
+
+        <div>
+          <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Thumbnail URL (Optional)</label>
+          <input type="url" id="tmThumbUrl" placeholder="https://img.youtube.com/vi/.../hqdefault.jpg" class="w-full px-4 py-3 rounded-xl glass-input">
+        </div>
+
+        <div>
+          <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Quote / Testimonial Text</label>
+          <textarea id="tmQuote" rows="3" placeholder="What the candidate said about their experience..." class="w-full px-4 py-3 rounded-xl glass-input resize-y"></textarea>
+        </div>
+
+        <div class="flex gap-3 pt-4">
+          <button type="button" onclick="closeTestimonialModal()" class="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors font-medium">Cancel</button>
+          <button type="submit" class="flex-[2] py-3 bg-primary hover:bg-blue-600 text-white rounded-xl transition-colors font-medium">Save Testimonial</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Salary Config Modal (Create / Edit) -->
+  <div id="salaryModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div class="glass-panel p-6 md:p-8 rounded-2xl w-full max-w-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <h2 id="salaryModalTitle" class="text-2xl font-bold text-white mb-2">Add Salary Config</h2>
+      <p class="text-sm text-gray-400 mb-6">Configure salary data that powers the public Salary Calculator.</p>
+      
+      <form id="salaryForm" class="space-y-4">
+        <input type="hidden" id="salaryId">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Job Title *</label>
+            <input type="text" id="scJobTitle" required placeholder="e.g. Welder" class="w-full px-4 py-3 rounded-xl glass-input">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Country *</label>
+            <input type="text" id="scCountry" required list="countryList" placeholder="e.g. Israel, Vietnam..." class="w-full px-4 py-3 rounded-xl glass-input">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Base Salary (USD) *</label>
+            <input type="number" id="scBaseSalary" required step="0.01" placeholder="1400" class="w-full px-4 py-3 rounded-xl glass-input">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">OT Rate ($/hr)</label>
+            <input type="number" id="scOtRate" step="0.01" placeholder="8.50" class="w-full px-4 py-3 rounded-xl glass-input">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Typical OT Hours</label>
+            <input type="number" id="scOtHours" placeholder="40" class="w-full px-4 py-3 rounded-xl glass-input">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Accommodation (USD)</label>
+            <input type="number" id="scAccom" step="0.01" placeholder="200" class="w-full px-4 py-3 rounded-xl glass-input">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Food (USD)</label>
+            <input type="number" id="scFood" step="0.01" placeholder="150" class="w-full px-4 py-3 rounded-xl glass-input">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Medical (USD)</label>
+            <input type="number" id="scMedical" step="0.01" placeholder="50" class="w-full px-4 py-3 rounded-xl glass-input">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Deductions (USD)</label>
+            <input type="number" id="scDeductions" step="0.01" placeholder="0" class="w-full px-4 py-3 rounded-xl glass-input">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">USD → INR Rate</label>
+            <input type="number" id="scRate" step="0.01" placeholder="85" class="w-full px-4 py-3 rounded-xl glass-input">
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-4">
+          <button type="button" onclick="closeSalaryModal()" class="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors font-medium">Cancel</button>
+          <button type="submit" class="flex-[2] py-3 bg-primary hover:bg-blue-600 text-white rounded-xl transition-colors font-medium">Save Config</button>
         </div>
       </form>
     </div>
@@ -605,6 +853,10 @@
         if (tabId === 'applications') loadApplications();
         if (tabId === 'jobs') loadAdminJobs();
         if (tabId === 'admins') loadAdmins();
+        if (tabId === 'testimonials') loadTestimonials();
+        if (tabId === 'salary') loadSalaryConfig();
+        if (tabId === 'employer-leads') loadEmployerLeads();
+        if (tabId === 'talent-pool') loadTalentPool();
         
         // Close mobile sidebar if open
         if(window.innerWidth < 1024 && !document.getElementById('sidebar').classList.contains('-translate-x-full')) {
@@ -708,7 +960,7 @@
 
         tableEl.innerHTML = `<table class="data-table">
           <thead><tr>
-            <th>Tracking ID</th><th>Candidate</th><th>Job</th><th>Country</th><th>Status</th><th>Applied</th><th class="text-right">Actions</th>
+            <th>Tracking ID</th><th>Candidate</th><th>Job</th><th>Country</th><th>Status</th><th>Applied</th><th class="text-center">CV</th><th class="text-right">Actions</th>
           </tr></thead>
           <tbody>${data.applications.map(app => {
             const currentIndex = STATUS_ORDER.indexOf(app.status);
@@ -734,6 +986,7 @@
               <td><span class="px-2 py-1 bg-white/5 rounded-md text-xs">${app.country}</span></td>
               <td><span class="text-xs font-semibold px-2 py-1 rounded-full bg-white/10 uppercase tracking-wider">${app.status.replace(/_/g, ' ')}</span></td>
               <td class="text-gray-400 text-xs">${new Date(app.created_at).toLocaleDateString('en-IN')}</td>
+              <td class="text-center">${app.cv_url ? `<a href="${app.cv_url}" target="_blank" rel="noopener" class="text-blue-400 hover:text-blue-300 text-xs font-semibold" title="Download CV">📄 CV</a>` : '<span class="text-gray-600 text-xs">—</span>'}</td>
               <td class="text-right">${actionHtml}</td>
             </tr>`;
           }).join('')}</tbody>
@@ -813,7 +1066,7 @@
               </div>
             </td>
             <td><span class="text-xs bg-white/5 px-2 py-1 rounded">${job.division}</span></td>
-            <td><span class="text-xs border ${job.country==='Israel'?'border-blue-500/30 text-blue-400':'border-red-500/30 text-red-400'} px-2 py-1 rounded-full">${job.country}</span></td>
+            <td><span class="text-xs border border-blue-500/30 text-blue-400 px-2 py-1 rounded-full">${job.country}</span></td>
             <td>
               <div class="text-sm">${job.salary_display}</div>
               <div class="text-[10px] text-gray-500">${job.salary_inr_display || '-'}</div>
@@ -1050,6 +1303,325 @@
       chatMessages.appendChild(div);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
+    // ══════════════════════════════════════════════════════════════
+    // TESTIMONIALS CRUD
+    // ══════════════════════════════════════════════════════════════
+    function openTestimonialModal(tm) {
+      const modal = document.getElementById('testimonialModal');
+      document.getElementById('testimonialModalTitle').textContent = tm ? 'Edit Testimonial' : 'Add Testimonial';
+      document.getElementById('testimonialId').value = tm ? tm.id : '';
+      document.getElementById('tmName').value = tm ? tm.candidate_name : '';
+      document.getElementById('tmJobTitle').value = tm ? tm.job_title : '';
+      document.getElementById('tmCountry').value = tm ? tm.country : 'Israel';
+      document.getElementById('tmRating').value = tm ? tm.rating : '5';
+      document.getElementById('tmVideoUrl').value = tm ? tm.video_url : '';
+      document.getElementById('tmThumbUrl').value = tm ? (tm.thumbnail_url || '') : '';
+      document.getElementById('tmQuote').value = tm ? (tm.quote || '') : '';
+      modal.classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeTestimonialModal() {
+      document.getElementById('testimonialModal').classList.add('hidden');
+      document.getElementById('testimonialForm').reset();
+    }
+
+    document.getElementById('testimonialForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('testimonialId').value;
+      const payload = {
+        action: id ? 'update' : 'create',
+        candidate_name: document.getElementById('tmName').value.trim(),
+        job_title: document.getElementById('tmJobTitle').value.trim(),
+        country: document.getElementById('tmCountry').value,
+        rating: parseInt(document.getElementById('tmRating').value),
+        video_url: document.getElementById('tmVideoUrl').value.trim(),
+        thumbnail_url: document.getElementById('tmThumbUrl').value.trim() || null,
+        quote: document.getElementById('tmQuote').value.trim() || null
+      };
+      if (id) payload.id = id;
+
+      try {
+        const res = await apiFetch('/api/testimonials', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res && res.ok) {
+          showToast(id ? 'Testimonial updated!' : 'Testimonial created!');
+          closeTestimonialModal();
+          loadTestimonials();
+        } else { showToast('Failed to save testimonial.', true); }
+      } catch { showToast('Network error.', true); }
+    });
+
+    async function deleteTestimonial(id) {
+      if (!confirm('Delete this testimonial?')) return;
+      try {
+        await apiFetch('/api/testimonials', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'delete', id })
+        });
+        showToast('Testimonial deleted.');
+        loadTestimonials();
+      } catch { showToast('Failed to delete.', true); }
+    }
+
+    let currentTestimonials = [];
+    async function loadTestimonials() {
+      const tbody = document.getElementById('testimonialsTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">Loading...</td></tr>';
+
+      try {
+        // Use admin query to get ALL testimonials (including inactive)
+        const res = await apiFetch('/api/testimonials');
+        if (!res) return;
+        const data = await res.json();
+        currentTestimonials = data.testimonials || [];
+
+        if (currentTestimonials.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No testimonials yet. Click "Add Testimonial" to create one.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = currentTestimonials.map(t => `
+          <tr class="hover:bg-white/5 transition-colors">
+            <td class="px-6 py-4 text-white font-medium">${t.candidate_name}</td>
+            <td class="px-6 py-4 text-gray-300">${t.job_title}</td>
+            <td class="px-6 py-4 text-gray-300">${t.country}</td>
+            <td class="px-6 py-4 text-yellow-400">${'★'.repeat(t.rating)}${'☆'.repeat(5 - t.rating)}</td>
+            <td class="px-6 py-4">
+              <span class="px-2 py-1 rounded-full text-[11px] font-semibold ${t.is_active ? 'bg-emerald-500/10 text-emerald-400' : 'bg-gray-500/10 text-gray-400'}">${t.is_active ? 'Active' : 'Hidden'}</span>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <button onclick='openTestimonialModal(${JSON.stringify(t).replace(/'/g, "&#39;")})' class="text-primary hover:text-blue-400 text-xs font-medium mr-3">Edit</button>
+              <button onclick="deleteTestimonial('${t.id}')" class="text-red-400 hover:text-red-300 text-xs font-medium">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch { tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-red-400">Failed to load.</td></tr>'; }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // SALARY CONFIG CRUD
+    // ══════════════════════════════════════════════════════════════
+    function openSalaryModal(sc) {
+      const modal = document.getElementById('salaryModal');
+      document.getElementById('salaryModalTitle').textContent = sc ? 'Edit Salary Config' : 'Add Salary Config';
+      document.getElementById('salaryId').value = sc ? sc.id : '';
+      document.getElementById('scJobTitle').value = sc ? sc.job_title : '';
+      document.getElementById('scCountry').value = sc ? sc.country : 'Israel';
+      document.getElementById('scBaseSalary').value = sc ? sc.base_salary_usd : '';
+      document.getElementById('scOtRate').value = sc ? (sc.overtime_rate_per_hour || '') : '';
+      document.getElementById('scOtHours').value = sc ? (sc.typical_overtime_hours || '') : '';
+      document.getElementById('scAccom').value = sc ? (sc.accommodation_value_usd || '') : '';
+      document.getElementById('scFood').value = sc ? (sc.food_value_usd || '') : '';
+      document.getElementById('scMedical').value = sc ? (sc.medical_value_usd || '') : '';
+      document.getElementById('scDeductions').value = sc ? (sc.deductions_usd || '') : '';
+      document.getElementById('scRate').value = sc ? (sc.currency_rate || '85') : '85';
+      modal.classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeSalaryModal() {
+      document.getElementById('salaryModal').classList.add('hidden');
+      document.getElementById('salaryForm').reset();
+    }
+
+    document.getElementById('salaryForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('salaryId').value;
+      const payload = {
+        action: id ? 'update' : 'create',
+        job_title: document.getElementById('scJobTitle').value.trim(),
+        country: document.getElementById('scCountry').value,
+        base_salary_usd: parseFloat(document.getElementById('scBaseSalary').value),
+        overtime_rate_per_hour: parseFloat(document.getElementById('scOtRate').value) || 0,
+        typical_overtime_hours: parseInt(document.getElementById('scOtHours').value) || 0,
+        accommodation_value_usd: parseFloat(document.getElementById('scAccom').value) || 0,
+        food_value_usd: parseFloat(document.getElementById('scFood').value) || 0,
+        medical_value_usd: parseFloat(document.getElementById('scMedical').value) || 0,
+        deductions_usd: parseFloat(document.getElementById('scDeductions').value) || 0,
+        currency_rate: parseFloat(document.getElementById('scRate').value) || 85
+      };
+      if (id) payload.id = id;
+
+      try {
+        const res = await apiFetch('/api/salary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res && res.ok) {
+          showToast(id ? 'Salary config updated!' : 'Salary config created!');
+          closeSalaryModal();
+          loadSalaryConfig();
+        } else { showToast('Failed to save salary config.', true); }
+      } catch { showToast('Network error.', true); }
+    });
+
+    async function deleteSalaryConfig(id) {
+      if (!confirm('Delete this salary configuration?')) return;
+      try {
+        await apiFetch('/api/salary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'delete', id })
+        });
+        showToast('Salary config deleted.');
+        loadSalaryConfig();
+      } catch { showToast('Failed to delete.', true); }
+    }
+
+    let currentSalaryConfigs = [];
+    async function loadSalaryConfig() {
+      const tbody = document.getElementById('salaryTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">Loading...</td></tr>';
+
+      try {
+        const res = await apiFetch('/api/salary?action=getRoles');
+        if (!res) return;
+        const data = await res.json();
+        currentSalaryConfigs = data.roles || [];
+
+        if (currentSalaryConfigs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">No salary configs yet. Click "Add Salary Config" to create one.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = currentSalaryConfigs.map(s => {
+          const perks = (parseFloat(s.accommodation_value_usd) || 0) + (parseFloat(s.food_value_usd) || 0) + (parseFloat(s.medical_value_usd) || 0);
+          return `
+          <tr class="hover:bg-white/5 transition-colors">
+            <td class="px-6 py-4 text-white font-medium">${s.job_title}</td>
+            <td class="px-6 py-4 text-gray-300">${s.country}</td>
+            <td class="px-6 py-4 text-gray-300">$${parseFloat(s.base_salary_usd).toLocaleString()}</td>
+            <td class="px-6 py-4 text-gray-300">$${parseFloat(s.overtime_rate_per_hour || 0).toFixed(2)}/hr</td>
+            <td class="px-6 py-4 text-gray-300">$${perks.toFixed(0)}</td>
+            <td class="px-6 py-4">
+              <span class="px-2 py-1 rounded-full text-[11px] font-semibold ${s.is_active ? 'bg-emerald-500/10 text-emerald-400' : 'bg-gray-500/10 text-gray-400'}">${s.is_active ? 'Active' : 'Hidden'}</span>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <button onclick='openSalaryModal(${JSON.stringify(s).replace(/'/g, "&#39;")})' class="text-primary hover:text-blue-400 text-xs font-medium mr-3">Edit</button>
+              <button onclick="deleteSalaryConfig('${s.id}')" class="text-red-400 hover:text-red-300 text-xs font-medium">Delete</button>
+            </td>
+          </tr>
+        `}).join('');
+      } catch { tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-red-400">Failed to load.</td></tr>'; }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // EMPLOYER LEADS
+    // ══════════════════════════════════════════════════════════════
+    async function loadEmployerLeads() {
+      const tbody = document.getElementById('employerLeadsBody');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">Loading...</td></tr>';
+
+      try {
+        const res = await apiFetch('/api/employers');
+        if (!res) return;
+        const data = await res.json();
+        const rows = data.inquiries || [];
+
+        if (rows.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">No employer inquiries yet.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = rows.map(r => `
+          <tr class="hover:bg-white/5 transition-colors">
+            <td class="px-6 py-4 text-white font-medium">${r.company_name}</td>
+            <td class="px-6 py-4 text-gray-300">${r.contact_person}</td>
+            <td class="px-6 py-4 text-gray-300">${r.phone}</td>
+            <td class="px-6 py-4 text-gray-300">${r.country || '—'}</td>
+            <td class="px-6 py-4 text-gray-300 max-w-[200px] truncate" title="${(r.roles_needed || '').replace(/"/g, '&quot;')}">${r.roles_needed || '—'}</td>
+            <td class="px-6 py-4 text-gray-400 text-xs">${new Date(r.created_at).toLocaleDateString('en-IN')}</td>
+            <td class="px-6 py-4">
+              <select class="bg-darkBg border border-white/10 text-white text-xs rounded-lg px-3 py-1.5 employer-status-select" data-id="${r.id}">
+                <option value="new" class="bg-darkBg" ${r.status === 'new' ? 'selected' : ''}>New</option>
+                <option value="contacted" class="bg-darkBg" ${r.status === 'contacted' ? 'selected' : ''}>Contacted</option>
+                <option value="closed" class="bg-darkBg" ${r.status === 'closed' ? 'selected' : ''}>Closed</option>
+              </select>
+            </td>
+          </tr>
+        `).join('');
+
+        // Status change handlers
+        tbody.querySelectorAll('.employer-status-select').forEach(sel => {
+          sel.addEventListener('change', async (e) => {
+            const id = e.target.dataset.id;
+            const status = e.target.value;
+            try {
+              await apiFetch('/api/employers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'update-status', id, status })
+              });
+              showToast('Status updated!');
+            } catch { showToast('Failed to update status', true); }
+          });
+        });
+      } catch { tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-red-400">Failed to load.</td></tr>'; }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // TALENT POOL
+    // ══════════════════════════════════════════════════════════════
+    async function loadTalentPool() {
+      const tbody = document.getElementById('talentPoolBody');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">Loading...</td></tr>';
+
+      try {
+        const res = await apiFetch('/api/talent-pool');
+        if (!res) return;
+        const data = await res.json();
+        const rows = data.entries || [];
+
+        if (rows.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No talent pool entries yet.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = rows.map(r => `
+          <tr class="hover:bg-white/5 transition-colors">
+            <td class="px-6 py-4 text-white font-medium">${r.full_name}</td>
+            <td class="px-6 py-4 text-gray-300">${r.phone}</td>
+            <td class="px-6 py-4 text-gray-300">${r.trade}</td>
+            <td class="px-6 py-4 text-gray-300">${r.preferred_country || 'Any'}</td>
+            <td class="px-6 py-4 text-gray-400 text-xs">${new Date(r.created_at).toLocaleDateString('en-IN')}</td>
+            <td class="px-6 py-4">
+              <select class="bg-darkBg border border-white/10 text-white text-xs rounded-lg px-3 py-1.5 talent-status-select" data-id="${r.id}">
+                <option value="new" class="bg-darkBg" ${r.status === 'new' ? 'selected' : ''}>New</option>
+                <option value="contacted" class="bg-darkBg" ${r.status === 'contacted' ? 'selected' : ''}>Contacted</option>
+                <option value="placed" class="bg-darkBg" ${r.status === 'placed' ? 'selected' : ''}>Placed</option>
+              </select>
+            </td>
+          </tr>
+        `).join('');
+
+        // Status change handlers
+        tbody.querySelectorAll('.talent-status-select').forEach(sel => {
+          sel.addEventListener('change', async (e) => {
+            const id = e.target.dataset.id;
+            const status = e.target.value;
+            try {
+              await apiFetch('/api/talent-pool', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'update-status', id, status })
+              });
+              showToast('Status updated!');
+            } catch { showToast('Failed to update status', true); }
+          });
+        });
+      } catch { tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-red-400">Failed to load.</td></tr>'; }
+    }
+
   </script>
 </body>
 </html>

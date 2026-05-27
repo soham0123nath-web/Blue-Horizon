@@ -25,37 +25,54 @@ module.exports = async function handler(req, res) {
             const action = url.searchParams.get('action') || 'dashboard';
 
             if (action === 'dashboard') {
-                // Fetch all applications for stats
-                const { data: apps, error } = await supabase
+                // Total count
+                const { count: total } = await supabase
                     .from('applications')
-                    .select('status, country, created_at');
+                    .select('*', { count: 'exact', head: true });
 
-                if (error) return res.status(500).json({ error: 'Failed to fetch stats.' });
+                // This week count
+                const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+                const { count: thisWeek } = await supabase
+                    .from('applications')
+                    .select('*', { count: 'exact', head: true })
+                    .gte('created_at', weekAgo);
 
-                const total = apps.length;
+                // This month count
+                const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+                const { count: thisMonth } = await supabase
+                    .from('applications')
+                    .select('*', { count: 'exact', head: true })
+                    .gte('created_at', monthAgo);
+
+                // Deployed count for conversion rate
+                const { count: deployed } = await supabase
+                    .from('applications')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('status', 'deployed');
+
+                const conversionRate = (total || 0) > 0 ? (((deployed || 0) / total) * 100).toFixed(1) : 0;
+
+                // Status breakdown (only fetch status column, lightweight)
+                const { data: statusRows } = await supabase
+                    .from('applications')
+                    .select('status');
+
                 const byStatus = {};
                 const byCountry = {};
+                // Country breakdown (only fetch country column)
+                const { data: countryRows } = await supabase
+                    .from('applications')
+                    .select('country');
 
-                apps.forEach(app => {
-                    byStatus[app.status] = (byStatus[app.status] || 0) + 1;
-                    byCountry[app.country] = (byCountry[app.country] || 0) + 1;
-                });
-
-                const deployed = byStatus['deployed'] || 0;
-                const conversionRate = total > 0 ? ((deployed / total) * 100).toFixed(1) : 0;
-
-                const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-                const thisWeek = apps.filter(a => a.created_at >= weekAgo).length;
-
-                const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-                const thisMonth = apps.filter(a => a.created_at >= monthAgo).length;
+                (statusRows || []).forEach(r => { byStatus[r.status] = (byStatus[r.status] || 0) + 1; });
+                (countryRows || []).forEach(r => { byCountry[r.country] = (byCountry[r.country] || 0) + 1; });
 
                 // Counts for other entities
                 const { count: jobCount } = await supabase.from('job_listings').select('*', { count: 'exact', head: true });
                 const { count: testimonialCount } = await supabase.from('video_testimonials').select('*', { count: 'exact', head: true });
 
                 return res.status(200).json({
-                    total, thisWeek, thisMonth, conversionRate,
+                    total: total || 0, thisWeek: thisWeek || 0, thisMonth: thisMonth || 0, conversionRate,
                     byStatus, byCountry,
                     jobCount: jobCount || 0,
                     testimonialCount: testimonialCount || 0,

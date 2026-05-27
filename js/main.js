@@ -1,6 +1,9 @@
 // ── BLUE HORIZON CONFIGURATION ──
 const WHATSAPP_NUMBER = "918942069079"; // Replace with your agency WhatsApp number (include country code, e.g., 91 for India)
 
+// HTML sanitizer to prevent XSS from API data
+const esc = (s) => typeof s === 'string' ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;') : s;
+
 document.addEventListener("DOMContentLoaded", () => {
   // ── ELEMENTS ──
   const body = document.body;
@@ -8,12 +11,39 @@ document.addEventListener("DOMContentLoaded", () => {
   const nav = document.getElementById("mainNav");
   const hamburger = document.getElementById("hamburger");
   const mobileMenu = document.getElementById("mobileMenu");
+  
+  // Country flag codes (common ones — extensible)
+  const COUNTRY_FLAGS = {
+    'Israel': { flag: '🇮🇱', code: 'il' },
+    'Vietnam': { flag: '🇻🇳', code: 'vn' },
+    'UAE': { flag: '🇦🇪', code: 'ae' },
+    'Saudi Arabia': { flag: '🇸🇦', code: 'sa' },
+    'Qatar': { flag: '🇶🇦', code: 'qa' },
+    'Kuwait': { flag: '🇰🇼', code: 'kw' },
+    'Bahrain': { flag: '🇧🇭', code: 'bh' },
+    'Oman': { flag: '🇴🇲', code: 'om' },
+    'Singapore': { flag: '🇸🇬', code: 'sg' },
+    'Malaysia': { flag: '🇲🇾', code: 'my' },
+    'Japan': { flag: '🇯🇵', code: 'jp' },
+    'South Korea': { flag: '🇰🇷', code: 'kr' },
+    'Germany': { flag: '🇩🇪', code: 'de' },
+    'Poland': { flag: '🇵🇱', code: 'pl' },
+    'Romania': { flag: '🇷🇴', code: 'ro' },
+    'Hungary': { flag: '🇭🇺', code: 'hu' },
+    'Croatia': { flag: '🇭🇷', code: 'hr' },
+    'Canada': { flag: '🇨🇦', code: 'ca' },
+    'Australia': { flag: '🇦🇺', code: 'au' },
+    'New Zealand': { flag: '🇳🇿', code: 'nz' },
+    'UK': { flag: '🇬🇧', code: 'gb' },
+    'USA': { flag: '🇺🇸', code: 'us' },
+  };
+  const getCountryInfo = (name) => COUNTRY_FLAGS[name] || { flag: '🌍', code: null };
 
-  // Tabs
-  const tabIsrael = document.getElementById("tab-israel");
-  const tabVietnam = document.getElementById("tab-vietnam");
-  const groupIsrael = document.getElementById("group-israel");
-  const groupVietnam = document.getElementById("group-vietnam");
+  // Dynamic state
+  let allCountries = [];
+  let activeCountry = null;
+  const countrySwitcher = document.getElementById('countrySwitcher');
+  const dynamicJobGroups = document.getElementById('dynamicJobGroups');
   
   // Salary Highlights Dynamic Content
   const salaryVal = document.getElementById("salary-val");
@@ -35,29 +65,31 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!container || !countryData) return;
         
         let html = '';
+        const divisions = new Set();
         for (const [division, jobs] of Object.entries(countryData)) {
+          divisions.add(division);
           html += `
-            <div class="division-line">
+            <div class="division-line" data-division="${division}">
               <span>✦ ${division.toUpperCase()} ✦</span>
             </div>
-            <div class="job-grid">
+            <div class="job-grid" data-division="${division}">
           `;
           jobs.forEach(job => {
             html += `
-              <div class="job-card">
-                <div class="job-tag">${job.division}</div>
-                <h3>${job.emoji || '🏭'} ${job.title}</h3>
-                <div class="salary">${job.salary_display}</div>
-                <div class="salary-inr">${job.salary_inr_display || ''}</div>
+              <div class="job-card" data-division="${esc(division)}" data-country="${esc(job.country)}">
+                <div class="job-tag">${esc(division)}</div>
+                <h3>${esc(job.emoji) || '🏭'} ${esc(job.title)}</h3>
+                <div class="salary">${esc(job.salary_display)}</div>
+                <div class="salary-inr">${esc(job.salary_inr_display) || ''}</div>
                 <div class="card-actions">
                   <button type="button" class="toggle-btn" aria-expanded="false">View Details</button>
-                  <button type="button" class="quick-apply" data-job="${job.title} (${job.country})">Apply →</button>
+                  <button type="button" class="quick-apply" data-job="${esc(job.title)} (${esc(job.country)})">Apply →</button>
                 </div>
                 <div class="job-details" hidden>
                   <ul>
-                    ${(job.details || []).map(d => `<li>${d}</li>`).join('')}
+                    ${(job.details || []).map(d => `<li>${esc(d)}</li>`).join('')}
                   </ul>
-                  <button type="button" class="apply-btn" data-job="${job.title} (${job.country})">💬 Apply via WhatsApp</button>
+                  <button type="button" class="apply-btn" data-job="${esc(job.title)} (${esc(job.country)})">📨 Apply Now</button>
                 </div>
               </div>
             `;
@@ -65,18 +97,153 @@ document.addEventListener("DOMContentLoaded", () => {
           html += `</div>`;
         }
         container.innerHTML = html || '<p style="text-align:center; padding: 2rem;">No open positions at this moment.</p>';
+        return divisions;
       };
 
       if (data.grouped) {
-        renderGroup('israel-jobs-container', data.grouped['Israel']);
-        renderGroup('vietnam-jobs-container', data.grouped['Vietnam']);
+        allCountries = Object.keys(data.grouped);
+        
+        // Build country tabs dynamically
+        let tabsHtml = '';
+        allCountries.forEach((country, i) => {
+          const info = getCountryInfo(country);
+          const isActive = i === 0 ? 'active' : '';
+          const flagImg = info.code 
+            ? `<img src="https://flagcdn.com/w40/${info.code}.png" alt="${esc(country)} Flag">` 
+            : '';
+          tabsHtml += `
+            <button type="button" class="switcher-btn ${isActive}" data-country="${esc(country)}" role="tab" aria-selected="${i === 0}">
+              ${flagImg}
+              <span>${info.flag} ${esc(country)} Placements</span>
+            </button>
+          `;
+        });
+        countrySwitcher.innerHTML = tabsHtml;
+
+        // Build job groups dynamically
+        let groupsHtml = '';
+        allCountries.forEach((country, i) => {
+          const slug = country.toLowerCase().replace(/\s+/g, '-');
+          groupsHtml += `
+            <div class="country-job-group ${i === 0 ? 'active' : ''}" id="group-${slug}" data-country="${esc(country)}" role="tabpanel">
+              <div class="division-filters" id="${slug}-division-filters"></div>
+              <div id="${slug}-jobs-container" class="dynamic-jobs-container"></div>
+            </div>
+          `;
+        });
+        dynamicJobGroups.innerHTML = groupsHtml;
+
+        // Render jobs into each group
+        allCountries.forEach(country => {
+          const slug = country.toLowerCase().replace(/\s+/g, '-');
+          const divisions = renderGroup(`${slug}-jobs-container`, data.grouped[country]);
+          buildFilterPills(`${slug}-division-filters`, `${slug}-jobs-container`, divisions);
+        });
+
+        // Set initial active country
+        if (allCountries.length > 0) {
+          activeCountry = allCountries[0];
+        }
+
+        // Attach tab click handlers
+        countrySwitcher.addEventListener('click', (e) => {
+          const btn = e.target.closest('.switcher-btn');
+          if (!btn) return;
+          const country = btn.dataset.country;
+          switchCountry(country);
+        });
       }
     } catch (err) {
       console.error('Failed to load jobs:', err);
+      dynamicJobGroups.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">Failed to load jobs. Please refresh the page.</p>';
     }
   };
 
+  // ── DIVISION FILTER PILLS ──
+  const buildFilterPills = (filterContainerId, jobsContainerId, divisions) => {
+    const filterContainer = document.getElementById(filterContainerId);
+    const jobsContainer = document.getElementById(jobsContainerId);
+    if (!filterContainer || !jobsContainer || !divisions || divisions.size === 0) return;
+
+    let pillsHtml = '<button type="button" class="filter-pill active" data-division="all">All</button>';
+    divisions.forEach(div => {
+      pillsHtml += `<button type="button" class="filter-pill" data-division="${div}">${div}</button>`;
+    });
+    filterContainer.innerHTML = pillsHtml;
+
+    filterContainer.addEventListener('click', (e) => {
+      const pill = e.target.closest('.filter-pill');
+      if (!pill) return;
+      const selectedDiv = pill.dataset.division;
+
+      // Update active pill
+      filterContainer.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+
+      // Filter job cards and division lines
+      const cards = jobsContainer.querySelectorAll('.job-card');
+      const grids = jobsContainer.querySelectorAll('.job-grid');
+      const divLines = jobsContainer.querySelectorAll('.division-line');
+
+      if (selectedDiv === 'all') {
+        cards.forEach(c => c.style.display = '');
+        grids.forEach(g => g.style.display = '');
+        divLines.forEach(d => d.style.display = '');
+      } else {
+        cards.forEach(c => {
+          c.style.display = c.dataset.division === selectedDiv ? '' : 'none';
+        });
+        grids.forEach(g => {
+          g.style.display = g.dataset.division === selectedDiv ? '' : 'none';
+        });
+        divLines.forEach(d => {
+          d.style.display = d.dataset.division === selectedDiv ? '' : 'none';
+        });
+      }
+    });
+  };
+
   loadJobs();  
+
+  // ── COUNTRY / THEME SWITCHER ──
+  const switchCountry = (country) => {
+    // Reset search
+    jobSearchInput.value = "";
+    filterJobs();
+
+    activeCountry = country;
+
+    // Update tabs
+    countrySwitcher.querySelectorAll('.switcher-btn').forEach(btn => {
+      const isActive = btn.dataset.country === country;
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-selected', isActive);
+    });
+
+    // Show/hide country groups
+    dynamicJobGroups.querySelectorAll('.country-job-group').forEach(group => {
+      group.classList.toggle('active', group.dataset.country === country);
+    });
+
+    // Update salary banner generically
+    salaryVal.textContent = `${country} Opportunities`;
+    salarySub.textContent = `Premium ${country} Placements`;
+    salaryBens.innerHTML = `
+      <span>🏠 Free Accommodation</span>
+      <span>🍽️ Food Provided</span>
+      <span>⏰ Overtime Available</span>
+      <span>🌍 ${esc(country)}</span>
+    `;
+
+    // Smoothly scroll to jobs section
+    const jobsSection = document.getElementById("jobs");
+    if (jobsSection) {
+      const yOffset = -100; 
+      const y = jobsSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+  };
+
   // Modal
   const applyModal = document.getElementById("applyModal");
   const modalClose = document.getElementById("modalClose");
@@ -89,6 +256,60 @@ document.addEventListener("DOMContentLoaded", () => {
   const applicantEmail = document.getElementById("applicantEmail");
   const applicantExp = document.getElementById("applicantExp");
   const applicantMsg = document.getElementById("applicantMsg");
+  const applicantCV = document.getElementById("applicantCV");
+  const cvUploadZone = document.getElementById("cvUploadZone");
+  const cvFileName = document.getElementById("cvFileName");
+
+  // ── SUPABASE CLIENT FOR CV UPLOADS ──
+  let _sbClient = null;
+  async function getSupabaseClient() {
+    if (_sbClient) return _sbClient;
+    try {
+      const res = await fetch('/api/config');
+      const cfg = await res.json();
+      if (cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY && typeof supabase !== 'undefined') {
+        _sbClient = supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+      }
+    } catch (e) { console.log('Supabase client init skipped:', e.message); }
+    return _sbClient;
+  }
+
+  // ── CV UPLOAD ZONE INTERACTIONS ──
+  if (cvUploadZone && applicantCV) {
+    cvUploadZone.addEventListener('click', () => applicantCV.click());
+    applicantCV.addEventListener('change', () => {
+      if (applicantCV.files[0]) {
+        const f = applicantCV.files[0];
+        if (f.size > 5 * 1024 * 1024) {
+          alert('File too large. Max 5MB.');
+          applicantCV.value = '';
+          return;
+        }
+        cvFileName.innerHTML = `✅ ${esc(f.name)} <br><span style="font-size:0.75rem; opacity:0.6;">${(f.size / 1024).toFixed(0)} KB — Click to change</span>`;
+        cvUploadZone.style.borderColor = 'var(--gold-dim)';
+      }
+    });
+    // Drag & drop
+    cvUploadZone.addEventListener('dragover', (e) => { e.preventDefault(); cvUploadZone.style.borderColor = 'var(--gold)'; });
+    cvUploadZone.addEventListener('dragleave', () => { cvUploadZone.style.borderColor = 'rgba(255,255,255,0.15)'; });
+    cvUploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      cvUploadZone.style.borderColor = 'rgba(255,255,255,0.15)';
+      const f = e.dataTransfer.files[0];
+      if (f) {
+        const allowed = ['.pdf','.doc','.docx'];
+        const ext = f.name.substring(f.name.lastIndexOf('.')).toLowerCase();
+        if (!allowed.includes(ext)) { alert('Only PDF, DOC, DOCX allowed.'); return; }
+        if (f.size > 5 * 1024 * 1024) { alert('File too large. Max 5MB.'); return; }
+        // Assign to file input
+        const dt = new DataTransfer();
+        dt.items.add(f);
+        applicantCV.files = dt.files;
+        cvFileName.innerHTML = `✅ ${esc(f.name)} <br><span style="font-size:0.75rem; opacity:0.6;">${(f.size / 1024).toFixed(0)} KB — Click to change</span>`;
+        cvUploadZone.style.borderColor = 'var(--gold-dim)';
+      }
+    });
+  }
 
   // ── CUSTOM INTERACTIVE CURSOR ──
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -226,63 +447,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ── COUNTRY / THEME SWITCHER ──
-  const switchCountry = (country) => {
-    // Reset search
-    jobSearchInput.value = "";
-    filterJobs();
 
-    if (country === "israel") {
-      // Classes and Active states — preserve animation classes
-      body.classList.remove("theme-vietnam");
-      body.classList.add("theme-israel");
-      tabIsrael.classList.add("active");
-      tabVietnam.classList.remove("active");
-      
-      groupIsrael.classList.add("active");
-      groupVietnam.classList.remove("active");
 
-      // Update Salary Highlight Banner Content
-      salaryVal.textContent = "$1000 – $1900 USD";
-      salarySub.textContent = "₹85K – ₹1.62L INR / Month";
-      salaryBens.innerHTML = `
-        <span>🏠 Free Accommodation</span>
-        <span>🍽️ Food Provided</span>
-        <span>⏰ Overtime Available</span>
-        <span>🏭 Industrial Environment</span>
-      `;
-    } else if (country === "vietnam") {
-      // Classes and Active states — preserve animation classes
-      body.classList.remove("theme-israel");
-      body.classList.add("theme-vietnam");
-      tabVietnam.classList.add("active");
-      tabIsrael.classList.remove("active");
-      
-      groupVietnam.classList.add("active");
-      groupIsrael.classList.remove("active");
-
-      // Update Salary Highlight Banner Content
-      salaryVal.textContent = "₹30,000 – ₹65,000 INR";
-      salarySub.textContent = "Premium Overseas Placements";
-      salaryBens.innerHTML = `
-        <span>🏠 Accommodation Provided</span>
-        <span>🍽️ Food Provided</span>
-        <span>⏰ Overtime Available</span>
-        <span>✈️ Hospitality & Processing Roles</span>
-      `;
-    }
-
-    // Smoothly scroll to jobs section title
-    const jobsSection = document.getElementById("jobs");
-    if (jobsSection) {
-      const yOffset = -100; 
-      const y = jobsSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: "smooth" });
-    }
-  };
-
-  tabIsrael.addEventListener("click", () => switchCountry("israel"));
-  tabVietnam.addEventListener("click", () => switchCountry("vietnam"));
 
   // Event Delegation for dynamically loaded job cards
   document.addEventListener("click", (e) => {
@@ -315,8 +481,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // ── SEARCH AND FILTER ──
   const filterJobs = () => {
     const query = jobSearchInput.value.toLowerCase().trim();
-    // Search within active country only
-    const activeGroup = body.classList.contains("theme-vietnam") ? groupVietnam : groupIsrael;
+    // Search within active country group
+    const activeGroup = dynamicJobGroups.querySelector('.country-job-group.active');
+    if (!activeGroup) return;
     const cards = activeGroup.querySelectorAll(".job-card");
     const divisions = activeGroup.querySelectorAll(".division-line");
     let hasMatches = false;
@@ -326,7 +493,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const tag = card.querySelector(".job-tag").textContent.toLowerCase();
       const details = card.querySelector(".job-details") ? card.querySelector(".job-details").textContent.toLowerCase() : "";
       
-      const isMatch = title.includes(query) || tag.includes(query) || details.includes(query);
+      const isMatch = !query || title.includes(query) || tag.includes(query) || details.includes(query);
       
       if (isMatch) {
         card.style.display = "block";
@@ -337,11 +504,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Toggle division lines depending on whether they contain visible cards
-    divisions.forEach(div => {
-      const divId = div.id;
-      const gridId = divId.replace("div-", "grid-");
-      const grid = document.getElementById(gridId);
-      
+    const grids = activeGroup.querySelectorAll('.job-grid');
+    divisions.forEach((div, i) => {
+      const grid = grids[i];
       if (grid) {
         const visibleCards = Array.from(grid.querySelectorAll(".job-card")).filter(c => c.style.display !== "none");
         if (visibleCards.length > 0) {
@@ -355,7 +520,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Show / Hide No Results element
-    if (hasMatches) {
+    if (hasMatches || !query) {
       noResults.style.display = "none";
     } else {
       noResults.style.display = "block";
@@ -364,9 +529,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   jobSearchInput.addEventListener("input", filterJobs);
 
-  // ── MODAL & WHATSAPP APPLICATION SYSTEM ──
+  // ── MODAL & APPLICATION SYSTEM ──
   const openModal = (jobTitle) => {
     modalJobTitle.textContent = jobTitle;
+    // Reset to form view (in case success panel was showing)
+    document.getElementById('applyFormFields').style.display = '';
+    document.getElementById('applySuccess').style.display = 'none';
     applyModal.classList.add("open");
     applyModal.setAttribute("aria-hidden", "false");
     body.style.overflow = "hidden"; // Lock page scroll
@@ -383,6 +551,16 @@ document.addEventListener("DOMContentLoaded", () => {
     applicantEmail.value = "";
     applicantExp.value = "";
     applicantMsg.value = "";
+
+    // Reset to form view
+    document.getElementById('applyFormFields').style.display = '';
+    document.getElementById('applySuccess').style.display = 'none';
+
+    // Reset submit button to default
+    modalSubmit.disabled = false;
+    modalSubmit.textContent = '📨 Submit Application';
+    modalSubmit.style.background = '';
+    modalSubmit.style.color = '';
   };
 
   // Close triggers
@@ -394,7 +572,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Attach modal triggers to job cards
   // (Dynamic apply buttons handled by event delegation above)
 
-  // WhatsApp form submission + Supabase tracking
+  // Direct form submission to API
   modalSubmit.addEventListener("click", async () => {
     const name = applicantName.value.trim();
     const phone = applicantPhone.value.trim();
@@ -402,7 +580,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const exp = applicantExp.value;
     const msg = applicantMsg.value.trim();
     const job = modalJobTitle.textContent;
-    const country = body.classList.contains("theme-vietnam") ? "Vietnam" : "Israel";
+    const country = activeCountry || 'Israel';
 
     // Validations
     if (!name) {
@@ -411,30 +589,41 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     if (!phone) {
-      alert("Please enter your WhatsApp phone number.");
+      alert("Please enter your phone number.");
       applicantPhone.focus();
       return;
     }
 
-    // Construct professional WhatsApp message
-    let messageText = `*New Job Application - Blue Horizon Overseas*\n\n`;
-    messageText += `*Position:* ${job}\n`;
-    messageText += `*Country:* ${country}\n\n`;
-    messageText += `*Full Name:* ${name}\n`;
-    messageText += `*WhatsApp Phone:* ${phone}\n`;
-    if (email) messageText += `*Email:* ${email}\n`;
-    if (exp) messageText += `*Experience:* ${exp}\n`;
-    if (msg) messageText += `\n*Message:* ${msg}`;
+    // Disable button and show loading state
+    modalSubmit.disabled = true;
+    const origBtnText = modalSubmit.textContent;
+    modalSubmit.textContent = "⏳ Submitting...";
 
-    // Encode message and open WhatsApp deep link
-    const encodedText = encodeURIComponent(messageText);
-    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedText}`;
-
-    // Open WhatsApp in a new tab
-    window.open(whatsappUrl, "_blank");
-
-    // Also save to Supabase for tracking (fire-and-forget, don't block WhatsApp)
     try {
+      // Upload CV to Supabase Storage if file selected
+      let cv_url = null;
+      const cvFile = applicantCV?.files[0];
+      if (cvFile) {
+        modalSubmit.textContent = "📤 Uploading CV...";
+        const sb = await getSupabaseClient();
+        if (sb) {
+          const ext = cvFile.name.substring(cvFile.name.lastIndexOf('.')).toLowerCase();
+          const fileName = `cv_${Date.now()}_${Math.random().toString(36).slice(2,8)}${ext}`;
+          const { data: uploadData, error: uploadErr } = await sb.storage
+            .from('cv-uploads')
+            .upload(fileName, cvFile, { contentType: cvFile.type, upsert: false });
+
+          if (uploadErr) {
+            console.error('CV upload error:', uploadErr);
+            // Continue without CV — don't block the application
+          } else {
+            const { data: urlData } = sb.storage.from('cv-uploads').getPublicUrl(fileName);
+            cv_url = urlData?.publicUrl || null;
+          }
+        }
+        modalSubmit.textContent = "⏳ Submitting...";
+      }
+
       const response = await fetch('/api/applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -446,7 +635,8 @@ document.addEventListener("DOMContentLoaded", () => {
           job_title: job,
           country: country,
           experience: exp || null,
-          cover_note: msg || null
+          cover_note: msg || null,
+          cv_url: cv_url
         })
       });
 
@@ -456,19 +646,42 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem('bh_tracking_id', result.tracking_id);
         localStorage.setItem('bh_tracking_phone', phone);
 
-        // Show tracking ID to user
-        alert(`✅ Application Submitted!\n\nYour Tracking ID: ${result.tracking_id}\n\nSave this ID to track your application status at any time.\n\nYou can also check your status at:\nbluehorizonoverseas.in/tracker`);
+        // Show success panel
+        document.getElementById('applyFormFields').style.display = 'none';
+        document.getElementById('trackingIdValue').textContent = result.tracking_id;
+        document.getElementById('applySuccess').style.display = 'block';
+
+        // Turn button green with success message
+        modalSubmit.style.background = '#10b981';
+        modalSubmit.style.color = '#fff';
+        modalSubmit.textContent = '✅ Submitted! Check email for details';
+        modalSubmit.disabled = true;
+
+        // Reset form fields for next use
+        applicantName.value = '';
+        applicantPhone.value = '';
+        applicantEmail.value = '';
+        applicantExp.value = '';
+        applicantMsg.value = '';
+        if (applicantCV) applicantCV.value = '';
+        if (cvFileName) cvFileName.innerHTML = '📎 Click to upload or drag & drop<br><span style="font-size:0.75rem; opacity:0.6;">PDF, DOC, DOCX — Max 5MB</span>';
+        if (cvUploadZone) cvUploadZone.style.borderColor = 'rgba(255,255,255,0.15)';
+        return; // Don't restore button — keep green
+      } else {
+        const err = await response.json();
+        alert(err.error || 'Submission failed. Please try again.');
       }
     } catch (err) {
-      // Silently fail — WhatsApp is the primary flow, tracking is secondary
-      console.log('Tracking save failed (non-critical):', err.message);
+      alert('Network error. Please check your connection and try again.');
+      console.error('Application submit error:', err);
     }
 
-    closeModal();
+    modalSubmit.disabled = false;
+    modalSubmit.textContent = origBtnText;
   });
 
   // Initialize default theme (use classList to preserve animation classes)
-  body.classList.add("theme-israel");
+  // Theme initialized dynamically by loadJobs()
 
   // ── AI CHATBOT WIDGET ──
   const chatbotToggle = document.getElementById("chatbotToggle");
@@ -563,7 +776,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (m.includes("visa") || m.includes("document") || m.includes("passport"))
       return "🛂 We handle the full visa process! We accept ECR & ECNR passports. You'll need: Passport, Photos, Certificates, and Experience letters.";
     if (m.includes("apply") || m.includes("job"))
-      return "📋 Browse jobs above, click 'Apply', fill the form, and it goes to our team via WhatsApp. You'll get a tracking ID to monitor progress!";
+      return "📋 Browse jobs above, click 'Apply', fill the form, and submit directly. You'll get a tracking ID to monitor your application progress!";
     if (m.includes("track") || m.includes("status"))
       return "📍 Track your application at our <a href='tracker/' style='color:var(--gold)'>Tracker page</a>. Enter your Tracking ID + phone number.";
     if (m.includes("hello") || m.includes("hi") || m.includes("hey"))
@@ -572,6 +785,114 @@ document.addEventListener("DOMContentLoaded", () => {
       return "📞 WhatsApp: +91 89420 69079 | Helpline: +91 92308 59550 | Email: global@bluehorizonoverseas.in";
     if (m.includes("accommodation") || m.includes("food") || m.includes("living"))
       return "🏠 Yes! Free accommodation & food are provided by employers for all placements. Most of your salary goes straight to savings!";
-    return "Thanks for your question! For detailed help, contact us on WhatsApp: <a href='https://wa.me/918942069079' target='_blank' style='color:var(--gold)'>+91 89420 69079</a> 😊";
+    return "Thanks for your question! For detailed help, contact us at: <a href='tel:+918942069079' style='color:var(--gold)'>+91 89420 69079</a> or email global@bluehorizonoverseas.in 😊";
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // TALENT POOL FORM
+  // ══════════════════════════════════════════════════════════════
+  const talentForm = document.getElementById('talentPoolForm');
+  if (talentForm) {
+    talentForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      // Honeypot check — bots fill this, humans never see it
+      if (document.getElementById('tpHoneypot') && document.getElementById('tpHoneypot').value) return;
+      const submitBtn = talentForm.querySelector('.tp-submit');
+      const origText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Submitting...';
+
+      try {
+        const payload = {
+          full_name: document.getElementById('tpName').value.trim(),
+          phone: document.getElementById('tpPhone').value.trim(),
+          trade: document.getElementById('tpTrade').value,
+          preferred_country: document.getElementById('tpCountry').value || null
+        };
+
+        const res = await fetch('/api/talent-pool', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          talentForm.reset();
+          submitBtn.textContent = '✅ Profile Submitted!';
+          submitBtn.style.background = 'rgba(16,185,129,0.2)';
+          submitBtn.style.borderColor = 'rgba(16,185,129,0.5)';
+          setTimeout(() => {
+            submitBtn.textContent = origText;
+            submitBtn.style.background = '';
+            submitBtn.style.borderColor = '';
+            submitBtn.disabled = false;
+          }, 3000);
+        } else {
+          const err = await res.json();
+          alert(err.error || 'Submission failed. Please try again.');
+          submitBtn.textContent = origText;
+          submitBtn.disabled = false;
+        }
+      } catch {
+        alert('Network error. Please try again.');
+        submitBtn.textContent = origText;
+        submitBtn.disabled = false;
+      }
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // EMPLOYER INQUIRY FORM
+  // ══════════════════════════════════════════════════════════════
+  const employerForm = document.getElementById('employerForm');
+  if (employerForm) {
+    employerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      // Honeypot check — bots fill this, humans never see it
+      if (document.getElementById('empHoneypot') && document.getElementById('empHoneypot').value) return;
+      const submitBtn = employerForm.querySelector('.emp-submit');
+      const origText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Sending...';
+
+      try {
+        const payload = {
+          company_name: document.getElementById('empCompany').value.trim(),
+          contact_person: document.getElementById('empContact').value.trim(),
+          phone: document.getElementById('empPhone').value.trim(),
+          email: document.getElementById('empEmail').value.trim() || null,
+          country: document.getElementById('empCountry').value || null,
+          roles_needed: document.getElementById('empRoles').value.trim() || null
+        };
+
+        const res = await fetch('/api/employers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          employerForm.reset();
+          submitBtn.textContent = '✅ Inquiry Submitted!';
+          submitBtn.style.background = 'rgba(16,185,129,0.2)';
+          submitBtn.style.borderColor = 'rgba(16,185,129,0.5)';
+          setTimeout(() => {
+            submitBtn.textContent = origText;
+            submitBtn.style.background = '';
+            submitBtn.style.borderColor = '';
+            submitBtn.disabled = false;
+          }, 3000);
+        } else {
+          const err = await res.json();
+          alert(err.error || 'Submission failed. Please try again.');
+          submitBtn.textContent = origText;
+          submitBtn.disabled = false;
+        }
+      } catch {
+        alert('Network error. Please try again.');
+        submitBtn.textContent = origText;
+        submitBtn.disabled = false;
+      }
+    });
   }
 });

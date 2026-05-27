@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <!-- SEO Best Practices -->
-  <title>Blue Horizon Overseas – Global Careers in Israel &amp; Vietnam</title>
-  <meta name="description" content="Blue Horizon Overseas is a licensed manpower consultancy. Discover high-paying, verified jobs in Israel and Vietnam with visa support and free accommodation. Apply today.">
+  <title>Blue Horizon Overseas – Global Overseas Career Opportunities</title>
+  <meta name="description" content="Blue Horizon Overseas is a licensed manpower consultancy. Discover high-paying, verified overseas jobs worldwide with visa support and free accommodation. Apply today.">
   <meta name="theme-color" content="#071426">
   
   <!-- Open Graph Protocol -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Blue Horizon Overseas – Global Careers in Israel &amp; Vietnam">
-  <meta property="og:description" content="Government licensed recruitment for international job placements. Premium industrial, hospitality, and corporate roles with smooth WhatsApp application.">
+  <meta property="og:title" content="Blue Horizon Overseas – Global Overseas Career Opportunities">
+  <meta property="og:description" content="Government licensed recruitment for international job placements. Premium industrial, hospitality, and corporate roles with seamless online application and real-time tracking.">
   <meta property="og:locale" content="en_IN">
   
   <!-- Fonts -->
@@ -26,6 +26,9 @@
   <!-- GSAP Animation Library + ScrollTrigger Plugin -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+
+  <!-- Supabase Client (for CV Storage uploads) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 </head>
 
 <body class="theme-israel">
@@ -137,25 +140,25 @@
         <!-- FIRST HALF -->
         <span>⭐ TRUSTED WORLDWIDE</span> <span>•</span>
         <span>1000+ DEPLOYMENTS</span> <span>•</span>
-        <span>ISRAEL</span> <span>•</span>
-        <span>VIETNAM</span> <span>•</span>
-        <span>SAUDI ARABIA</span> <span>•</span>
+        <span>🏠 FREE ACCOMMODATION</span> <span>•</span>
+        <span>✈️ VISA ASSISTANCE</span> <span>•</span>
+        <span>💰 HIGH SALARY PACKAGES</span> <span>•</span>
         <span>⭐ TRUSTED WORLDWIDE</span> <span>•</span>
         <span>1000+ DEPLOYMENTS</span> <span>•</span>
-        <span>ISRAEL</span> <span>•</span>
-        <span>VIETNAM</span> <span>•</span>
-        <span>SAUDI ARABIA</span> <span>•</span>
+        <span>🏠 FREE ACCOMMODATION</span> <span>•</span>
+        <span>✈️ VISA ASSISTANCE</span> <span>•</span>
+        <span>💰 HIGH SALARY PACKAGES</span> <span>•</span>
         <!-- SECOND HALF (EXACT COPY) -->
         <span>⭐ TRUSTED WORLDWIDE</span> <span>•</span>
         <span>1000+ DEPLOYMENTS</span> <span>•</span>
-        <span>ISRAEL</span> <span>•</span>
-        <span>VIETNAM</span> <span>•</span>
-        <span>SAUDI ARABIA</span> <span>•</span>
+        <span>🏠 FREE ACCOMMODATION</span> <span>•</span>
+        <span>✈️ VISA ASSISTANCE</span> <span>•</span>
+        <span>💰 HIGH SALARY PACKAGES</span> <span>•</span>
         <span>⭐ TRUSTED WORLDWIDE</span> <span>•</span>
         <span>1000+ DEPLOYMENTS</span> <span>•</span>
-        <span>ISRAEL</span> <span>•</span>
-        <span>VIETNAM</span> <span>•</span>
-        <span>SAUDI ARABIA</span> <span>•</span>
+        <span>🏠 FREE ACCOMMODATION</span> <span>•</span>
+        <span>✈️ VISA ASSISTANCE</span> <span>•</span>
+        <span>💰 HIGH SALARY PACKAGES</span> <span>•</span>
       </div>
     </div>
 
@@ -178,6 +181,60 @@
         <div class="stat-label">Support</div>
       </div>
     </div>
+
+    <!-- TALENT POOL — General CV Drop -->
+    <section id="talent-pool" class="talent-pool-section reveal">
+      <div class="talent-pool-card reveal">
+        <div class="talent-pool-info">
+          <div class="eyebrow">Build Your Future</div>
+          <h2>Don't See Your Role? <span style="color: var(--accent);">Join Our Talent Pool</span></h2>
+          <p>Submit your details and we'll contact you the moment a matching opportunity opens. No specific job needed — just your skills.</p>
+        </div>
+        <form id="talentPoolForm" class="talent-pool-form" autocomplete="off">
+          <div class="tp-form-row">
+            <input type="text" id="tpName" placeholder="Full Name *" required>
+            <input type="tel" id="tpPhone" placeholder="Phone / WhatsApp *" required>
+          </div>
+          <div class="tp-form-row">
+            <select id="tpTrade" required>
+              <option value="">Select Your Trade *</option>
+              <option value="Welder">Welder</option>
+              <option value="Electrician">Electrician</option>
+              <option value="Plumber">Plumber</option>
+              <option value="Driver">Driver (Truck / Heavy Vehicle)</option>
+              <option value="Cook">Cook / Chef</option>
+              <option value="Helper">General Helper</option>
+              <option value="Carpenter">Carpenter</option>
+              <option value="Mason">Mason</option>
+              <option value="AC Technician">AC / Chiller Technician</option>
+              <option value="Painter">Painter</option>
+              <option value="Production Technician">Production Technician</option>
+              <option value="Other">Other</option>
+            </select>
+            <select id="tpCountry">
+              <option value="">Preferred Country</option>
+              <option value="Israel">🇮🇱 Israel</option>
+              <option value="Vietnam">🇻🇳 Vietnam</option>
+              <option value="UAE">🇦🇪 UAE</option>
+              <option value="Saudi Arabia">🇸🇦 Saudi Arabia</option>
+              <option value="Qatar">🇶🇦 Qatar</option>
+              <option value="Kuwait">🇰🇼 Kuwait</option>
+              <option value="Singapore">🇸🇬 Singapore</option>
+              <option value="Malaysia">🇲🇾 Malaysia</option>
+              <option value="Japan">🇯🇵 Japan</option>
+              <option value="South Korea">🇰🇷 South Korea</option>
+              <option value="Germany">🇩🇪 Germany</option>
+              <option value="Poland">🇵🇱 Poland</option>
+              <option value="Canada">🇨🇦 Canada</option>
+              <option value="Australia">🇦🇺 Australia</option>
+              <option value="Any">🌍 Any Country</option>
+            </select>
+          </div>
+          <input type="text" name="website" id="tpHoneypot" style="position:absolute;left:-9999px;opacity:0;height:0" tabindex="-1" autocomplete="off">
+          <button type="submit" class="btn btn-primary tp-submit">📤 Submit My Profile</button>
+        </form>
+      </div>
+    </section>
 
     <!-- WHY CHOOSE BLUE HORIZON -->
     <section id="why-us" class="why-section reveal">
@@ -241,7 +298,7 @@
         <div class="process-step reveal">
           <div class="step-num">1</div>
           <h4>Apply Online</h4>
-          <p>Select your job and submit details via our easy WhatsApp form.</p>
+          <p>Select your job and submit your application directly through our website form.</p>
         </div>
         <div class="process-step reveal">
           <div class="step-num">2</div>
@@ -277,27 +334,20 @@
         <p>Filter active job openings by country to find the perfect match for your expertise.</p>
       </div>
 
-      <!-- DYNAMIC COUNTRY SELECT SWITCHER -->
-      <div class="country-switcher reveal" role="tablist" aria-label="Country job filter">
-        <button type="button" class="switcher-btn active" id="tab-israel" role="tab" aria-selected="true" aria-controls="group-israel">
-          <img src="https://flagcdn.com/w40/il.png" alt="Israel Flag">
-          <span>🇮🇱 Israel Placements</span>
-        </button>
-        <button type="button" class="switcher-btn" id="tab-vietnam" role="tab" aria-selected="false" aria-controls="group-vietnam">
-          <img src="https://flagcdn.com/w40/vn.png" alt="Vietnam Flag">
-          <span>🇻🇳 Vietnam Placements</span>
-        </button>
+      <!-- DYNAMIC COUNTRY TABS (generated by main.js from API data) -->
+      <div class="country-switcher reveal" role="tablist" aria-label="Country job filter" id="countrySwitcher">
+        <!-- Tabs are injected dynamically -->
       </div>
 
       <!-- DYNAMIC SALARY SUMMARY BANNER -->
       <div class="salary-highlight reveal">
-        <h3 id="salary-val">$1000 – $1900 USD</h3>
-        <p id="salary-sub">₹85K – ₹1.62L INR / Month</p>
+        <h3 id="salary-val">Overseas Career Opportunities</h3>
+        <p id="salary-sub">Premium International Placements</p>
         <div class="salary-benefits" id="salary-bens">
           <span>🏠 Free Accommodation</span>
           <span>🍽️ Food Provided</span>
           <span>⏰ Overtime Available</span>
-          <span>🏭 Industrial Environment</span>
+          <span>🌍 Global Placements</span>
         </div>
       </div>
 
@@ -313,25 +363,12 @@
       <!-- NO RESULTS PLACEHOLDER -->
       <div id="no-results" role="alert">
         <span class="nr-icon" aria-hidden="true">🔎</span>
-        <p>No job listings found matching your search. Please check your keywords or select the other country.</p>
+        <p>No job listings found matching your search. Please check your keywords or try another country.</p>
       </div>
 
-      <!-- ──────────────── ISRAEL JOB PORTAL SECTION ──────────────── -->
-      <div class="country-job-group active" id="group-israel" role="tabpanel" aria-labelledby="tab-israel">
-        
-        <!-- Dynamic jobs will be injected here by main.js -->
-        <div id="israel-jobs-container" class="dynamic-jobs-container">
-          <div class="loading-spinner">Loading jobs...</div>
-        </div>
-      </div>
-
-      <!-- ──────────────── VIETNAM JOB PORTAL SECTION ──────────────── -->
-      <div class="country-job-group" id="group-vietnam" role="tabpanel" aria-labelledby="tab-vietnam">
-        
-        <!-- Dynamic jobs will be injected here by main.js -->
-        <div id="vietnam-jobs-container" class="dynamic-jobs-container">
-          <div class="loading-spinner">Loading jobs...</div>
-        </div>
+      <!-- DYNAMIC COUNTRY JOB GROUPS (generated by main.js) -->
+      <div id="dynamicJobGroups">
+        <div class="loading-spinner">Loading jobs...</div>
       </div>
 
     </section>
@@ -380,6 +417,52 @@
       </div>
     </section>
 
+    <!-- FOR EMPLOYERS — B2B Lead Capture -->
+    <section id="employers" class="employers-section reveal">
+      <div class="section-title reveal">
+        <div class="eyebrow">Partner With Us</div>
+        <h2>Looking to Hire <span style="color: var(--accent);">Indian Talent?</span></h2>
+        <p>We supply pre-screened, skilled workers for your international projects. Tell us your requirements and our team will get back to you within 24 hours.</p>
+      </div>
+      <div class="employer-form-card reveal">
+        <form id="employerForm" class="employer-form" autocomplete="off">
+          <div class="emp-form-grid">
+            <div class="form-group">
+              <label for="empCompany">Company Name *</label>
+              <input type="text" id="empCompany" placeholder="Your company name" required>
+            </div>
+            <div class="form-group">
+              <label for="empContact">Contact Person *</label>
+              <input type="text" id="empContact" placeholder="Full name" required>
+            </div>
+            <div class="form-group">
+              <label for="empPhone">Phone / WhatsApp *</label>
+              <input type="tel" id="empPhone" placeholder="+XXX XXXXXXXX" required>
+            </div>
+            <div class="form-group">
+              <label for="empEmail">Email Address</label>
+              <input type="email" id="empEmail" placeholder="company@example.com">
+            </div>
+            <div class="form-group">
+              <label for="empCountry">Hiring Country</label>
+              <select id="empCountry">
+                <option value="">Select country</option>
+                <option value="Israel">🇮🇱 Israel</option>
+                <option value="Vietnam">🇻🇳 Vietnam</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group emp-full-width">
+              <label for="empRoles">Roles Needed</label>
+              <textarea id="empRoles" rows="3" placeholder="e.g., 20 Welders, 10 Electricians, 5 Truck Drivers..."></textarea>
+            </div>
+          </div>
+          <input type="text" name="company_url" id="empHoneypot" style="position:absolute;left:-9999px;opacity:0;height:0" tabindex="-1" autocomplete="off">
+          <button type="submit" class="btn btn-primary emp-submit">📨 Submit Hiring Inquiry</button>
+        </form>
+      </div>
+    </section>
+
     <!-- FAQ ACCORDION SECTION -->
     <section id="faq" class="faq-section reveal">
       <div class="section-title reveal">
@@ -421,11 +504,11 @@
 
         <div class="faq-item reveal">
           <button type="button" class="faq-q" aria-expanded="false">
-            <span>How does the WhatsApp application work?</span>
+            <span>How does the online application work?</span>
             <span class="faq-icon" aria-hidden="true">+</span>
           </button>
           <div class="faq-a">
-            <p>When you click "Apply" on any job card, you will fill out a short detail form. Upon clicking submit, our system pre-fills a professional, formatted resume text and redirects you directly to WhatsApp to send it to our recruitment officers.</p>
+            <p>When you click "Apply" on any job card, you fill out a short form with your details. Upon submitting, your application is saved securely and you receive a unique tracking ID to monitor your status in real-time on our tracker page.</p>
           </div>
         </div>
 
@@ -489,14 +572,14 @@
     <div class="footer-top">
       <div class="footer-brand">
         <a href="#" class="logo">BLUE <span>HORIZON</span></a>
-        <p>A licensed, top-tier overseas manpower consultancy specializing in secured placement contracts across Israel and Vietnam.</p>
+        <p>A licensed, top-tier overseas manpower consultancy specializing in secured placement contracts across the globe.</p>
       </div>
       <div class="footer-links">
         <h4>Placements</h4>
         <ul>
-          <li><a href="#jobs">Israel Opportunities</a></li>
-          <li><a href="#jobs">Vietnam Opportunities</a></li>
+          <li><a href="#jobs">Browse All Opportunities</a></li>
           <li><a href="#jobs">Urgent Openings</a></li>
+          <li><a href="calculator/">Salary Calculator</a></li>
         </ul>
       </div>
       <div class="footer-links">
@@ -512,9 +595,9 @@
     <div class="footer-bottom">
       <p>&copy; 2026 Blue Horizon Overseas Manpower. All Rights Reserved.</p>
       <div class="footer-socials">
-        <a href="#" aria-label="Facebook"><span aria-hidden="true">FB</span></a>
+        <a href="https://www.facebook.com/Bluehorizon.overseas" target="_blank" rel="noopener" aria-label="Facebook"><span aria-hidden="true">FB</span></a>
         <a href="#" aria-label="Instagram"><span aria-hidden="true">IG</span></a>
-        <a href="#" aria-label="Twitter"><span aria-hidden="true">TW</span></a>
+        <a href="https://wa.me/918942069079" target="_blank" rel="noopener" aria-label="WhatsApp"><span aria-hidden="true">WA</span></a>
       </div>
     </div>
   </footer>
@@ -549,7 +632,7 @@
 
   <!-- WHATSAPP FLOATING FLOATER -->
   <a href="https://wa.me/918942069079" class="whatsapp" id="whatsapp-float" target="_blank" rel="noopener" aria-label="Chat with recruiter on WhatsApp">💬</a>
-  <div class="whatsapp-tooltip" id="whatsapp-tooltip">Apply instantly on WhatsApp!</div>
+  <div class="whatsapp-tooltip" id="whatsapp-tooltip">Chat with us on WhatsApp!</div>
 
   <!-- APPLICATION FORM MODAL DIALOG -->
   <div class="modal-overlay" id="applyModal" role="dialog" aria-modal="true" aria-labelledby="modalHeading" aria-hidden="true">
@@ -558,39 +641,63 @@
       <h3 id="modalHeading">Apply Now</h3>
       <div class="modal-job-title" id="modalJobTitle">Position Name</div>
       
-      <div class="form-group">
-        <label for="applicantName">Full Name *</label>
-        <input type="text" id="applicantName" name="applicantName" autocomplete="name" placeholder="Enter your full name" required>
+      <!-- APPLICATION FORM -->
+      <div id="applyFormFields">
+        <div class="form-group">
+          <label for="applicantName">Full Name *</label>
+          <input type="text" id="applicantName" name="applicantName" autocomplete="name" placeholder="Enter your full name" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="applicantPhone">Phone Number *</label>
+          <input type="tel" id="applicantPhone" name="applicantPhone" autocomplete="tel" placeholder="+91 XXXXX XXXXX" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="applicantEmail">Email Address (Optional)</label>
+          <input type="email" id="applicantEmail" name="applicantEmail" autocomplete="email" placeholder="yourname@gmail.com">
+        </div>
+        
+        <div class="form-group">
+          <label for="applicantExp">Years of Professional Experience</label>
+          <select id="applicantExp" name="applicantExp">
+            <option value="">Select experience level</option>
+            <option value="Fresher (0 years)">Fresher (0 years)</option>
+            <option value="1–2 Years">1–2 Years</option>
+            <option value="3–5 Years">3–5 Years</option>
+            <option value="5+ Years">5+ Years</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="applicantMsg">Cover Note / Message (Optional)</label>
+          <textarea id="applicantMsg" name="applicantMsg" placeholder="Brief details about your relevant work history..."></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label for="applicantCV">Upload CV / Resume (Optional)</label>
+          <div id="cvUploadZone" style="border:2px dashed rgba(255,255,255,0.15); border-radius:12px; padding:1.25rem; text-align:center; cursor:pointer; transition:border-color 0.3s;">
+            <input type="file" id="applicantCV" accept=".pdf,.doc,.docx" style="display:none">
+            <p id="cvFileName" style="margin:0; color:var(--text-dim); font-size:0.85rem;">📎 Click to upload or drag & drop<br><span style="font-size:0.75rem; opacity:0.6;">PDF, DOC, DOCX — Max 5MB</span></p>
+          </div>
+        </div>
+        
+        <button type="button" class="modal-submit" id="modalSubmit">📨 Submit Application</button>
+        <p class="modal-note">Your application will be reviewed by our recruitment team within 2-3 business days.</p>
       </div>
-      
-      <div class="form-group">
-        <label for="applicantPhone">Phone Number (WhatsApp) *</label>
-        <input type="tel" id="applicantPhone" name="applicantPhone" autocomplete="tel" placeholder="+91 XXXXX XXXXX" required>
+
+      <!-- SUCCESS STATE (hidden by default) -->
+      <div id="applySuccess" style="display:none; text-align:center; padding: 1.5rem 0;">
+        <div style="font-size:3rem; margin-bottom:0.5rem;">✅</div>
+        <h3 style="color:var(--gold); margin-bottom:0.75rem; font-size:1.3rem;">Application Submitted!</h3>
+        <p style="color:var(--text-dim); margin-bottom:1.25rem; font-size:0.9rem;">Our team will review your profile and contact you within 2-3 business days.</p>
+        <div id="trackingIdDisplay" style="background:var(--navy-card); border:1px solid var(--gold-dim); border-radius:12px; padding:1rem; margin-bottom:1.25rem;">
+          <p style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-dim); margin-bottom:0.4rem;">Your Tracking ID</p>
+          <p id="trackingIdValue" style="font-size:1.4rem; font-weight:700; color:var(--gold); letter-spacing:0.05em;">—</p>
+        </div>
+        <p style="font-size:0.8rem; color:var(--text-dim); margin-bottom:1rem;">Save this ID to track your application at <a href="/tracker" style="color:var(--accent);">bluehorizonoverseas.in/tracker</a></p>
+        <button type="button" class="modal-submit" onclick="document.getElementById('applyModal').classList.remove('open'); document.getElementById('applyModal').setAttribute('aria-hidden','true');" style="background:var(--navy-card); border:1px solid rgba(255,255,255,0.1);">Close</button>
       </div>
-      
-      <div class="form-group">
-        <label for="applicantEmail">Email Address (Optional)</label>
-        <input type="email" id="applicantEmail" name="applicantEmail" autocomplete="email" placeholder="yourname@gmail.com">
-      </div>
-      
-      <div class="form-group">
-        <label for="applicantExp">Years of Professional Experience</label>
-        <select id="applicantExp" name="applicantExp">
-          <option value="">Select experience level</option>
-          <option value="Fresher (0 years)">Fresher (0 years)</option>
-          <option value="1–2 Years">1–2 Years</option>
-          <option value="3–5 Years">3–5 Years</option>
-          <option value="5+ Years">5+ Years</option>
-        </select>
-      </div>
-      
-      <div class="form-group">
-        <label for="applicantMsg">Cover Note / Message (Optional)</label>
-        <textarea id="applicantMsg" name="applicantMsg" placeholder="Brief details about your relevant work history..."></textarea>
-      </div>
-      
-      <button type="button" class="modal-submit" id="modalSubmit">💬 Send Application via WhatsApp</button>
-      <p class="modal-note">You will be redirected to WhatsApp to send your structured information to our hiring agents.</p>
     </div>
   </div>
 
@@ -637,7 +744,7 @@
     // Slower fallback: force ALL content visible after 5s
     // Catches cases where GSAP loaded but ScrollTrigger stuck elements at opacity:0
     setTimeout(function() {
-      var all = document.querySelectorAll("nav, section, .hero-content, .hero-eyebrow, .hero-tagline, .hero-3d-title, .hero-3d-title .char, .hero-buttons, .hero-buttons .btn, .hero-content > p, .stat-item, .why-card, .process-step, .step-num, .job-card, .testimonial-card, .faq-item, .contact-card, .badge, .division-line, .country-switcher, .salary-highlight, .social-box, footer, .section-title, .section-title h2, .section-title p, .footer-top > div, .tracker-cta-box, .stats-bar");
+      var all = document.querySelectorAll("nav, section, .hero-content, .hero-eyebrow, .hero-tagline, .hero-3d-title, .hero-3d-title .char, .hero-buttons, .hero-buttons .btn, .hero-content > p, .stat-item, .why-card, .process-step, .step-num, .job-card, .testimonial-card, .faq-item, .contact-card, .badge, .division-line, .country-switcher, .salary-highlight, .social-box, footer, .section-title, .section-title h2, .section-title p, .footer-top > div, .tracker-cta-box, .stats-bar, .talent-pool-card, .employer-form-card");
       for (var i = 0; i < all.length; i++) {
         var el = all[i];
         var style = window.getComputedStyle(el);

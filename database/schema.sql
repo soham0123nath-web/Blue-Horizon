@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS applications (
     phone TEXT NOT NULL,
     email TEXT,
     job_title TEXT NOT NULL,
-    country TEXT NOT NULL CHECK (country IN ('Israel', 'Vietnam')),
+    country TEXT NOT NULL,
     division TEXT,
     experience TEXT,
     cover_note TEXT,
@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS applications (
     deployed_at TIMESTAMPTZ,
     rejected_at TIMESTAMPTZ,
     -- Meta
+    cv_url TEXT,
     created_at TIMESTAMPTZ DEFAULT now(),
     updated_at TIMESTAMPTZ DEFAULT now()
 );
@@ -43,13 +44,14 @@ CREATE INDEX IF NOT EXISTS idx_applications_tracking ON applications(tracking_id
 CREATE INDEX IF NOT EXISTS idx_applications_phone ON applications(phone);
 CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status);
 CREATE INDEX IF NOT EXISTS idx_applications_country ON applications(country);
+CREATE INDEX IF NOT EXISTS idx_applications_created ON applications(created_at DESC);
 
 -- ── 2. JOB LISTINGS ──
 CREATE TABLE IF NOT EXISTS job_listings (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     title TEXT NOT NULL,
     emoji TEXT DEFAULT '🏭',
-    country TEXT NOT NULL CHECK (country IN ('Israel', 'Vietnam')),
+    country TEXT NOT NULL,
     division TEXT NOT NULL,
     salary_display TEXT NOT NULL,
     salary_inr_display TEXT,
@@ -84,7 +86,7 @@ CREATE TABLE IF NOT EXISTS video_testimonials (
 CREATE TABLE IF NOT EXISTS salary_config (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     job_title TEXT NOT NULL,
-    country TEXT NOT NULL CHECK (country IN ('Israel', 'Vietnam')),
+    country TEXT NOT NULL,
     base_salary_usd NUMERIC(10,2) NOT NULL,
     overtime_rate_per_hour NUMERIC(10,2) DEFAULT 0,
     typical_overtime_hours INTEGER DEFAULT 0,
@@ -118,6 +120,37 @@ CREATE TABLE IF NOT EXISTS chat_logs (
 
 CREATE INDEX IF NOT EXISTS idx_chat_session ON chat_logs(session_id);
 
+-- ── 7. EMPLOYER INQUIRIES (B2B Lead Form) ──
+CREATE TABLE IF NOT EXISTS employer_inquiries (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    company_name TEXT NOT NULL,
+    contact_person TEXT NOT NULL,
+    email TEXT,
+    phone TEXT NOT NULL,
+    country TEXT,
+    roles_needed TEXT,
+    message TEXT,
+    status TEXT DEFAULT 'new' CHECK (status IN ('new', 'contacted', 'closed')),
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_employer_inq_status ON employer_inquiries(status);
+
+-- ── 8. TALENT POOL (General CV Drop) ──
+CREATE TABLE IF NOT EXISTS talent_pool (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    full_name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    email TEXT,
+    trade TEXT NOT NULL,
+    experience TEXT,
+    preferred_country TEXT,
+    status TEXT DEFAULT 'new' CHECK (status IN ('new', 'contacted', 'placed')),
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_talent_pool_status ON talent_pool(status);
+
 -- ══════════════════════════════════════════════════════════════
 -- ROW LEVEL SECURITY (RLS)
 -- ══════════════════════════════════════════════════════════════
@@ -129,6 +162,8 @@ ALTER TABLE video_testimonials ENABLE ROW LEVEL SECURITY;
 ALTER TABLE salary_config ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bh_admins ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chat_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE employer_inquiries ENABLE ROW LEVEL SECURITY;
+ALTER TABLE talent_pool ENABLE ROW LEVEL SECURITY;
 
 -- Applications: Allow insert from anon (public apply), select only via API (service role)
 CREATE POLICY "Allow public insert" ON applications FOR INSERT WITH CHECK (true);
@@ -152,3 +187,46 @@ CREATE POLICY "Service role manage admins" ON bh_admins FOR ALL USING (auth.role
 -- Chat logs: Allow public insert, service role reads
 CREATE POLICY "Allow public chat insert" ON chat_logs FOR INSERT WITH CHECK (true);
 CREATE POLICY "Service role read chats" ON chat_logs FOR SELECT USING (auth.role() = 'service_role');
+
+-- Employer inquiries: Allow public insert, service role manages
+CREATE POLICY "Allow public employer insert" ON employer_inquiries FOR INSERT WITH CHECK (true);
+CREATE POLICY "Service role manage employers" ON employer_inquiries FOR ALL USING (auth.role() = 'service_role');
+
+-- Talent pool: Allow public insert, service role manages
+CREATE POLICY "Allow public talent insert" ON talent_pool FOR INSERT WITH CHECK (true);
+CREATE POLICY "Service role manage talent" ON talent_pool FOR ALL USING (auth.role() = 'service_role');
+
+-- ══════════════════════════════════════════════════════════════
+-- STORAGE BUCKET FOR CV UPLOADS
+-- ══════════════════════════════════════════════════════════════
+-- Run this in SQL Editor to create the bucket:
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('cv-uploads', 'cv-uploads', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Allow public upload (anon users can upload CVs)
+CREATE POLICY "Allow public CV upload"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'cv-uploads');
+
+-- Allow public read (admins can view/download CVs)
+CREATE POLICY "Allow public CV read"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'cv-uploads');
+
+-- ══════════════════════════════════════════════════════════════
+-- MIGRATION: Add cv_url to existing applications table
+-- (Safe to run multiple times — uses IF NOT EXISTS logic)
+-- ══════════════════════════════════════════════════════════════
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'applications' AND column_name = 'cv_url') THEN
+    ALTER TABLE applications ADD COLUMN cv_url TEXT;
+  END IF;
+END $$;
+
+-- ══════════════════════════════════════════════════════════════
+-- MIGRATION: Remove country CHECK constraints (allow any country)
+-- ══════════════════════════════════════════════════════════════
+ALTER TABLE applications DROP CONSTRAINT IF EXISTS applications_country_check;
+ALTER TABLE job_listings DROP CONSTRAINT IF EXISTS job_listings_country_check;
+ALTER TABLE salary_config DROP CONSTRAINT IF EXISTS salary_config_country_check;

@@ -14,6 +14,8 @@
 const { getSupabase } = require('../lib/supabase');
 const { setCors }     = require('../lib/cors');
 const { requireAdmin } = require('../lib/auth');
+const { sendEmail }    = require('../lib/mailer');
+const emailTemplates   = require('../lib/email-templates');
 
 // ── Tracking ID Generator ──
 function generateTrackingId() {
@@ -143,7 +145,12 @@ async function handleGet(req, res, supabase) {
 
         if (status) query = query.eq('status', status);
         if (country) query = query.eq('country', country);
-        if (search) query = query.or(`full_name.ilike.%${search}%,tracking_id.ilike.%${search}%,phone.ilike.%${search}%,job_title.ilike.%${search}%`);
+        if (search) {
+            const cleanSearch = search.replace(/[%_.,()]/g, '').trim();
+            if (cleanSearch) {
+                query = query.or(`full_name.ilike.%${cleanSearch}%,tracking_id.ilike.%${cleanSearch}%,phone.ilike.%${cleanSearch}%,job_title.ilike.%${cleanSearch}%`);
+            }
+        }
 
         const { data, error, count } = await query;
 
@@ -209,48 +216,68 @@ async function handlePost(req, res, supabase) {
 
     if (action === 'submit') {
         // Public: Submit new application
-        const { full_name, phone, email, job_title, country, division, experience, cover_note, passport_type } = body;
+        const { full_name, phone, email, job_title, country, division, experience, cover_note, passport_type, cv_url } = body;
 
         if (!full_name || !phone || !job_title || !country) {
             return res.status(400).json({ error: 'Full name, phone, job title, and country are required.' });
         }
 
-        // Generate unique tracking ID (retry on collision)
+        // Generate unique tracking ID (retry on DB-level collision)
         let tracking_id;
+        let data;
         let attempts = 0;
         while (attempts < 5) {
             tracking_id = generateTrackingId();
-            const { data: existing } = await supabase
+            const result = await supabase
                 .from('applications')
-                .select('id')
-                .eq('tracking_id', tracking_id)
-                .maybeSingle();
-            if (!existing) break;
-            attempts++;
+                .insert({
+                    tracking_id,
+                    full_name: full_name.trim(),
+                    phone: phone.replace(/\s/g, ''),
+                    email: email?.trim() || null,
+                    job_title,
+                    country,
+                    division: division || null,
+                    experience: experience || null,
+                    cover_note: cover_note || null,
+                    passport_type: passport_type || null,
+                    cv_url: cv_url || null,
+                    status: 'applied',
+                    applied_at: new Date().toISOString()
+                })
+                .select()
+                .single();
+
+            if (!result.error) {
+                data = result.data;
+                break;
+            }
+            // Retry only on unique constraint violation
+            if (result.error.code === '23505') {
+                attempts++;
+                continue;
+            }
+            // Any other error — fail immediately
+            console.error('Insert error:', result.error);
+            return res.status(500).json({ error: 'Failed to submit application.' });
         }
 
-        const { data, error } = await supabase
-            .from('applications')
-            .insert({
-                tracking_id,
-                full_name: full_name.trim(),
-                phone: phone.replace(/\s/g, ''),
-                email: email?.trim() || null,
-                job_title,
-                country,
-                division: division || null,
-                experience: experience || null,
-                cover_note: cover_note || null,
-                passport_type: passport_type || null,
-                status: 'applied',
-                applied_at: new Date().toISOString()
-            })
-            .select()
-            .single();
+        if (!data) {
+            return res.status(500).json({ error: 'Failed to generate unique tracking ID.' });
+        }
 
-        if (error) {
-            console.error('Insert error:', error);
-            return res.status(500).json({ error: 'Failed to submit application.' });
+        // Send confirmation email (fire-and-forget)
+        if (email) {
+            sendEmail({
+                to: email,
+                subject: `✅ Application Received — ${job_title}`,
+                html: emailTemplates.applicationConfirmed({
+                    name: full_name.trim(),
+                    jobTitle: job_title,
+                    country,
+                    trackingId: tracking_id
+                })
+            });
         }
 
         return res.status(201).json({
@@ -300,6 +327,34 @@ async function handlePost(req, res, supabase) {
 
         if (error) {
             return res.status(500).json({ error: 'Failed to update status.' });
+        }
+
+        // Send status update email (fire-and-forget)
+        if (data.email) {
+            let emailHtml;
+            let emailSubject;
+
+            if (status === 'interview') {
+                emailSubject = `📅 Interview Scheduled — ${data.job_title}`;
+                emailHtml = emailTemplates.interviewScheduled({
+                    name: data.full_name, jobTitle: data.job_title,
+                    country: data.country, trackingId: data.tracking_id
+                });
+            } else if (status === 'deployed') {
+                emailSubject = `🎉 Congratulations! You're Deployed — ${data.job_title}`;
+                emailHtml = emailTemplates.deployedCongrats({
+                    name: data.full_name, jobTitle: data.job_title,
+                    country: data.country, trackingId: data.tracking_id
+                });
+            } else {
+                emailSubject = `📋 Application Update — ${data.job_title}`;
+                emailHtml = emailTemplates.statusUpdate({
+                    name: data.full_name, jobTitle: data.job_title,
+                    status, trackingId: data.tracking_id
+                });
+            }
+
+            sendEmail({ to: data.email, subject: emailSubject, html: emailHtml });
         }
 
         return res.status(200).json({ success: true, application: data });
