@@ -98,7 +98,7 @@ Recent 10 Apps: ${JSON.stringify(recentApps?.map(a => `${a.full_name} - ${a.job_
         ];
 
         const completion = await openai.chat.completions.create({
-            model: 'llama-3.1-70b-versatile',
+            model: 'llama-3.3-70b-versatile',
             messages,
             max_tokens: 500,
             temperature: 0.7

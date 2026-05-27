@@ -42,6 +42,10 @@
 
     body {
       background: var(--navy);
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 30px 30px;
       color: var(--text);
       overflow-x: hidden;
       display: flex;
@@ -136,8 +140,10 @@
     /* ── Sidebar ── */
     .sidebar {
       width: 260px;
-      background: rgba(7, 20, 38, 0.95);
-      border-right: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(7, 20, 38, 0.6);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
       padding: 24px 0;
       display: flex;
       flex-direction: column;
@@ -281,11 +287,31 @@
     }
 
     .stat-card {
-      background: var(--navy-card);
+      background: rgba(255, 255, 255, 0.025);
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: var(--radius);
       padding: 24px;
       backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    .stat-card:hover {
+      border-color: rgba(212, 175, 55, 0.3);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--gold);
+      opacity: 0.8;
     }
 
     .stat-card .sc-label {
@@ -483,24 +509,59 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* ── AI Chat ── */
+    /* ── AI Terminal UI ── */
     .chat-container {
-      max-width: 700px;
+      max-width: 800px;
+      margin: 0 auto;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      background: rgba(7, 20, 38, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    
+    .chat-header {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 12px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .chat-header .dots {
+      display: flex;
+      gap: 6px;
+    }
+    
+    .chat-header .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .chat-header .dot:nth-child(1) { background: #ff5f56; }
+    .chat-header .dot:nth-child(2) { background: #ffbd2e; }
+    .chat-header .dot:nth-child(3) { background: #27c93f; }
+    
+    .chat-header .title {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-family: monospace;
+      letter-spacing: 1px;
     }
 
     .chat-messages {
-      max-height: 500px;
+      height: 500px;
       overflow-y: auto;
-      padding: 20px;
-      background: var(--navy-card);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: var(--radius) var(--radius) 0 0;
-      backdrop-filter: blur(12px);
+      padding: 24px;
+      font-family: 'Poppins', sans-serif;
     }
 
     .chat-msg {
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       max-width: 85%;
+      animation: fadeUp 0.3s ease forwards;
     }
 
     .chat-msg.user {
@@ -510,55 +571,62 @@
 
     .chat-msg .bubble {
       display: inline-block;
-      padding: 12px 18px;
-      border-radius: 16px;
+      padding: 14px 20px;
+      border-radius: 18px;
       font-size: 14px;
       line-height: 1.6;
     }
 
     .chat-msg.user .bubble {
-      background: rgba(212, 175, 55, 0.15);
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05));
       color: var(--gold-light);
       border-bottom-right-radius: 4px;
+      border: 1px solid rgba(212, 175, 55, 0.2);
     }
 
     .chat-msg.assistant .bubble {
-      background: rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.04);
       color: var(--text);
       border-bottom-left-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-family: 'Poppins', sans-serif;
     }
 
     .chat-msg .time {
-      font-size: 10px;
+      font-size: 11px;
       color: var(--text-dim);
-      margin-top: 4px;
+      margin-top: 6px;
     }
 
     .chat-input-row {
       display: flex;
-      gap: 10px;
-      padding: 16px 20px;
-      background: rgba(7, 20, 38, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-top: none;
-      border-radius: 0 0 var(--radius) var(--radius);
+      gap: 12px;
+      padding: 18px 24px;
+      background: rgba(0, 0, 0, 0.2);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .chat-input {
       flex: 1;
-      padding: 12px 16px;
-      border-radius: 12px;
+      padding: 14px 20px;
+      border-radius: 14px;
       border: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(255, 255, 255, 0.04);
+      background: rgba(255, 255, 255, 0.03);
       color: var(--text);
       font-size: 14px;
       font-family: 'Poppins', sans-serif;
       outline: none;
+      transition: var(--transition);
+    }
+    
+    .chat-input:focus {
+      border-color: var(--accent);
+      background: rgba(255, 255, 255, 0.06);
     }
 
     .chat-send {
-      padding: 12px 24px;
-      border-radius: 12px;
+      padding: 14px 28px;
+      border-radius: 14px;
       border: none;
       background: var(--gold);
       color: var(--navy);
@@ -566,15 +634,21 @@
       cursor: pointer;
       font-family: 'Poppins', sans-serif;
       transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .chat-send:hover {
-      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+      box-shadow: 0 4px 16px rgba(212, 175, 55, 0.4);
+      transform: translateY(-2px);
     }
 
     .chat-send:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
 
     /* ── Empty State ── */
@@ -644,7 +718,7 @@
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar" style="display:none;">
     <div class="sidebar-logo">
-      <a href="../index.html">BLUE <span>HORIZON</span></a>
+      <a href="/">BLUE <span>HORIZON</span></a>
       <span class="admin-badge">Admin Dashboard</span>
     </div>
     <nav class="sidebar-nav">
@@ -733,6 +807,9 @@
           <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--text-dim); pointer-events: none;">🔍</span>
           <input type="search" class="filter-search" id="filterSearch" placeholder="Search by name, ID, or phone..." style="width: 100%; padding-left: 36px;">
         </div>
+        <button class="action-btn secondary" id="exportCsvBtn" style="padding: 10px 16px; display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 14px;">📥</span> Export CSV
+        </button>
       </div>
       <div id="applicationsTable"></div>
     </div>
@@ -787,21 +864,28 @@
 
     <!-- AI ASSISTANT TAB -->
     <div class="tab-panel" id="tab-ai">
-      <div class="page-header">
+      <div class="page-header" style="text-align:center;">
         <h2>🤖 AI Recruitment Assistant</h2>
         <p>Ask questions about your recruitment data in natural language.</p>
       </div>
       <div class="chat-container">
+        <div class="chat-header">
+          <div class="dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+          <div class="title">blue-horizon-ai ~ /dashboard/assistant</div>
+        </div>
         <div class="chat-messages" id="chatMessages">
           <div class="chat-msg assistant">
-            <div class="bubble">👋 Hello! I'm your AI recruitment assistant. Ask me anything about applications,
-              candidates, or recruitment metrics. Try: "How many applications this week?"</div>
+            <div class="bubble">👋 Hello! I'm your AI recruitment assistant. Ask me anything about applications, candidates, or recruitment metrics. Try: "How many applications this week?"</div>
+            <div class="time">Just now</div>
           </div>
         </div>
         <div class="chat-input-row">
-          <input type="text" class="chat-input" id="chatInput"
-            placeholder="Ask about applications, candidates, metrics...">
-          <button type="button" class="chat-send" id="chatSend">Send</button>
+          <input type="text" class="chat-input" id="chatInput" placeholder="Ask about applications, candidates, metrics...">
+          <button type="button" class="chat-send" id="chatSend"><span>✨</span> Send</button>
         </div>
       </div>
     </div>
@@ -1157,10 +1241,48 @@
     let searchTimeout;
     document.getElementById('filterSearch').addEventListener('input', () => {
       clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(loadApplications, 400);
+      searchTimeout = setTimeout(loadApplications, 300);
     });
     document.getElementById('filterStatus').addEventListener('change', loadApplications);
     document.getElementById('filterCountry').addEventListener('change', loadApplications);
+
+    // ── CSV Export ──
+    document.getElementById('exportCsvBtn').addEventListener('click', async () => {
+      const status = document.getElementById('filterStatus').value;
+      const country = document.getElementById('filterCountry').value;
+      const search = document.getElementById('filterSearch').value;
+
+      let url = '/api/applications?action=list&limit=1000';
+      if (status) url += `&status=${status}`;
+      if (country) url += `&country=${country}`;
+      if (search) url += `&search=${encodeURIComponent(search)}`;
+
+      try {
+        const res = await apiFetch(url);
+        if (!res) return alert('Failed to connect to server.');
+        const data = await res.json();
+        
+        if (!data.applications || data.applications.length === 0) {
+          return alert('No applications to export.');
+        }
+
+        let csv = 'Tracking ID,Full Name,Job Title,Country,Status,Applied Date,Phone\n';
+        data.applications.forEach(app => {
+          csv += `"${app.tracking_id}","${app.full_name}","${app.job_title}","${app.country}","${app.status}","${new Date(app.created_at).toLocaleDateString('en-IN')}","${app.phone_number || ''}"\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `BlueHorizon_Applications_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch (err) {
+        alert('Error exporting CSV: ' + err.message);
+      }
+    });
 
     // ── AI Chat ──
     const chatMessages = document.getElementById('chatMessages');

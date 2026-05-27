@@ -87,8 +87,8 @@ module.exports = async function handler(req, res) {
         });
 
         const completion = await openai.chat.completions.create({
-            model: 'llama-3.1-8b-instant',
-            messages,
+            model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+            messages: messages,
             max_tokens: 200,
             temperature: 0.7
         });

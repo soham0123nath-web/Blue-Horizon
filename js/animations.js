@@ -191,9 +191,24 @@ function initScrollAnimations() {
   revealUp(".why-card", ".why-section", { stagger: 0.08, y: 40 });
 
   // ── Process Steps ──
-  document.querySelectorAll(".process-step").forEach((step, i) => {
-    revealUp(step, step, { delay: i * 0.06 });
-  });
+  const processStepsContainer = document.querySelector(".process-steps");
+  if (!isMobile && processStepsContainer) {
+    gsap.to(".process-steps", {
+      x: () => -(processStepsContainer.scrollWidth - window.innerWidth + (window.innerWidth * 0.2)),
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".process-section",
+        pin: true,
+        scrub: 1,
+        invalidateOnRefresh: true,
+        end: () => "+=" + (processStepsContainer.scrollWidth - window.innerWidth + (window.innerWidth * 0.2))
+      }
+    });
+  } else {
+    document.querySelectorAll(".process-step").forEach((step, i) => {
+      revealUp(step, step, { delay: i * 0.06 });
+    });
+  }
 
   // ── Country Switcher ──
   revealUp(".country-switcher", ".country-switcher");

@@ -37,6 +37,56 @@ document.addEventListener("DOMContentLoaded", () => {
   const applicantExp = document.getElementById("applicantExp");
   const applicantMsg = document.getElementById("applicantMsg");
 
+  // ── CUSTOM INTERACTIVE CURSOR ──
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  if (!isTouchDevice) {
+    const cursor = document.getElementById('customCursor');
+    const ring = document.getElementById('cursorRing');
+    
+    if (cursor && ring) {
+      body.classList.add('custom-cursor-active');
+      let mouseX = window.innerWidth / 2;
+      let mouseY = window.innerHeight / 2;
+      let ringX = mouseX;
+      let ringY = mouseY;
+      
+      document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        cursor.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
+      });
+      
+      // Smooth interpolation for the ring
+      const renderRing = () => {
+        ringX += (mouseX - ringX) * 0.15;
+        ringY += (mouseY - ringY) * 0.15;
+        ring.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`;
+        requestAnimationFrame(renderRing);
+      };
+      requestAnimationFrame(renderRing);
+
+      // Hover states for clickable elements
+      const clickables = document.querySelectorAll('a, button, input, select, textarea, .job-card, .why-card');
+      clickables.forEach(el => {
+        el.addEventListener('mouseenter', () => body.classList.add('cursor-hover'));
+        el.addEventListener('mouseleave', () => body.classList.remove('cursor-hover'));
+      });
+      
+      // Magnetic Buttons
+      const magneticBtns = document.querySelectorAll('.btn-primary, .nav-cta, .quick-apply');
+      magneticBtns.forEach(btn => {
+        btn.addEventListener('mousemove', (e) => {
+          const rect = btn.getBoundingClientRect();
+          const x = e.clientX - rect.left - rect.width / 2;
+          const y = e.clientY - rect.top - rect.height / 2;
+          btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+        });
+        btn.addEventListener('mouseleave', () => {
+          btn.style.transform = `translate(0px, 0px)`;
+        });
+      });
+    }
+  }
   // ── 3D HERO TITLE INTERACTION ──
   const heroSection = document.getElementById("hero");
   const hero3dTitle = document.getElementById("hero3dTitle");
