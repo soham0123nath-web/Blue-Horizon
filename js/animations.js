@@ -119,37 +119,43 @@ function initPageEntrance() {
 function initScrollAnimations() {
   if (prefersReducedMotion || typeof ScrollTrigger === "undefined") return;
 
-  // ── Shared reveal: fade up ──
-  function revealUp(selector, trigger, opts = {}) {
-    gsap.from(selector, {
-      scrollTrigger: {
-        trigger: trigger || selector,
-        start: "top 85%",
-        once: true
-      },
-      y: opts.y || 40,
-      opacity: 0,
-      stagger: opts.stagger || 0,
-      duration: opts.duration || 0.85,
-      delay: opts.delay || 0,
-      ease: opts.ease || "power3.out",
-      onComplete: function() {
-        gsap.set(selector, { clearProps: "all" });
-      }
-    });
-  }
-
-  // ── Section Titles ──
-  document.querySelectorAll(".section-title").forEach(title => {
-    revealUp(title.children, title, { stagger: 0.08 });
+  // 1. Grid Containers Stagger
+  // If multiple .reveal elements are inside a grid, stagger them together.
+  const gridContainers = document.querySelectorAll('.job-grid, .features-grid, .grid');
+  gridContainers.forEach(container => {
+    const gridItems = container.querySelectorAll('.reveal');
+    if (gridItems.length > 0) {
+      gsap.fromTo(gridItems, 
+        { y: 50, opacity: 0, willChange: 'transform, opacity' }, 
+        {
+          y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', stagger: 0.1, willChange: 'auto',
+          scrollTrigger: { trigger: container, start: 'top 85%', toggleActions: 'play none none reverse' }
+        }
+      );
+    }
   });
 
-  // ── Stats Bar: Counters ──
-  const statNumbers = document.querySelectorAll(".stat-number");
-  statNumbers.forEach(el => {
-    const rawText = el.textContent.trim();
-    let target = 0, prefix = "", suffix = "";
+  // 2. Individual Reveal Elements
+  // Elements that are not part of a staggered grid group.
+  const revealEls = gsap.utils.toArray('.reveal');
+  revealEls.forEach((el) => {
+    // Skip if it was already animated by the grid stagger above
+    if (el.closest('.job-grid, .features-grid, .grid') && el.closest('.job-grid, .features-grid, .grid').querySelectorAll('.reveal').length > 0) return;
+    
+    gsap.fromTo(el, 
+      { y: 50, opacity: 0, willChange: 'transform, opacity' }, 
+      { 
+        y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', willChange: 'auto', 
+        scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none reverse' } 
+      }
+    );
+  });
 
+  // 3. Dynamic Number Counters (.stat-number)
+  gsap.utils.toArray('.stat-number').forEach((el) => {
+    const rawText = el.textContent.trim();
+    
+    let target = 0, prefix = "", suffix = "";
     if (rawText.includes("₹")) {
       prefix = "₹";
       target = parseFloat(rawText.replace(/[^\d.]/g, ""));
@@ -162,98 +168,22 @@ function initScrollAnimations() {
       suffix = rawText.includes("+") ? "+" : "";
     }
 
-    el.setAttribute("data-target", target);
+    if (!Number.isFinite(target)) return;
+
     el.textContent = prefix + "0" + suffix;
 
-    ScrollTrigger.create({
-      trigger: el,
-      start: "top 88%",
-      once: true,
-      onEnter: () => {
-        const obj = { val: 0 };
-        gsap.to(obj, {
-          val: target,
-          duration: 1.8,
-          ease: "power2.out",
-          onUpdate: () => {
-            const isDecimal = String(target).includes(".");
-            el.textContent = prefix + (isDecimal ? obj.val.toFixed(2) : Math.floor(obj.val)) + suffix;
-          }
-        });
+    const obj = { val: 0 };
+    gsap.to(obj, {
+      val: target,
+      duration: 2,
+      ease: 'power3.out',
+      scrollTrigger: { trigger: el, start: 'top 90%', toggleActions: 'play none none reverse' },
+      onUpdate: () => { 
+        const isDecimal = String(target).includes(".");
+        el.textContent = prefix + (isDecimal ? obj.val.toFixed(2) : Math.floor(obj.val)) + suffix; 
       }
     });
   });
-
-  // Stats bar container
-  revealUp(".stats-bar .stat-item", ".stats-bar", { stagger: 0.08 });
-
-  // ── Why Us Cards ──
-  revealUp(".why-card", ".why-section", { stagger: 0.08, y: 40 });
-
-  // ── Process Steps ──
-  const processStepsContainer = document.querySelector(".process-steps");
-  if (!isMobile && processStepsContainer) {
-    gsap.to(".process-steps", {
-      x: () => -(processStepsContainer.scrollWidth - window.innerWidth),
-      ease: "none",
-      scrollTrigger: {
-        trigger: ".process-section",
-        pin: true,
-        scrub: 1,
-        invalidateOnRefresh: true,
-        end: () => "+=" + (processStepsContainer.scrollWidth - window.innerWidth)
-      }
-    });
-  } else {
-    document.querySelectorAll(".process-step").forEach((step, i) => {
-      revealUp(step, step, { delay: i * 0.06 });
-    });
-  }
-
-  // ── Country Switcher ──
-  revealUp(".country-switcher", ".country-switcher");
-
-  // ── Salary Highlight ──
-  revealUp(".salary-highlight", ".salary-highlight");
-
-  // ── Job Cards ──
-  document.querySelectorAll(".job-grid").forEach(grid => {
-    const cards = grid.querySelectorAll(".job-card");
-    cards.forEach((card, i) => {
-      revealUp(card, card, { delay: i * 0.04 });
-    });
-  });
-
-  // ── Division Lines ──
-  document.querySelectorAll(".division-line").forEach(line => {
-    gsap.from(line, {
-      scrollTrigger: { trigger: line, start: "top 88%", once: true },
-      scaleX: 0,
-      duration: 0.5,
-      ease: "power2.out"
-    });
-  });
-
-  // ── Testimonial Cards ──
-  revealUp(".testimonial-card", ".testimonials-section", { stagger: 0.1, y: 40 });
-
-  // ── FAQ Items ──
-  revealUp(".faq-item", ".faq-section", { stagger: 0.06 });
-
-  // ── Social Box ──
-  revealUp(".social-box", ".social-section");
-
-  // ── Contact Cards ──
-  revealUp(".contact-card", "#contact", { stagger: 0.08 });
-
-  // ── Footer ──
-  revealUp(".footer-top > div", "footer", { stagger: 0.06 });
-
-  // ── Badges ──
-  revealUp(".badge", ".badge", { stagger: 0.06 });
-
-  // ── Tracker CTA ──
-  revealUp(".tracker-cta-box", ".tracker-cta-box");
 }
 
 // ══════════════════════════════════════════════════════════════

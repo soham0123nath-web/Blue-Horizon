@@ -25,11 +25,16 @@ module.exports = async function handler(req, res) {
         if (req.method === 'GET') {
             res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=120');
 
-            const { data, error } = await supabase
+            let query = supabase
                 .from('job_listings')
                 .select('*')
-                .eq('is_active', true)
                 .order('display_order', { ascending: true });
+
+            if (!req.query.admin) {
+                query = query.eq('is_active', true);
+            }
+
+            const { data, error } = await query;
 
             if (error) return res.status(500).json({ error: 'Failed to fetch jobs.' });
 

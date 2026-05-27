@@ -24,6 +24,59 @@ document.addEventListener("DOMContentLoaded", () => {
   const jobSearchInput = document.getElementById("jobSearch");
   const noResults = document.getElementById("no-results");
   
+  // ── DYNAMIC JOBS LOADER ──
+  const loadJobs = async () => {
+    try {
+      const res = await fetch('/api/jobs');
+      const data = await res.json();
+      
+      const renderGroup = (containerId, countryData) => {
+        const container = document.getElementById(containerId);
+        if (!container || !countryData) return;
+        
+        let html = '';
+        for (const [division, jobs] of Object.entries(countryData)) {
+          html += `
+            <div class="division-line">
+              <span>✦ ${division.toUpperCase()} ✦</span>
+            </div>
+            <div class="job-grid">
+          `;
+          jobs.forEach(job => {
+            html += `
+              <div class="job-card">
+                <div class="job-tag">${job.division}</div>
+                <h3>${job.emoji || '🏭'} ${job.title}</h3>
+                <div class="salary">${job.salary_display}</div>
+                <div class="salary-inr">${job.salary_inr_display || ''}</div>
+                <div class="card-actions">
+                  <button type="button" class="toggle-btn" aria-expanded="false">View Details</button>
+                  <button type="button" class="quick-apply" data-job="${job.title} (${job.country})">Apply →</button>
+                </div>
+                <div class="job-details" hidden>
+                  <ul>
+                    ${(job.details || []).map(d => `<li>${d}</li>`).join('')}
+                  </ul>
+                  <button type="button" class="apply-btn" data-job="${job.title} (${job.country})">💬 Apply via WhatsApp</button>
+                </div>
+              </div>
+            `;
+          });
+          html += `</div>`;
+        }
+        container.innerHTML = html || '<p style="text-align:center; padding: 2rem;">No open positions at this moment.</p>';
+      };
+
+      if (data.grouped) {
+        renderGroup('israel-jobs-container', data.grouped['Israel']);
+        renderGroup('vietnam-jobs-container', data.grouped['Vietnam']);
+      }
+    } catch (err) {
+      console.error('Failed to load jobs:', err);
+    }
+  };
+
+  loadJobs();  
   // Modal
   const applyModal = document.getElementById("applyModal");
   const modalClose = document.getElementById("modalClose");
@@ -231,25 +284,31 @@ document.addEventListener("DOMContentLoaded", () => {
   tabIsrael.addEventListener("click", () => switchCountry("israel"));
   tabVietnam.addEventListener("click", () => switchCountry("vietnam"));
 
-  // ── JOB CARD EXPANSIONS ──
-  document.querySelectorAll(".job-card").forEach(card => {
-    const toggleBtn = card.querySelector(".toggle-btn");
-    const details = card.querySelector(".job-details");
-
-    if (toggleBtn && details) {
-      toggleBtn.addEventListener("click", () => {
+  // Event Delegation for dynamically loaded job cards
+  document.addEventListener("click", (e) => {
+    // Handle toggle details
+    if (e.target.matches(".toggle-btn")) {
+      const card = e.target.closest(".job-card");
+      if (!card) return;
+      const details = card.querySelector(".job-details");
+      if (details) {
         const isHidden = details.hasAttribute("hidden");
-        
         if (isHidden) {
           details.removeAttribute("hidden");
-          toggleBtn.textContent = "Hide Details";
-          toggleBtn.setAttribute("aria-expanded", "true");
+          e.target.textContent = "Hide Details";
+          e.target.setAttribute("aria-expanded", "true");
         } else {
           details.setAttribute("hidden", "");
-          toggleBtn.textContent = "View Details";
-          toggleBtn.setAttribute("aria-expanded", "false");
+          e.target.textContent = "View Details";
+          e.target.setAttribute("aria-expanded", "false");
         }
-      });
+      }
+    }
+
+    // Handle Quick Apply buttons
+    if (e.target.matches(".quick-apply") || e.target.matches(".apply-btn")) {
+      const jobTitle = e.target.getAttribute("data-job");
+      openModal(jobTitle);
     }
   });
 
@@ -333,13 +392,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Attach modal triggers to job cards
-  document.querySelectorAll(".quick-apply, .apply-btn").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const job = btn.getAttribute("data-job");
-      openModal(job);
-    });
-  });
+  // (Dynamic apply buttons handled by event delegation above)
 
   // WhatsApp form submission + Supabase tracking
   modalSubmit.addEventListener("click", async () => {

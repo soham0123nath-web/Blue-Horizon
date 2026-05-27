@@ -2303,10 +2303,17 @@ footer {
   .process-steps {
     flex-wrap: nowrap !important;
     width: max-content;
-    padding-right: 50vw;
+    gap: 120px;
+    padding: 0 5vw;
+    padding-right: 40vw;
+  }
+  .process-steps::before {
+    left: 10vw;
+    right: calc(40vw + 5vw);
   }
   .process-step {
-    width: 350px;
+    width: 300px;
+    max-width: none;
     flex-shrink: 0;
   }
 }
