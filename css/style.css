@@ -560,7 +560,6 @@ nav.scrolled {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   background: rgba(255, 255, 255, 0.03);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -1848,6 +1847,7 @@ footer {
   bottom: 70px;
   left: 0;
   width: 360px;
+  height: 500px;
   max-height: min(500px, calc(100dvh - 120px)); /* Fixed max-height for mobile screens */
   background: var(--navy);
   border: 1px solid rgba(255, 255, 255, 0.1);

@@ -194,14 +194,14 @@ function initScrollAnimations() {
   const processStepsContainer = document.querySelector(".process-steps");
   if (!isMobile && processStepsContainer) {
     gsap.to(".process-steps", {
-      x: () => -(processStepsContainer.scrollWidth - window.innerWidth + (window.innerWidth * 0.2)),
+      x: () => -(processStepsContainer.scrollWidth - window.innerWidth),
       ease: "none",
       scrollTrigger: {
         trigger: ".process-section",
         pin: true,
         scrub: 1,
         invalidateOnRefresh: true,
-        end: () => "+=" + (processStepsContainer.scrollWidth - window.innerWidth + (window.innerWidth * 0.2))
+        end: () => "+=" + (processStepsContainer.scrollWidth - window.innerWidth)
       }
     });
   } else {

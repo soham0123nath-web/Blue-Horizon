@@ -59,7 +59,15 @@ module.exports = async function handler(req, res) {
             .select('title, country, salary_display')
             .eq('is_active', true);
 
-        let jobsString = "No open positions right now.";
+        let jobsString = `Currently Available Positions (Fallback):
+- Iron Worker / Steel Fixer in Israel (Pays: $1,900 USD / ₹1.62 Lakhs)
+- Shuttering Carpenter in Israel (Pays: $1,900 USD / ₹1.62 Lakhs)
+- Ceramic Tiler in Israel (Pays: $1,900 USD / ₹1.62 Lakhs)
+- Plasterer in Israel (Pays: $1,900 USD / ₹1.62 Lakhs)
+- Food Packaging Worker in Vietnam (Pays: ₹35,000 INR)
+- F&B Service Staff in Vietnam (Pays: ₹40,000 INR)
+- Store Keeper / Helper in Vietnam (Pays: ₹30,000 INR)`;
+
         if (activeJobs && activeJobs.length > 0) {
             jobsString = activeJobs.map(j => `- ${j.title} in ${j.country} (Pays: ${j.salary_display})`).join('\n');
         }
