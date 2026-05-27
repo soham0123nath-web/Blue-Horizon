@@ -119,71 +119,77 @@ function initPageEntrance() {
 function initScrollAnimations() {
   if (prefersReducedMotion || typeof ScrollTrigger === "undefined") return;
 
-  // 1. Grid Containers Stagger
-  // If multiple .reveal elements are inside a grid, stagger them together.
-  const gridContainers = document.querySelectorAll('.job-grid, .features-grid, .grid');
+  const gridContainers = document.querySelectorAll('.grid, .job-grid, .features-grid');
   gridContainers.forEach(container => {
-    const gridItems = container.querySelectorAll('.reveal');
-    if (gridItems.length > 0) {
-      gsap.fromTo(gridItems, 
-        { y: 50, opacity: 0, willChange: 'transform, opacity' }, 
-        {
-          y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', stagger: 0.1, willChange: 'auto',
-          scrollTrigger: { trigger: container, start: 'top 85%', toggleActions: 'play none none reverse' }
-        }
-      );
-    }
+      const gridItems = container.querySelectorAll('.reveal');
+      if (gridItems.length > 0 && !prefersReducedMotion && window.ScrollTrigger) {
+          gsap.fromTo(gridItems, { y: 60, opacity: 0, willChange: 'transform, opacity' }, {
+              y: 0, opacity: 1, duration: 0.8, ease: 'power4.out', stagger: 0.06, willChange: 'auto',
+              onComplete: function () { 
+                gridItems.forEach((el) => { 
+                  if (el.classList.contains('service-card')) { 
+                    el.classList.add('reveal-active'); 
+                    gsap.set(el, { clearProps: "transform" }); 
+                  } 
+                }); 
+              },
+              scrollTrigger: { trigger: container, start: 'top 80%', toggleActions: 'play none none reverse' }
+          });
+      }
   });
 
-  // 2. Individual Reveal Elements
-  // Elements that are not part of a staggered grid group.
   const revealEls = gsap.utils.toArray('.reveal');
   revealEls.forEach((el) => {
-    // Skip if it was already animated by the grid stagger above
-    if (el.closest('.job-grid, .features-grid, .grid') && el.closest('.job-grid, .features-grid, .grid').querySelectorAll('.reveal').length > 0) return;
-    
-    gsap.fromTo(el, 
-      { y: 50, opacity: 0, willChange: 'transform, opacity' }, 
-      { 
-        y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', willChange: 'auto', 
-        scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none reverse' } 
-      }
-    );
+      if (!(el instanceof Element)) return;
+      if (prefersReducedMotion || !window.ScrollTrigger) { el.style.opacity = '1'; el.style.transform = 'none'; return; }
+      if (el.closest('.grid, .job-grid, .features-grid') && el.closest('.grid, .job-grid, .features-grid').querySelectorAll('.reveal').length > 0) return;
+      
+      gsap.fromTo(el, { y: 50, opacity: 0, willChange: 'transform, opacity' }, { y: 0, opacity: 1, duration: 1.2, ease: 'power4.out', willChange: 'auto', scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none reverse' } });
   });
 
-  // 3. Dynamic Number Counters (.stat-number)
+  // Dynamic numbers (.stat-number instead of [data-count])
   gsap.utils.toArray('.stat-number').forEach((el) => {
-    const rawText = el.textContent.trim();
-    
-    let target = 0, prefix = "", suffix = "";
-    if (rawText.includes("₹")) {
-      prefix = "₹";
-      target = parseFloat(rawText.replace(/[^\d.]/g, ""));
-      suffix = rawText.includes("L") ? "L+" : "+";
-    } else if (rawText.includes("%")) {
-      target = parseInt(rawText);
-      suffix = "%";
-    } else {
-      target = parseInt(rawText.replace(/[^\d]/g, ""));
-      suffix = rawText.includes("+") ? "+" : "";
-    }
+      if (!(el instanceof Element)) return;
+      const rawText = el.textContent.trim();
+      let target = 0, prefix = "", suffix = "";
+      if (rawText.includes("₹")) { prefix = "₹"; target = parseFloat(rawText.replace(/[^\d.]/g, "")); suffix = rawText.includes("L") ? "L+" : "+"; } 
+      else if (rawText.includes("%")) { target = parseInt(rawText); suffix = "%"; } 
+      else { target = parseInt(rawText.replace(/[^\d]/g, "")); suffix = rawText.includes("+") ? "+" : ""; }
 
-    if (!Number.isFinite(target)) return;
-
-    el.textContent = prefix + "0" + suffix;
-
-    const obj = { val: 0 };
-    gsap.to(obj, {
-      val: target,
-      duration: 2,
-      ease: 'power3.out',
-      scrollTrigger: { trigger: el, start: 'top 90%', toggleActions: 'play none none reverse' },
-      onUpdate: () => { 
+      if (!Number.isFinite(target)) return;
+      const obj = { val: 0 };
+      const update = () => { 
         const isDecimal = String(target).includes(".");
         el.textContent = prefix + (isDecimal ? obj.val.toFixed(2) : Math.floor(obj.val)) + suffix; 
+      };
+      
+      if (prefersReducedMotion || !window.ScrollTrigger) { return; }
+      
+      el.textContent = prefix + "0" + suffix;
+      gsap.to(obj, { val: target, duration: 2, ease: 'power4.out', scrollTrigger: { trigger: el, start: 'top 90%', toggleActions: 'play none none reverse' }, onUpdate: update });
+  });
+
+  // 4. Process Steps Horizontal Scroll
+  const processStepsContainer = document.querySelector(".process-steps");
+  if (!isMobile && processStepsContainer) {
+    const calcScroll = () => {
+      const containerWidth = processStepsContainer.scrollWidth;
+      // We add extra space to the calculation so the last item stops before the very edge
+      return -(containerWidth - window.innerWidth + 100); 
+    };
+    
+    gsap.to(".process-steps", {
+      x: calcScroll,
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".process-section",
+        pin: true,
+        scrub: 1,
+        invalidateOnRefresh: true,
+        end: () => "+=" + Math.abs(calcScroll())
       }
     });
-  });
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
