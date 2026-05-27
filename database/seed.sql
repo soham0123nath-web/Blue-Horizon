@@ -92,16 +92,16 @@ VALUES ('admin@bluehorizonoverseas.in', 'Admin', 'superadmin')
 ON CONFLICT (email) DO NOTHING;
 
 
--- ── VIDEO TESTIMONIALS (text-only, add real video URLs via admin panel) ──
+-- ── VIDEO TESTIMONIALS (Sample videos, replace via admin panel) ──
 INSERT INTO video_testimonials (candidate_name, job_title, country, video_url, quote, rating, is_active, display_order)
 VALUES
-('Rajesh Kumar', 'Welder', 'Israel', '',
+('Rajesh Kumar', 'Welder', 'Israel', 'https://www.youtube.com/watch?v=LXb3EKWsInQ',
  'Blue Horizon changed my life. I earn 5x what I made in India and my family is thriving.', 5, true, 1),
-('Amit Sharma', 'Electrician', 'Israel', '',
+('Amit Sharma', 'Electrician', 'Israel', 'https://www.youtube.com/watch?v=aqz-KE-bpKQ',
  'The entire process was smooth. From visa to accommodation, everything was taken care of.', 5, true, 2),
-('Sunil Patel', 'Tile Mason', 'Israel', '',
+('Sunil Patel', 'Tile Mason', 'Israel', 'https://www.youtube.com/watch?v=tO01J-M3g0U',
  'I was skeptical at first, but Blue Horizon is 100% genuine. Already recommended to 3 friends.', 4, true, 3),
-('Priya Nair', 'Hotel Front Desk', 'Vietnam', '',
+('Priya Nair', 'Hotel Front Desk', 'Vietnam', 'https://www.youtube.com/watch?v=Y7DPcw0Xng8',
  'Working in Vietnam has been an amazing experience. Great food, great people, great salary!', 5, true, 4);
 
 
