@@ -2,7 +2,7 @@
 const WHATSAPP_NUMBER = "918942069079"; // Replace with your agency WhatsApp number (include country code, e.g., 91 for India)
 
 // HTML sanitizer to prevent XSS from API data
-const esc = (s) => typeof s === 'string' ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;') : s;
+const esc = (s) => typeof s === 'string' ? s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;') : s;
 
 document.addEventListener("DOMContentLoaded", () => {
   // ── ELEMENTS ──
@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const nav = document.getElementById("mainNav");
   const hamburger = document.getElementById("hamburger");
   const mobileMenu = document.getElementById("mobileMenu");
-  
+
   // Country flag codes (common ones — extensible)
   const COUNTRY_FLAGS = {
     'Israel': { flag: '🇮🇱', code: 'il' },
@@ -44,26 +44,26 @@ document.addEventListener("DOMContentLoaded", () => {
   let activeCountry = null;
   const countrySwitcher = document.getElementById('countrySwitcher');
   const dynamicJobGroups = document.getElementById('dynamicJobGroups');
-  
+
   // Salary Highlights Dynamic Content
   const salaryVal = document.getElementById("salary-val");
   const salarySub = document.getElementById("salary-sub");
   const salaryBens = document.getElementById("salary-bens");
-  
+
   // Search
   const jobSearchInput = document.getElementById("jobSearch");
   const noResults = document.getElementById("no-results");
-  
+
   // ── DYNAMIC JOBS LOADER ──
   const loadJobs = async () => {
     try {
       const res = await fetch('/api/jobs');
       const data = await res.json();
-      
+
       const renderGroup = (containerId, countryData) => {
         const container = document.getElementById(containerId);
         if (!container || !countryData) return;
-        
+
         let html = '';
         const divisions = new Set();
         for (const [division, jobs] of Object.entries(countryData)) {
@@ -102,14 +102,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (data.grouped) {
         allCountries = Object.keys(data.grouped);
-        
+
         // Build country tabs dynamically
         let tabsHtml = '';
         allCountries.forEach((country, i) => {
           const info = getCountryInfo(country);
           const isActive = i === 0 ? 'active' : '';
-          const flagImg = info.code 
-            ? `<img src="https://flagcdn.com/w40/${info.code}.png" alt="${esc(country)} Flag">` 
+          const flagImg = info.code
+            ? `<img src="https://flagcdn.com/w40/${info.code}.png" alt="${esc(country)} Flag">`
             : '';
           tabsHtml += `
             <button type="button" class="switcher-btn ${isActive}" data-country="${esc(country)}" role="tab" aria-selected="${i === 0}">
@@ -146,7 +146,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // Attach tab click handlers
-        countrySwitcher.addEventListener('click', (e) => {
+        document.addEventListener('click', (e) => {
+          if (!e.target || typeof e.target.closest !== 'function') return;
           const btn = e.target.closest('.switcher-btn');
           if (!btn) return;
           const country = btn.dataset.country;
@@ -172,6 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
     filterContainer.innerHTML = pillsHtml;
 
     filterContainer.addEventListener('click', (e) => {
+      if (!e.target || typeof e.target.closest !== 'function') return;
       const pill = e.target.closest('.filter-pill');
       if (!pill) return;
       const selectedDiv = pill.dataset.division;
@@ -203,7 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
-  loadJobs();  
+  loadJobs();
 
   // ── DYNAMIC TESTIMONIALS LOADER ──
   const loadTestimonials = async () => {
@@ -224,10 +226,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const stars = '★'.repeat(t.rating || 5) + '☆'.repeat(5 - (t.rating || 5));
         const initial = (t.candidate_name || 'U')[0].toUpperCase();
         const hasVideo = t.video_url && t.video_url.trim();
-        const videoBtn = hasVideo 
+        const videoBtn = hasVideo
           ? `<button type="button" class="testimonial-video-btn" data-video="${esc(t.video_url)}">▶ Watch Story</button>`
           : '';
-        
+
         return `
           <div class="testimonial-card reveal">
             <div class="stars">${stars}</div>
@@ -307,6 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Delegate click on video play buttons
   document.addEventListener('click', (e) => {
+    if (!e.target || typeof e.target.closest !== 'function') return;
     const btn = e.target.closest('.testimonial-video-btn');
     if (btn) {
       const videoUrl = btn.dataset.video;
@@ -426,7 +429,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Smoothly scroll to jobs section
     const jobsSection = document.getElementById("jobs");
     if (jobsSection) {
-      const yOffset = -100; 
+      const yOffset = -100;
       const y = jobsSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: "smooth" });
     }
@@ -437,7 +440,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalClose = document.getElementById("modalClose");
   const modalJobTitle = document.getElementById("modalJobTitle");
   const modalSubmit = document.getElementById("modalSubmit");
-  
+
   // Form inputs
   const applicantName = document.getElementById("applicantName");
   const applicantPhone = document.getElementById("applicantPhone");
@@ -485,7 +488,7 @@ document.addEventListener("DOMContentLoaded", () => {
       cvUploadZone.style.borderColor = 'rgba(255,255,255,0.15)';
       const f = e.dataTransfer.files[0];
       if (f) {
-        const allowed = ['.pdf','.doc','.docx'];
+        const allowed = ['.pdf', '.doc', '.docx'];
         const ext = f.name.substring(f.name.lastIndexOf('.')).toLowerCase();
         if (!allowed.includes(ext)) { alert('Only PDF, DOC, DOCX allowed.'); return; }
         if (f.size > 5 * 1024 * 1024) { alert('File too large. Max 5MB.'); return; }
@@ -504,20 +507,20 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!isTouchDevice) {
     const cursor = document.getElementById('customCursor');
     const ring = document.getElementById('cursorRing');
-    
+
     if (cursor && ring) {
       body.classList.add('custom-cursor-active');
       let mouseX = window.innerWidth / 2;
       let mouseY = window.innerHeight / 2;
       let ringX = mouseX;
       let ringY = mouseY;
-      
+
       document.addEventListener('mousemove', (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
         cursor.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
       });
-      
+
       // Smooth interpolation for the ring
       const renderRing = () => {
         ringX += (mouseX - ringX) * 0.15;
@@ -533,7 +536,7 @@ document.addEventListener("DOMContentLoaded", () => {
         el.addEventListener('mouseenter', () => body.classList.add('cursor-hover'));
         el.addEventListener('mouseleave', () => body.classList.remove('cursor-hover'));
       });
-      
+
       // Magnetic Buttons
       const magneticBtns = document.querySelectorAll('.btn-primary, .nav-cta, .quick-apply');
       magneticBtns.forEach(btn => {
@@ -552,7 +555,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ── 3D HERO TITLE INTERACTION ──
   const heroSection = document.getElementById("hero");
   const hero3dTitle = document.getElementById("hero3dTitle");
-  
+
   if (heroSection && hero3dTitle) {
     let requestRef = null;
     let targetRotateX = 0;
@@ -560,13 +563,13 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentRotateX = 0;
     let currentRotateY = 0;
     const ease = 0.08; // smooth interpolation factor
-    
+
     const updateRotation = () => {
       currentRotateX += (targetRotateX - currentRotateX) * ease;
       currentRotateY += (targetRotateY - currentRotateY) * ease;
-      
+
       hero3dTitle.style.transform = `rotateX(${currentRotateX.toFixed(2)}deg) rotateY(${currentRotateY.toFixed(2)}deg)`;
-      
+
       // Stop loop if rotation reaches target
       if (Math.abs(targetRotateX - currentRotateX) > 0.01 || Math.abs(targetRotateY - currentRotateY) > 0.01) {
         requestRef = requestAnimationFrame(updateRotation);
@@ -574,32 +577,32 @@ document.addEventListener("DOMContentLoaded", () => {
         requestRef = null;
       }
     };
-    
+
     const handleMouseMove = (e) => {
       if (window.innerWidth <= 768) return; // skip on mobile to let CSS float keyframe run
-      
+
       const rect = heroSection.getBoundingClientRect();
       const x = e.clientX - rect.left - rect.width / 2;
       const y = e.clientY - rect.top - rect.height / 2;
-      
+
       // Calculate rotation angles (rotateX up to 10deg, rotateY up to 12deg)
       targetRotateX = -(y / (rect.height / 2)) * 10;
       targetRotateY = (x / (rect.width / 2)) * 12;
-      
+
       if (!requestRef) {
         requestRef = requestAnimationFrame(updateRotation);
       }
     };
-    
+
     const handleMouseLeave = () => {
       targetRotateX = 0;
       targetRotateY = 0;
-      
+
       if (!requestRef) {
         requestRef = requestAnimationFrame(updateRotation);
       }
     };
-    
+
     heroSection.addEventListener("mousemove", handleMouseMove);
     heroSection.addEventListener("mouseleave", handleMouseLeave);
   }
@@ -640,6 +643,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Event Delegation for dynamically loaded job cards
   document.addEventListener("click", (e) => {
+    if (!e.target || typeof e.target.closest !== 'function') return;
+
     // Handle toggle details
     if (e.target.matches(".toggle-btn")) {
       const card = e.target.closest(".job-card");
@@ -666,421 +671,421 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ── SEARCH AND FILTER ──
-  const filterJobs = () => {
-    const query = jobSearchInput.value.toLowerCase().trim();
-    // Search within active country group
-    const activeGroup = dynamicJobGroups.querySelector('.country-job-group.active');
-    if (!activeGroup) return;
-    const cards = activeGroup.querySelectorAll(".job-card");
-    const divisions = activeGroup.querySelectorAll(".division-line");
-    let hasMatches = false;
+// ── SEARCH AND FILTER ──
+const filterJobs = () => {
+  const query = jobSearchInput.value.toLowerCase().trim();
+  // Search within active country group
+  const activeGroup = dynamicJobGroups.querySelector('.country-job-group.active');
+  if (!activeGroup) return;
+  const cards = activeGroup.querySelectorAll(".job-card");
+  const divisions = activeGroup.querySelectorAll(".division-line");
+  let hasMatches = false;
 
-    cards.forEach(card => {
-      const title = card.querySelector("h3").textContent.toLowerCase();
-      const tag = card.querySelector(".job-tag").textContent.toLowerCase();
-      const details = card.querySelector(".job-details") ? card.querySelector(".job-details").textContent.toLowerCase() : "";
-      
-      const isMatch = !query || title.includes(query) || tag.includes(query) || details.includes(query);
-      
-      if (isMatch) {
-        card.style.display = "block";
-        hasMatches = true;
-      } else {
-        card.style.display = "none";
-      }
-    });
+  cards.forEach(card => {
+    const title = card.querySelector("h3").textContent.toLowerCase();
+    const tag = card.querySelector(".job-tag").textContent.toLowerCase();
+    const details = card.querySelector(".job-details") ? card.querySelector(".job-details").textContent.toLowerCase() : "";
 
-    // Toggle division lines depending on whether they contain visible cards
-    const grids = activeGroup.querySelectorAll('.job-grid');
-    divisions.forEach((div, i) => {
-      const grid = grids[i];
-      if (grid) {
-        const visibleCards = Array.from(grid.querySelectorAll(".job-card")).filter(c => c.style.display !== "none");
-        if (visibleCards.length > 0) {
-          div.style.display = "flex";
-          grid.style.display = "grid";
-        } else {
-          div.style.display = "none";
-          grid.style.display = "none";
-        }
-      }
-    });
+    const isMatch = !query || title.includes(query) || tag.includes(query) || details.includes(query);
 
-    // Show / Hide No Results element
-    if (hasMatches || !query) {
-      noResults.style.display = "none";
+    if (isMatch) {
+      card.style.display = "block";
+      hasMatches = true;
     } else {
-      noResults.style.display = "block";
+      card.style.display = "none";
     }
-  };
-
-  jobSearchInput.addEventListener("input", filterJobs);
-
-  // ── MODAL & APPLICATION SYSTEM ──
-  const openModal = (jobTitle) => {
-    modalJobTitle.textContent = jobTitle;
-    // Reset to form view (in case success panel was showing)
-    document.getElementById('applyFormFields').style.display = '';
-    document.getElementById('applySuccess').style.display = 'none';
-    applyModal.classList.add("open");
-    applyModal.setAttribute("aria-hidden", "false");
-    body.style.overflow = "hidden"; // Lock page scroll
-  };
-
-  const closeModal = () => {
-    applyModal.classList.remove("open");
-    applyModal.setAttribute("aria-hidden", "true");
-    body.style.overflow = ""; // Unlock page scroll
-    
-    // Clear inputs
-    applicantName.value = "";
-    applicantPhone.value = "";
-    applicantEmail.value = "";
-    applicantExp.value = "";
-    applicantMsg.value = "";
-
-    // Reset to form view
-    document.getElementById('applyFormFields').style.display = '';
-    document.getElementById('applySuccess').style.display = 'none';
-
-    // Reset submit button to default
-    modalSubmit.disabled = false;
-    modalSubmit.textContent = '📨 Submit Application';
-    modalSubmit.style.background = '';
-    modalSubmit.style.color = '';
-  };
-
-  // Close triggers
-  modalClose.addEventListener("click", closeModal);
-  applyModal.addEventListener("click", (e) => {
-    if (e.target === applyModal) closeModal();
   });
 
-  // Attach modal triggers to job cards
-  // (Dynamic apply buttons handled by event delegation above)
-
-  // Direct form submission to API
-  modalSubmit.addEventListener("click", async () => {
-    const name = applicantName.value.trim();
-    const phone = applicantPhone.value.trim();
-    const email = applicantEmail.value.trim();
-    const exp = applicantExp.value;
-    const msg = applicantMsg.value.trim();
-    const job = modalJobTitle.textContent;
-    const country = activeCountry || 'Israel';
-
-    // Validations
-    if (!name) {
-      alert("Please enter your full name.");
-      applicantName.focus();
-      return;
+  // Toggle division lines depending on whether they contain visible cards
+  const grids = activeGroup.querySelectorAll('.job-grid');
+  divisions.forEach((div, i) => {
+    const grid = grids[i];
+    if (grid) {
+      const visibleCards = Array.from(grid.querySelectorAll(".job-card")).filter(c => c.style.display !== "none");
+      if (visibleCards.length > 0) {
+        div.style.display = "flex";
+        grid.style.display = "grid";
+      } else {
+        div.style.display = "none";
+        grid.style.display = "none";
+      }
     }
-    if (!phone) {
-      alert("Please enter your phone number.");
-      applicantPhone.focus();
-      return;
-    }
+  });
 
-    // Disable button and show loading state
-    modalSubmit.disabled = true;
-    const origBtnText = modalSubmit.textContent;
-    modalSubmit.textContent = "⏳ Submitting...";
+  // Show / Hide No Results element
+  if (hasMatches || !query) {
+    noResults.style.display = "none";
+  } else {
+    noResults.style.display = "block";
+  }
+};
 
-    try {
-      // Upload CV to Supabase Storage if file selected
-      let cv_url = null;
-      const cvFile = applicantCV?.files[0];
-      if (cvFile) {
-        modalSubmit.textContent = "📤 Uploading CV...";
-        const sb = await getSupabaseClient();
-        if (sb) {
-          const ext = cvFile.name.substring(cvFile.name.lastIndexOf('.')).toLowerCase();
-          const fileName = `cv_${Date.now()}_${Math.random().toString(36).slice(2,8)}${ext}`;
-          const { data: uploadData, error: uploadErr } = await sb.storage
-            .from('cv-uploads')
-            .upload(fileName, cvFile, { contentType: cvFile.type, upsert: false });
+jobSearchInput.addEventListener("input", filterJobs);
 
-          if (uploadErr) {
-            console.error('CV upload error:', uploadErr);
-            // Continue without CV — don't block the application
-          } else {
-            const { data: urlData } = sb.storage.from('cv-uploads').getPublicUrl(fileName);
-            cv_url = urlData?.publicUrl || null;
-          }
+// ── MODAL & APPLICATION SYSTEM ──
+const openModal = (jobTitle) => {
+  modalJobTitle.textContent = jobTitle;
+  // Reset to form view (in case success panel was showing)
+  document.getElementById('applyFormFields').style.display = '';
+  document.getElementById('applySuccess').style.display = 'none';
+  applyModal.classList.add("open");
+  applyModal.setAttribute("aria-hidden", "false");
+  body.style.overflow = "hidden"; // Lock page scroll
+};
+
+const closeModal = () => {
+  applyModal.classList.remove("open");
+  applyModal.setAttribute("aria-hidden", "true");
+  body.style.overflow = ""; // Unlock page scroll
+
+  // Clear inputs
+  applicantName.value = "";
+  applicantPhone.value = "";
+  applicantEmail.value = "";
+  applicantExp.value = "";
+  applicantMsg.value = "";
+
+  // Reset to form view
+  document.getElementById('applyFormFields').style.display = '';
+  document.getElementById('applySuccess').style.display = 'none';
+
+  // Reset submit button to default
+  modalSubmit.disabled = false;
+  modalSubmit.textContent = '📨 Submit Application';
+  modalSubmit.style.background = '';
+  modalSubmit.style.color = '';
+};
+
+// Close triggers
+modalClose.addEventListener("click", closeModal);
+applyModal.addEventListener("click", (e) => {
+  if (e.target === applyModal) closeModal();
+});
+
+// Attach modal triggers to job cards
+// (Dynamic apply buttons handled by event delegation above)
+
+// Direct form submission to API
+modalSubmit.addEventListener("click", async () => {
+  const name = applicantName.value.trim();
+  const phone = applicantPhone.value.trim();
+  const email = applicantEmail.value.trim();
+  const exp = applicantExp.value;
+  const msg = applicantMsg.value.trim();
+  const job = modalJobTitle.textContent;
+  const country = activeCountry || 'Israel';
+
+  // Validations
+  if (!name) {
+    alert("Please enter your full name.");
+    applicantName.focus();
+    return;
+  }
+  if (!phone) {
+    alert("Please enter your phone number.");
+    applicantPhone.focus();
+    return;
+  }
+
+  // Disable button and show loading state
+  modalSubmit.disabled = true;
+  const origBtnText = modalSubmit.textContent;
+  modalSubmit.textContent = "⏳ Submitting...";
+
+  try {
+    // Upload CV to Supabase Storage if file selected
+    let cv_url = null;
+    const cvFile = applicantCV?.files[0];
+    if (cvFile) {
+      modalSubmit.textContent = "📤 Uploading CV...";
+      const sb = await getSupabaseClient();
+      if (sb) {
+        const ext = cvFile.name.substring(cvFile.name.lastIndexOf('.')).toLowerCase();
+        const fileName = `cv_${Date.now()}_${Math.random().toString(36).slice(2, 8)}${ext}`;
+        const { data: uploadData, error: uploadErr } = await sb.storage
+          .from('cv-uploads')
+          .upload(fileName, cvFile, { contentType: cvFile.type, upsert: false });
+
+        if (uploadErr) {
+          console.error('CV upload error:', uploadErr);
+          // Continue without CV — don't block the application
+        } else {
+          const { data: urlData } = sb.storage.from('cv-uploads').getPublicUrl(fileName);
+          cv_url = urlData?.publicUrl || null;
         }
-        modalSubmit.textContent = "⏳ Submitting...";
       }
-
-      const response = await fetch('/api/applications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'submit',
-          full_name: name,
-          phone: phone,
-          email: email || null,
-          job_title: job,
-          country: country,
-          experience: exp || null,
-          cover_note: msg || null,
-          cv_url: cv_url
-        })
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        // Store tracking ID locally
-        localStorage.setItem('bh_tracking_id', result.tracking_id);
-        localStorage.setItem('bh_tracking_phone', phone);
-
-        // Show success panel
-        document.getElementById('applyFormFields').style.display = 'none';
-        document.getElementById('trackingIdValue').textContent = result.tracking_id;
-        document.getElementById('applySuccess').style.display = 'block';
-
-        // Turn button green with success message
-        modalSubmit.style.background = '#10b981';
-        modalSubmit.style.color = '#fff';
-        modalSubmit.textContent = '✅ Submitted! Check email for details';
-        modalSubmit.disabled = true;
-
-        // Reset form fields for next use
-        applicantName.value = '';
-        applicantPhone.value = '';
-        applicantEmail.value = '';
-        applicantExp.value = '';
-        applicantMsg.value = '';
-        if (applicantCV) applicantCV.value = '';
-        if (cvFileName) cvFileName.innerHTML = '📎 Click to upload or drag & drop<br><span style="font-size:0.75rem; opacity:0.6;">PDF, DOC, DOCX — Max 5MB</span>';
-        if (cvUploadZone) cvUploadZone.style.borderColor = 'rgba(255,255,255,0.15)';
-        return; // Don't restore button — keep green
-      } else {
-        const err = await response.json();
-        alert(err.error || 'Submission failed. Please try again.');
-      }
-    } catch (err) {
-      alert('Network error. Please check your connection and try again.');
-      console.error('Application submit error:', err);
+      modalSubmit.textContent = "⏳ Submitting...";
     }
 
-    modalSubmit.disabled = false;
-    modalSubmit.textContent = origBtnText;
+    const response = await fetch('/api/applications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'submit',
+        full_name: name,
+        phone: phone,
+        email: email || null,
+        job_title: job,
+        country: country,
+        experience: exp || null,
+        cover_note: msg || null,
+        cv_url: cv_url
+      })
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      // Store tracking ID locally
+      localStorage.setItem('bh_tracking_id', result.tracking_id);
+      localStorage.setItem('bh_tracking_phone', phone);
+
+      // Show success panel
+      document.getElementById('applyFormFields').style.display = 'none';
+      document.getElementById('trackingIdValue').textContent = result.tracking_id;
+      document.getElementById('applySuccess').style.display = 'block';
+
+      // Turn button green with success message
+      modalSubmit.style.background = '#10b981';
+      modalSubmit.style.color = '#fff';
+      modalSubmit.textContent = '✅ Submitted! Check email for details';
+      modalSubmit.disabled = true;
+
+      // Reset form fields for next use
+      applicantName.value = '';
+      applicantPhone.value = '';
+      applicantEmail.value = '';
+      applicantExp.value = '';
+      applicantMsg.value = '';
+      if (applicantCV) applicantCV.value = '';
+      if (cvFileName) cvFileName.innerHTML = '📎 Click to upload or drag & drop<br><span style="font-size:0.75rem; opacity:0.6;">PDF, DOC, DOCX — Max 5MB</span>';
+      if (cvUploadZone) cvUploadZone.style.borderColor = 'rgba(255,255,255,0.15)';
+      return; // Don't restore button — keep green
+    } else {
+      const err = await response.json();
+      alert(err.error || 'Submission failed. Please try again.');
+    }
+  } catch (err) {
+    alert('Network error. Please check your connection and try again.');
+    console.error('Application submit error:', err);
+  }
+
+  modalSubmit.disabled = false;
+  modalSubmit.textContent = origBtnText;
+});
+
+// Initialize default theme (use classList to preserve animation classes)
+// Theme initialized dynamically by loadJobs()
+
+// ── AI CHATBOT WIDGET ──
+const chatbotToggle = document.getElementById("chatbotToggle");
+const chatbotWindow = document.getElementById("chatbotWindow");
+const chatbotInput = document.getElementById("chatbotInput");
+const chatbotSend = document.getElementById("chatbotSend");
+const chatbotMessages = document.getElementById("chatbotMessages");
+const chatbotIcon = document.querySelector(".chatbot-icon");
+const chatbotCloseIcon = document.querySelector(".chatbot-close-icon");
+
+let chatbotSessionId = localStorage.getItem("bh_chat_session") || ("s_" + Date.now());
+localStorage.setItem("bh_chat_session", chatbotSessionId);
+
+if (chatbotToggle) {
+  chatbotToggle.addEventListener("click", () => {
+    const isOpen = chatbotWindow.classList.toggle("open");
+    chatbotIcon.style.display = isOpen ? "none" : "inline";
+    chatbotCloseIcon.style.display = isOpen ? "inline" : "none";
+
+    if (isOpen && typeof gsap !== "undefined") {
+      gsap.fromTo(chatbotWindow,
+        { y: 20, opacity: 0, scale: 0.95 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.5)" }
+      );
+      chatbotInput.focus();
+    }
   });
+}
 
-  // Initialize default theme (use classList to preserve animation classes)
-  // Theme initialized dynamically by loadJobs()
+if (chatbotSend) {
+  chatbotSend.addEventListener("click", sendChatbotMessage);
+}
+if (chatbotInput) {
+  chatbotInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") sendChatbotMessage();
+  });
+}
 
-  // ── AI CHATBOT WIDGET ──
-  const chatbotToggle = document.getElementById("chatbotToggle");
-  const chatbotWindow = document.getElementById("chatbotWindow");
-  const chatbotInput = document.getElementById("chatbotInput");
-  const chatbotSend = document.getElementById("chatbotSend");
-  const chatbotMessages = document.getElementById("chatbotMessages");
-  const chatbotIcon = document.querySelector(".chatbot-icon");
-  const chatbotCloseIcon = document.querySelector(".chatbot-close-icon");
+async function sendChatbotMessage() {
+  const message = chatbotInput.value.trim();
+  if (!message) return;
 
-  let chatbotSessionId = localStorage.getItem("bh_chat_session") || ("s_" + Date.now());
-  localStorage.setItem("bh_chat_session", chatbotSessionId);
+  // Add user message
+  addChatbotMsg("user", message);
+  chatbotInput.value = "";
 
-  if (chatbotToggle) {
-    chatbotToggle.addEventListener("click", () => {
-      const isOpen = chatbotWindow.classList.toggle("open");
-      chatbotIcon.style.display = isOpen ? "none" : "inline";
-      chatbotCloseIcon.style.display = isOpen ? "inline" : "none";
+  // Show typing indicator
+  const typingEl = document.createElement("div");
+  typingEl.className = "cb-msg bot";
+  typingEl.innerHTML = `<div class="cb-typing"><span></span><span></span><span></span></div>`;
+  chatbotMessages.appendChild(typingEl);
+  chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
 
-      if (isOpen && typeof gsap !== "undefined") {
-        gsap.fromTo(chatbotWindow, 
-          { y: 20, opacity: 0, scale: 0.95 },
-          { y: 0, opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.5)" }
-        );
-        chatbotInput.focus();
-      }
+  try {
+    const res = await fetch("/api/ai-chatbot", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, session_id: chatbotSessionId })
     });
-  }
 
-  if (chatbotSend) {
-    chatbotSend.addEventListener("click", sendChatbotMessage);
-  }
-  if (chatbotInput) {
-    chatbotInput.addEventListener("keydown", e => {
-      if (e.key === "Enter") sendChatbotMessage();
-    });
-  }
+    typingEl.remove();
 
-  async function sendChatbotMessage() {
-    const message = chatbotInput.value.trim();
-    if (!message) return;
-
-    // Add user message
-    addChatbotMsg("user", message);
-    chatbotInput.value = "";
-
-    // Show typing indicator
-    const typingEl = document.createElement("div");
-    typingEl.className = "cb-msg bot";
-    typingEl.innerHTML = `<div class="cb-typing"><span></span><span></span><span></span></div>`;
-    chatbotMessages.appendChild(typingEl);
-    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-
-    try {
-      const res = await fetch("/api/ai-chatbot", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, session_id: chatbotSessionId })
-      });
-
-      typingEl.remove();
-
-      if (res.ok) {
-        const data = await res.json();
-        addChatbotMsg("bot", data.reply);
-        if (data.session_id) chatbotSessionId = data.session_id;
-      } else {
-        addChatbotMsg("bot", getLocalChatbotReply(message));
-      }
-    } catch {
-      typingEl.remove();
+    if (res.ok) {
+      const data = await res.json();
+      addChatbotMsg("bot", data.reply);
+      if (data.session_id) chatbotSessionId = data.session_id;
+    } else {
       addChatbotMsg("bot", getLocalChatbotReply(message));
     }
+  } catch {
+    typingEl.remove();
+    addChatbotMsg("bot", getLocalChatbotReply(message));
   }
+}
 
-  function addChatbotMsg(role, content) {
-    const div = document.createElement("div");
-    div.className = `cb-msg ${role}`;
-    div.innerHTML = `<div class="cb-bubble">${content.replace(/\n/g, "<br>")}</div>`;
-    chatbotMessages.appendChild(div);
-    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+function addChatbotMsg(role, content) {
+  const div = document.createElement("div");
+  div.className = `cb-msg ${role}`;
+  div.innerHTML = `<div class="cb-bubble">${content.replace(/\n/g, "<br>")}</div>`;
+  chatbotMessages.appendChild(div);
+  chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
 
-    if (typeof gsap !== "undefined") {
-      gsap.from(div, { y: 10, opacity: 0, duration: 0.25, ease: "power2.out" });
+  if (typeof gsap !== "undefined") {
+    gsap.from(div, { y: 10, opacity: 0, duration: 0.25, ease: "power2.out" });
+  }
+}
+
+function getLocalChatbotReply(msg) {
+  const m = msg.toLowerCase();
+  if (m.includes("salary") || m.includes("pay") || m.includes("earn"))
+    return "💰 Israel positions: $1,000–$1,900 USD/month. Vietnam: ₹30K–₹65K/month. Free accommodation & food included! Try our <a href='calculator/' style='color:var(--gold)'>Salary Calculator</a> for details.";
+  if (m.includes("visa") || m.includes("document") || m.includes("passport"))
+    return "🛂 We handle the full visa process! We accept ECR & ECNR passports. You'll need: Passport, Photos, Certificates, and Experience letters.";
+  if (m.includes("apply") || m.includes("job"))
+    return "📋 Browse jobs above, click 'Apply', fill the form, and submit directly. You'll get a tracking ID to monitor your application progress!";
+  if (m.includes("track") || m.includes("status"))
+    return "📍 Track your application at our <a href='tracker/' style='color:var(--gold)'>Tracker page</a>. Enter your Tracking ID + phone number.";
+  if (m.includes("hello") || m.includes("hi") || m.includes("hey"))
+    return "👋 Hello! Welcome to Blue Horizon Overseas! Ask me about jobs, salaries, visa process, or anything else. I'm here to help!";
+  if (m.includes("contact") || m.includes("phone") || m.includes("whatsapp"))
+    return "📞 WhatsApp: +91 89420 69079 | Helpline: +91 92308 59550 | Email: global@bluehorizonoverseas.in";
+  if (m.includes("accommodation") || m.includes("food") || m.includes("living"))
+    return "🏠 Yes! Free accommodation & food are provided by employers for all placements. Most of your salary goes straight to savings!";
+  return "Thanks for your question! For detailed help, contact us at: <a href='tel:+918942069079' style='color:var(--gold)'>+91 89420 69079</a> or email global@bluehorizonoverseas.in 😊";
+}
+
+// ══════════════════════════════════════════════════════════════
+// TALENT POOL FORM
+// ══════════════════════════════════════════════════════════════
+const talentForm = document.getElementById('talentPoolForm');
+if (talentForm) {
+  talentForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    // Honeypot check — bots fill this, humans never see it
+    if (document.getElementById('tpHoneypot') && document.getElementById('tpHoneypot').value) return;
+    const submitBtn = talentForm.querySelector('.tp-submit');
+    const origText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ Submitting...';
+
+    try {
+      const payload = {
+        full_name: document.getElementById('tpName').value.trim(),
+        phone: document.getElementById('tpPhone').value.trim(),
+        trade: document.getElementById('tpTrade').value,
+        preferred_country: document.getElementById('tpCountry').value || null
+      };
+
+      const res = await fetch('/api/talent-pool', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        talentForm.reset();
+        submitBtn.textContent = '✅ Profile Submitted!';
+        submitBtn.style.background = 'rgba(16,185,129,0.2)';
+        submitBtn.style.borderColor = 'rgba(16,185,129,0.5)';
+        setTimeout(() => {
+          submitBtn.textContent = origText;
+          submitBtn.style.background = '';
+          submitBtn.style.borderColor = '';
+          submitBtn.disabled = false;
+        }, 3000);
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Submission failed. Please try again.');
+        submitBtn.textContent = origText;
+        submitBtn.disabled = false;
+      }
+    } catch {
+      alert('Network error. Please try again.');
+      submitBtn.textContent = origText;
+      submitBtn.disabled = false;
     }
-  }
+  });
+}
 
-  function getLocalChatbotReply(msg) {
-    const m = msg.toLowerCase();
-    if (m.includes("salary") || m.includes("pay") || m.includes("earn"))
-      return "💰 Israel positions: $1,000–$1,900 USD/month. Vietnam: ₹30K–₹65K/month. Free accommodation & food included! Try our <a href='calculator/' style='color:var(--gold)'>Salary Calculator</a> for details.";
-    if (m.includes("visa") || m.includes("document") || m.includes("passport"))
-      return "🛂 We handle the full visa process! We accept ECR & ECNR passports. You'll need: Passport, Photos, Certificates, and Experience letters.";
-    if (m.includes("apply") || m.includes("job"))
-      return "📋 Browse jobs above, click 'Apply', fill the form, and submit directly. You'll get a tracking ID to monitor your application progress!";
-    if (m.includes("track") || m.includes("status"))
-      return "📍 Track your application at our <a href='tracker/' style='color:var(--gold)'>Tracker page</a>. Enter your Tracking ID + phone number.";
-    if (m.includes("hello") || m.includes("hi") || m.includes("hey"))
-      return "👋 Hello! Welcome to Blue Horizon Overseas! Ask me about jobs, salaries, visa process, or anything else. I'm here to help!";
-    if (m.includes("contact") || m.includes("phone") || m.includes("whatsapp"))
-      return "📞 WhatsApp: +91 89420 69079 | Helpline: +91 92308 59550 | Email: global@bluehorizonoverseas.in";
-    if (m.includes("accommodation") || m.includes("food") || m.includes("living"))
-      return "🏠 Yes! Free accommodation & food are provided by employers for all placements. Most of your salary goes straight to savings!";
-    return "Thanks for your question! For detailed help, contact us at: <a href='tel:+918942069079' style='color:var(--gold)'>+91 89420 69079</a> or email global@bluehorizonoverseas.in 😊";
-  }
+// ══════════════════════════════════════════════════════════════
+// EMPLOYER INQUIRY FORM
+// ══════════════════════════════════════════════════════════════
+const employerForm = document.getElementById('employerForm');
+if (employerForm) {
+  employerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    // Honeypot check — bots fill this, humans never see it
+    if (document.getElementById('empHoneypot') && document.getElementById('empHoneypot').value) return;
+    const submitBtn = employerForm.querySelector('.emp-submit');
+    const origText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ Sending...';
 
-  // ══════════════════════════════════════════════════════════════
-  // TALENT POOL FORM
-  // ══════════════════════════════════════════════════════════════
-  const talentForm = document.getElementById('talentPoolForm');
-  if (talentForm) {
-    talentForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      // Honeypot check — bots fill this, humans never see it
-      if (document.getElementById('tpHoneypot') && document.getElementById('tpHoneypot').value) return;
-      const submitBtn = talentForm.querySelector('.tp-submit');
-      const origText = submitBtn.textContent;
-      submitBtn.disabled = true;
-      submitBtn.textContent = '⏳ Submitting...';
+    try {
+      const payload = {
+        company_name: document.getElementById('empCompany').value.trim(),
+        contact_person: document.getElementById('empContact').value.trim(),
+        phone: document.getElementById('empPhone').value.trim(),
+        email: document.getElementById('empEmail').value.trim() || null,
+        country: document.getElementById('empCountry').value || null,
+        roles_needed: document.getElementById('empRoles').value.trim() || null
+      };
 
-      try {
-        const payload = {
-          full_name: document.getElementById('tpName').value.trim(),
-          phone: document.getElementById('tpPhone').value.trim(),
-          trade: document.getElementById('tpTrade').value,
-          preferred_country: document.getElementById('tpCountry').value || null
-        };
+      const res = await fetch('/api/employers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
-        const res = await fetch('/api/talent-pool', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        if (res.ok) {
-          talentForm.reset();
-          submitBtn.textContent = '✅ Profile Submitted!';
-          submitBtn.style.background = 'rgba(16,185,129,0.2)';
-          submitBtn.style.borderColor = 'rgba(16,185,129,0.5)';
-          setTimeout(() => {
-            submitBtn.textContent = origText;
-            submitBtn.style.background = '';
-            submitBtn.style.borderColor = '';
-            submitBtn.disabled = false;
-          }, 3000);
-        } else {
-          const err = await res.json();
-          alert(err.error || 'Submission failed. Please try again.');
+      if (res.ok) {
+        employerForm.reset();
+        submitBtn.textContent = '✅ Inquiry Submitted!';
+        submitBtn.style.background = 'rgba(16,185,129,0.2)';
+        submitBtn.style.borderColor = 'rgba(16,185,129,0.5)';
+        setTimeout(() => {
           submitBtn.textContent = origText;
+          submitBtn.style.background = '';
+          submitBtn.style.borderColor = '';
           submitBtn.disabled = false;
-        }
-      } catch {
-        alert('Network error. Please try again.');
+        }, 3000);
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Submission failed. Please try again.');
         submitBtn.textContent = origText;
         submitBtn.disabled = false;
       }
-    });
-  }
-
-  // ══════════════════════════════════════════════════════════════
-  // EMPLOYER INQUIRY FORM
-  // ══════════════════════════════════════════════════════════════
-  const employerForm = document.getElementById('employerForm');
-  if (employerForm) {
-    employerForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      // Honeypot check — bots fill this, humans never see it
-      if (document.getElementById('empHoneypot') && document.getElementById('empHoneypot').value) return;
-      const submitBtn = employerForm.querySelector('.emp-submit');
-      const origText = submitBtn.textContent;
-      submitBtn.disabled = true;
-      submitBtn.textContent = '⏳ Sending...';
-
-      try {
-        const payload = {
-          company_name: document.getElementById('empCompany').value.trim(),
-          contact_person: document.getElementById('empContact').value.trim(),
-          phone: document.getElementById('empPhone').value.trim(),
-          email: document.getElementById('empEmail').value.trim() || null,
-          country: document.getElementById('empCountry').value || null,
-          roles_needed: document.getElementById('empRoles').value.trim() || null
-        };
-
-        const res = await fetch('/api/employers', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        if (res.ok) {
-          employerForm.reset();
-          submitBtn.textContent = '✅ Inquiry Submitted!';
-          submitBtn.style.background = 'rgba(16,185,129,0.2)';
-          submitBtn.style.borderColor = 'rgba(16,185,129,0.5)';
-          setTimeout(() => {
-            submitBtn.textContent = origText;
-            submitBtn.style.background = '';
-            submitBtn.style.borderColor = '';
-            submitBtn.disabled = false;
-          }, 3000);
-        } else {
-          const err = await res.json();
-          alert(err.error || 'Submission failed. Please try again.');
-          submitBtn.textContent = origText;
-          submitBtn.disabled = false;
-        }
-      } catch {
-        alert('Network error. Please try again.');
-        submitBtn.textContent = origText;
-        submitBtn.disabled = false;
-      }
-    });
-  }
+    } catch {
+      alert('Network error. Please try again.');
+      submitBtn.textContent = origText;
+      submitBtn.disabled = false;
+    }
+  });
+}
 });

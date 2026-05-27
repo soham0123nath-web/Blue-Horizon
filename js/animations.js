@@ -307,10 +307,12 @@ function initHoverEffects() {
   // Event delegation for card hover (works on dynamic elements)
   const cardSelector = ".why-card, .testimonial-card, .contact-card, .job-card";
   document.addEventListener("mouseenter", (e) => {
+    if (!e.target || typeof e.target.closest !== 'function') return;
     const card = e.target.closest(cardSelector);
     if (card) gsap.to(card, { y: -4, duration: 0.3, ease: "power2.out" });
   }, true);
   document.addEventListener("mouseleave", (e) => {
+    if (!e.target || typeof e.target.closest !== 'function') return;
     const card = e.target.closest(cardSelector);
     if (card) gsap.to(card, { y: 0, duration: 0.4, ease: "power2.out" });
   }, true);
@@ -318,10 +320,12 @@ function initHoverEffects() {
   // Buttons: subtle scale (delegation)
   const btnSelector = ".btn, .nav-cta, .quick-apply, .apply-btn";
   document.addEventListener("mouseenter", (e) => {
+    if (!e.target || typeof e.target.closest !== 'function') return;
     const btn = e.target.closest(btnSelector);
     if (btn) gsap.to(btn, { scale: 1.03, duration: 0.2, ease: "power2.out" });
   }, true);
   document.addEventListener("mouseleave", (e) => {
+    if (!e.target || typeof e.target.closest !== 'function') return;
     const btn = e.target.closest(btnSelector);
     if (btn) gsap.to(btn, { scale: 1, duration: 0.3, ease: "power2.out" });
   }, true);
