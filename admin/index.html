@@ -339,13 +339,14 @@
                     <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Candidate</th>
                     <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Job Title</th>
                     <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Country</th>
+                    <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Video</th>
                     <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Rating</th>
                     <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider">Active</th>
                     <th class="px-6 py-4 text-gray-400 font-semibold text-xs uppercase tracking-wider text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="testimonialsTableBody" class="divide-y divide-white/5">
-                  <tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">Loading...</td></tr>
+                  <tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">Loading...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -612,8 +613,8 @@
         </div>
 
         <div>
-          <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Video URL *</label>
-          <input type="url" id="tmVideoUrl" required placeholder="https://youtube.com/watch?v=..." class="w-full px-4 py-3 rounded-xl glass-input">
+          <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1">Video URL (Optional — YouTube link)</label>
+          <input type="url" id="tmVideoUrl" placeholder="https://youtube.com/watch?v=... (leave empty for text-only)" class="w-full px-4 py-3 rounded-xl glass-input">
         </div>
 
         <div>
@@ -1368,40 +1369,65 @@
       } catch { showToast('Failed to delete.', true); }
     }
 
+    async function toggleTestimonial(id, activate) {
+      try {
+        const res = await apiFetch('/api/testimonials', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'update', id, is_active: activate })
+        });
+        if (res && res.ok) {
+          showToast(activate ? 'Testimonial approved & live!' : 'Testimonial hidden.');
+          loadTestimonials();
+        } else { showToast('Failed to update.', true); }
+      } catch { showToast('Network error.', true); }
+    }
+
     let currentTestimonials = [];
     async function loadTestimonials() {
       const tbody = document.getElementById('testimonialsTableBody');
       if (!tbody) return;
-      tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">Loading...</td></tr>';
 
       try {
-        // Use admin query to get ALL testimonials (including inactive)
-        const res = await apiFetch('/api/testimonials');
+        // Use admin query to get ALL testimonials (including pending)
+        const res = await apiFetch('/api/testimonials?all=true');
         if (!res) return;
         const data = await res.json();
         currentTestimonials = data.testimonials || [];
 
         if (currentTestimonials.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No testimonials yet. Click "Add Testimonial" to create one.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">No testimonials yet. Click "Add Testimonial" to create one.</td></tr>';
           return;
         }
 
-        tbody.innerHTML = currentTestimonials.map(t => `
-          <tr class="hover:bg-white/5 transition-colors">
+        tbody.innerHTML = currentTestimonials.map(t => {
+          const hasVideo = t.video_url && t.video_url.trim();
+          const videoCell = hasVideo
+            ? `<a href="${t.video_url}" target="_blank" rel="noopener" class="text-primary hover:text-blue-400 text-xs font-medium">🎬 Watch</a>`
+            : `<span class="text-[11px] text-gray-500">Text only</span>`;
+          const statusBadge = t.is_active
+            ? `<span class="px-2 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400">Active</span>`
+            : `<span class="px-2 py-1 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-400">⏳ Pending</span>`;
+          const toggleBtn = t.is_active
+            ? `<button onclick="toggleTestimonial('${t.id}', false)" class="text-gray-400 hover:text-gray-300 text-xs font-medium mr-3">Hide</button>`
+            : `<button onclick="toggleTestimonial('${t.id}', true)" class="text-emerald-400 hover:text-emerald-300 text-xs font-medium mr-3">✓ Approve</button>`;
+          return `
+          <tr class="hover:bg-white/5 transition-colors ${!t.is_active ? 'bg-amber-500/[0.03]' : ''}">
             <td class="px-6 py-4 text-white font-medium">${t.candidate_name}</td>
             <td class="px-6 py-4 text-gray-300">${t.job_title}</td>
             <td class="px-6 py-4 text-gray-300">${t.country}</td>
+            <td class="px-6 py-4">${videoCell}</td>
             <td class="px-6 py-4 text-yellow-400">${'★'.repeat(t.rating)}${'☆'.repeat(5 - t.rating)}</td>
-            <td class="px-6 py-4">
-              <span class="px-2 py-1 rounded-full text-[11px] font-semibold ${t.is_active ? 'bg-emerald-500/10 text-emerald-400' : 'bg-gray-500/10 text-gray-400'}">${t.is_active ? 'Active' : 'Hidden'}</span>
-            </td>
+            <td class="px-6 py-4">${statusBadge}</td>
             <td class="px-6 py-4 text-right">
+              ${toggleBtn}
               <button onclick='openTestimonialModal(${JSON.stringify(t).replace(/'/g, "&#39;")})' class="text-primary hover:text-blue-400 text-xs font-medium mr-3">Edit</button>
               <button onclick="deleteTestimonial('${t.id}')" class="text-red-400 hover:text-red-300 text-xs font-medium">Delete</button>
             </td>
           </tr>
-        `).join('');
-      } catch { tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-red-400">Failed to load.</td></tr>'; }
+        `}).join('');
+      } catch { tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-red-400">Failed to load.</td></tr>'; }
     }
 
     // ══════════════════════════════════════════════════════════════

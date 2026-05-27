@@ -22,7 +22,25 @@ module.exports = async function handler(req, res) {
 
     try {
         if (req.method === 'GET') {
-            // Public: Fetch active testimonials
+            const url = new URL(req.url, `https://${req.headers.host}`);
+            const showAll = url.searchParams.get('all') === 'true';
+
+            // If requesting all, require admin auth
+            if (showAll) {
+                const user = await requireAdmin(req, res);
+                if (!user) return;
+
+                const { data, error } = await supabase
+                    .from('video_testimonials')
+                    .select('*')
+                    .order('is_active', { ascending: true })
+                    .order('display_order', { ascending: true });
+
+                if (error) return res.status(500).json({ error: 'Failed to fetch testimonials.' });
+                return res.status(200).json({ testimonials: data || [] });
+            }
+
+            // Public: only active testimonials
             res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=120');
 
             const { data, error } = await supabase
@@ -38,25 +56,53 @@ module.exports = async function handler(req, res) {
             return res.status(200).json({ testimonials: data || [] });
 
         } else if (req.method === 'POST') {
-            const user = await requireAdmin(req, res);
-            if (!user) return;
-
             let body = req.body;
             if (typeof body === 'string') body = JSON.parse(body);
 
             const { action } = body;
 
-            if (action === 'create') {
-                const { candidate_name, job_title, country, video_url, thumbnail_url, quote, rating } = body;
+            // ── PUBLIC: Client submits a review (no auth needed) ──
+            if (action === 'submit') {
+                const { candidate_name, job_title, country, rating, quote } = body;
 
-                if (!candidate_name || !job_title || !country || !video_url) {
-                    return res.status(400).json({ error: 'Name, job title, country, and video URL are required.' });
+                if (!candidate_name || !quote || !rating) {
+                    return res.status(400).json({ error: 'Name, review text, and rating are required.' });
                 }
 
                 const { data, error } = await supabase
                     .from('video_testimonials')
                     .insert({
-                        candidate_name, job_title, country, video_url,
+                        candidate_name,
+                        job_title: job_title || 'Candidate',
+                        country: country || 'Global',
+                        video_url: '',
+                        quote,
+                        rating: Math.min(5, Math.max(1, parseInt(rating) || 5)),
+                        is_active: false  // Pending admin approval
+                    })
+                    .select()
+                    .single();
+
+                if (error) return res.status(500).json({ error: 'Failed to submit review.' });
+                return res.status(201).json({ success: true, message: 'Thank you! Your review will appear after approval.' });
+            }
+
+            // ── ADMIN: All other actions require auth ──
+            const user = await requireAdmin(req, res);
+            if (!user) return;
+
+            if (action === 'create') {
+                const { candidate_name, job_title, country, video_url, thumbnail_url, quote, rating } = body;
+
+                if (!candidate_name || !job_title || !country) {
+                    return res.status(400).json({ error: 'Name, job title, and country are required.' });
+                }
+
+                const { data, error } = await supabase
+                    .from('video_testimonials')
+                    .insert({
+                        candidate_name, job_title, country,
+                        video_url: video_url || '',
                         thumbnail_url: thumbnail_url || null,
                         quote: quote || null,
                         rating: rating || 5

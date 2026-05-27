@@ -1256,6 +1256,215 @@ body.theme-vietnam .switcher-btn.active {
   color: var(--text-dim);
 }
 
+/* Video play overlay on testimonial cards */
+.testimonial-video-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 10px 20px;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 30px;
+  background: rgba(212, 175, 55, 0.08);
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: 'Poppins', sans-serif;
+}
+
+.testimonial-video-btn:hover {
+  background: var(--gold);
+  color: var(--navy);
+  transform: scale(1.05);
+}
+
+.testimonial-country-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.1);
+  border: 1px solid rgba(var(--accent-rgb), 0.2);
+  border-radius: 20px;
+  padding: 3px 12px;
+  margin-top: 8px;
+}
+
+/* ── VIDEO MODAL ── */
+.video-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-modal.active {
+  display: flex;
+}
+
+.video-modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.video-modal-content {
+  position: relative;
+  width: 90%;
+  max-width: 800px;
+  aspect-ratio: 16 / 9;
+  z-index: 2;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.video-modal-close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 3;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  transition: var(--transition);
+}
+
+.video-modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.video-modal-player {
+  width: 100%;
+  height: 100%;
+}
+
+.video-modal-player iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* ── PUBLIC REVIEW FORM ── */
+.review-form {
+  background: var(--navy-card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius);
+  padding: 28px;
+}
+
+.review-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .review-form-row { grid-template-columns: 1fr; }
+}
+
+.review-field {
+  margin-bottom: 16px;
+}
+
+.review-field label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.review-field input,
+.review-field textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: white;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  transition: var(--transition);
+  outline: none;
+}
+
+.review-field input:focus,
+.review-field textarea:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.review-field textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Interactive star rating */
+.star-rating {
+  display: flex;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.star-rating .star {
+  font-size: 28px;
+  color: var(--gold);
+  transition: transform 0.2s, opacity 0.2s;
+  user-select: none;
+}
+
+.star-rating .star.dim {
+  opacity: 0.25;
+}
+
+.star-rating .star:hover {
+  transform: scale(1.2);
+}
+
+.review-submit-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--gold), #c4972e);
+  color: var(--navy);
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-top: 8px;
+}
+
+.review-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.25);
+}
+
+.review-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* ── FAQ ── */
 .faq-section {
   padding: 100px 8%;

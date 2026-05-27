@@ -205,6 +205,194 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadJobs();  
 
+  // ── DYNAMIC TESTIMONIALS LOADER ──
+  const loadTestimonials = async () => {
+    const grid = document.getElementById('testimonialGrid');
+    if (!grid) return;
+
+    try {
+      const res = await fetch('/api/testimonials');
+      const data = await res.json();
+      const testimonials = data.testimonials || [];
+
+      if (testimonials.length === 0) {
+        grid.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">No testimonials yet.</p>';
+        return;
+      }
+
+      grid.innerHTML = testimonials.map(t => {
+        const stars = '★'.repeat(t.rating || 5) + '☆'.repeat(5 - (t.rating || 5));
+        const initial = (t.candidate_name || 'U')[0].toUpperCase();
+        const hasVideo = t.video_url && t.video_url.trim();
+        const videoBtn = hasVideo 
+          ? `<button type="button" class="testimonial-video-btn" data-video="${esc(t.video_url)}">▶ Watch Story</button>`
+          : '';
+        
+        return `
+          <div class="testimonial-card reveal">
+            <div class="stars">${stars}</div>
+            <p>"${esc(t.quote || 'Great experience with Blue Horizon Overseas!')}"</p>
+            ${videoBtn}
+            <div class="testimonial-author">
+              <div class="author-avatar">${initial}</div>
+              <div class="author-info">
+                <strong>${esc(t.candidate_name)}</strong>
+                <span>${esc(t.job_title)} — ${esc(t.country)}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+    } catch (err) {
+      console.error('Failed to load testimonials:', err);
+      grid.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">Could not load testimonials.</p>';
+    }
+  };
+
+  loadTestimonials();
+
+  // ── VIDEO MODAL (in-page player, no redirect) ──
+  const videoModal = document.getElementById('videoModal');
+  const videoModalPlayer = document.getElementById('videoModalPlayer');
+  const videoModalClose = document.getElementById('videoModalClose');
+  const videoModalOverlay = document.getElementById('videoModalOverlay');
+
+  // Extract YouTube embed URL from various YouTube link formats
+  const getYouTubeEmbedUrl = (url) => {
+    if (!url) return null;
+    let videoId = null;
+    // youtube.com/watch?v=ID
+    const match1 = url.match(/[?&]v=([^&#]+)/);
+    if (match1) videoId = match1[1];
+    // youtu.be/ID
+    const match2 = url.match(/youtu\.be\/([^?&#]+)/);
+    if (!videoId && match2) videoId = match2[1];
+    // youtube.com/embed/ID
+    const match3 = url.match(/embed\/([^?&#]+)/);
+    if (!videoId && match3) videoId = match3[1];
+
+    if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+    // If it's a direct video file URL, return as-is
+    return url;
+  };
+
+  const openVideoModal = (videoUrl) => {
+    const embedUrl = getYouTubeEmbedUrl(videoUrl);
+    if (!embedUrl) return;
+
+    if (embedUrl.includes('youtube.com/embed')) {
+      videoModalPlayer.innerHTML = `<iframe src="${embedUrl}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+    } else {
+      videoModalPlayer.innerHTML = `<video src="${embedUrl}" controls autoplay style="width:100%;height:100%;border-radius:16px;"></video>`;
+    }
+
+    videoModal.classList.add('active');
+    videoModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeVideoModal = () => {
+    videoModal.classList.remove('active');
+    videoModal.setAttribute('aria-hidden', 'true');
+    videoModalPlayer.innerHTML = ''; // Stop playback
+    document.body.style.overflow = '';
+  };
+
+  if (videoModalClose) videoModalClose.addEventListener('click', closeVideoModal);
+  if (videoModalOverlay) videoModalOverlay.addEventListener('click', closeVideoModal);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && videoModal.classList.contains('active')) closeVideoModal();
+  });
+
+  // Delegate click on video play buttons
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.testimonial-video-btn');
+    if (btn) {
+      const videoUrl = btn.dataset.video;
+      if (videoUrl) openVideoModal(videoUrl);
+    }
+  });
+
+  // ── PUBLIC REVIEW FORM ──
+  const starRating = document.getElementById('starRating');
+  const reviewRatingInput = document.getElementById('reviewRating');
+  const reviewForm = document.getElementById('publicReviewForm');
+  const reviewSubmitBtn = document.getElementById('reviewSubmitBtn');
+
+  if (starRating) {
+    let selectedRating = 5;
+    const stars = starRating.querySelectorAll('.star');
+
+    const updateStars = (value) => {
+      stars.forEach(s => {
+        s.classList.toggle('dim', parseInt(s.dataset.value) > value);
+      });
+    };
+
+    updateStars(5);
+
+    stars.forEach(star => {
+      star.addEventListener('click', () => {
+        selectedRating = parseInt(star.dataset.value);
+        reviewRatingInput.value = selectedRating;
+        updateStars(selectedRating);
+      });
+      star.addEventListener('mouseenter', () => {
+        updateStars(parseInt(star.dataset.value));
+      });
+    });
+
+    starRating.addEventListener('mouseleave', () => {
+      updateStars(selectedRating);
+    });
+  }
+
+  if (reviewForm) {
+    reviewForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('reviewName').value.trim();
+      const jobTitle = document.getElementById('reviewJobTitle').value.trim();
+      const rating = document.getElementById('reviewRating').value;
+      const quote = document.getElementById('reviewText').value.trim();
+
+      if (!name || !quote || !rating) return;
+
+      reviewSubmitBtn.disabled = true;
+      reviewSubmitBtn.textContent = '⏳ Submitting...';
+
+      try {
+        const res = await fetch('/api/testimonials', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'submit',
+            candidate_name: name,
+            job_title: jobTitle || undefined,
+            rating: parseInt(rating),
+            quote
+          })
+        });
+
+        if (res.ok) {
+          reviewSubmitBtn.style.background = '#10b981';
+          reviewSubmitBtn.style.color = '#fff';
+          reviewSubmitBtn.textContent = '✅ Submitted! Pending approval.';
+          reviewForm.reset();
+          if (starRating) {
+            starRating.querySelectorAll('.star').forEach(s => s.classList.remove('dim'));
+          }
+        } else {
+          reviewSubmitBtn.textContent = '❌ Failed. Try again.';
+          setTimeout(() => { reviewSubmitBtn.textContent = '📨 Submit Review'; reviewSubmitBtn.disabled = false; }, 2000);
+        }
+      } catch {
+        reviewSubmitBtn.textContent = '❌ Network error.';
+        setTimeout(() => { reviewSubmitBtn.textContent = '📨 Submit Review'; reviewSubmitBtn.disabled = false; }, 2000);
+      }
+    });
+  }
+
   // ── COUNTRY / THEME SWITCHER ──
   const switchCountry = (country) => {
     // Reset search

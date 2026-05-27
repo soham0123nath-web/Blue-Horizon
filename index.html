@@ -380,42 +380,55 @@
         <h2>Successful Placements</h2>
         <p>Listen to some of our successfully placed candidates who started their new international journeys.</p>
       </div>
-      <div class="testimonial-grid">
-        <div class="testimonial-card reveal">
-          <div class="stars">★★★★★</div>
-          <p>"Blue Horizon helped me secure my job as a Production Technician in Israel. They guided me through the entire visa and flight process. Very transparent!"</p>
-          <div class="testimonial-author">
-            <div class="author-avatar">R</div>
-            <div class="author-info">
-              <strong>Rakesh Kumar</strong>
-              <span>Placed in Tel Aviv, Israel</span>
+      <div class="testimonial-grid" id="testimonialGrid">
+        <div class="loading-spinner">Loading testimonials...</div>
+      </div>
+
+      <!-- Leave a Review Form -->
+      <div class="review-form-wrapper reveal" style="margin-top: 60px; max-width: 600px; margin-left: auto; margin-right: auto;">
+        <div class="section-title" style="margin-bottom: 24px;">
+          <h3 style="font-size: 1.4rem; color: white; margin-bottom: 6px;">💬 Share Your Experience</h3>
+          <p style="font-size: 0.85rem; color: var(--text-dim);">Were you placed through Blue Horizon? Leave a review to help future candidates.</p>
+        </div>
+        <form id="publicReviewForm" class="review-form">
+          <div class="review-form-row">
+            <div class="review-field">
+              <label for="reviewName">Your Name *</label>
+              <input type="text" id="reviewName" placeholder="e.g. Rajesh Kumar" required>
+            </div>
+            <div class="review-field">
+              <label for="reviewJobTitle">Job Title</label>
+              <input type="text" id="reviewJobTitle" placeholder="e.g. Welder">
             </div>
           </div>
-        </div>
-        <div class="testimonial-card reveal">
-          <div class="stars">★★★★★</div>
-          <p>"Outstanding experience. I was selected for the Sales Coordinator position in Vietnam. The accommodation is beautiful, and food is provided. Truly licensed experts."</p>
-          <div class="testimonial-author">
-            <div class="author-avatar">P</div>
-            <div class="author-info">
-              <strong>Priya Sharma</strong>
-              <span>Placed in Hanoi, Vietnam</span>
+          <div class="review-field">
+            <label>Your Rating *</label>
+            <div class="star-rating" id="starRating">
+              <span class="star" data-value="1">★</span>
+              <span class="star" data-value="2">★</span>
+              <span class="star" data-value="3">★</span>
+              <span class="star" data-value="4">★</span>
+              <span class="star" data-value="5">★</span>
             </div>
+            <input type="hidden" id="reviewRating" value="5">
           </div>
-        </div>
-        <div class="testimonial-card reveal">
-          <div class="stars">★★★★★</div>
-          <p>"I was placed as a Welder in Israel. I earn highly with consistent overtime options. My family in India is very secure now. Highly recommended!"</p>
-          <div class="testimonial-author">
-            <div class="author-avatar">A</div>
-            <div class="author-info">
-              <strong>Amit Patel</strong>
-              <span>Placed in Ashdod, Israel</span>
-            </div>
+          <div class="review-field">
+            <label for="reviewText">Your Review *</label>
+            <textarea id="reviewText" rows="3" placeholder="Tell us about your experience with Blue Horizon..." required></textarea>
           </div>
-        </div>
+          <button type="submit" class="review-submit-btn" id="reviewSubmitBtn">📨 Submit Review</button>
+        </form>
       </div>
     </section>
+
+    <!-- VIDEO PLAYER MODAL (in-page, no redirect) -->
+    <div class="video-modal" id="videoModal" role="dialog" aria-hidden="true" aria-label="Video Player">
+      <div class="video-modal-overlay" id="videoModalOverlay"></div>
+      <div class="video-modal-content">
+        <button type="button" class="video-modal-close" id="videoModalClose" aria-label="Close video">✕</button>
+        <div class="video-modal-player" id="videoModalPlayer"></div>
+      </div>
+    </div>
 
     <!-- FOR EMPLOYERS — B2B Lead Capture -->
     <section id="employers" class="employers-section reveal">
