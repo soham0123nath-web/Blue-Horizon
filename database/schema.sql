@@ -66,6 +66,10 @@ CREATE TABLE IF NOT EXISTS job_listings (
 
 CREATE INDEX IF NOT EXISTS idx_jobs_active ON job_listings(is_active);
 CREATE INDEX IF NOT EXISTS idx_jobs_country ON job_listings(country);
+CREATE INDEX IF NOT EXISTS idx_jobs_active_country ON job_listings(is_active, country, display_order);
+
+-- Composite index for public testimonials query
+CREATE INDEX IF NOT EXISTS idx_testimonials_active_order ON video_testimonials(is_active, display_order);
 
 -- ── 3. VIDEO TESTIMONIALS ──
 CREATE TABLE IF NOT EXISTS video_testimonials (

@@ -25,54 +25,39 @@ module.exports = async function handler(req, res) {
             const action = url.searchParams.get('action') || 'dashboard';
 
             if (action === 'dashboard') {
-                // Total count
-                const { count: total } = await supabase
+                // Fetch all application status+country+created_at in ONE query
+                const { data: allApps } = await supabase
                     .from('applications')
-                    .select('*', { count: 'exact', head: true });
+                    .select('status, country, created_at');
 
-                // This week count
+                const apps = allApps || [];
+                const total = apps.length;
+
                 const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-                const { count: thisWeek } = await supabase
-                    .from('applications')
-                    .select('*', { count: 'exact', head: true })
-                    .gte('created_at', weekAgo);
-
-                // This month count
                 const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-                const { count: thisMonth } = await supabase
-                    .from('applications')
-                    .select('*', { count: 'exact', head: true })
-                    .gte('created_at', monthAgo);
 
-                // Deployed count for conversion rate
-                const { count: deployed } = await supabase
-                    .from('applications')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('status', 'deployed');
-
-                const conversionRate = (total || 0) > 0 ? (((deployed || 0) / total) * 100).toFixed(1) : 0;
-
-                // Status breakdown (only fetch status column, lightweight)
-                const { data: statusRows } = await supabase
-                    .from('applications')
-                    .select('status');
-
+                let thisWeek = 0, thisMonth = 0, deployed = 0;
                 const byStatus = {};
                 const byCountry = {};
-                // Country breakdown (only fetch country column)
-                const { data: countryRows } = await supabase
-                    .from('applications')
-                    .select('country');
 
-                (statusRows || []).forEach(r => { byStatus[r.status] = (byStatus[r.status] || 0) + 1; });
-                (countryRows || []).forEach(r => { byCountry[r.country] = (byCountry[r.country] || 0) + 1; });
+                apps.forEach(a => {
+                    byStatus[a.status] = (byStatus[a.status] || 0) + 1;
+                    byCountry[a.country] = (byCountry[a.country] || 0) + 1;
+                    if (a.created_at >= weekAgo) thisWeek++;
+                    if (a.created_at >= monthAgo) thisMonth++;
+                    if (a.status === 'deployed') deployed++;
+                });
 
-                // Counts for other entities
-                const { count: jobCount } = await supabase.from('job_listings').select('*', { count: 'exact', head: true });
-                const { count: testimonialCount } = await supabase.from('video_testimonials').select('*', { count: 'exact', head: true });
+                const conversionRate = total > 0 ? ((deployed / total) * 100).toFixed(1) : 0;
+
+                // Counts for other entities (lightweight head-only queries)
+                const [{ count: jobCount }, { count: testimonialCount }] = await Promise.all([
+                    supabase.from('job_listings').select('*', { count: 'exact', head: true }),
+                    supabase.from('video_testimonials').select('*', { count: 'exact', head: true })
+                ]);
 
                 return res.status(200).json({
-                    total: total || 0, thisWeek: thisWeek || 0, thisMonth: thisMonth || 0, conversionRate,
+                    total, thisWeek, thisMonth, conversionRate,
                     byStatus, byCountry,
                     jobCount: jobCount || 0,
                     testimonialCount: testimonialCount || 0,

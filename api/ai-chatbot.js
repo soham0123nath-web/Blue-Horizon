@@ -42,6 +42,7 @@ module.exports = async function handler(req, res) {
 
         const { message, session_id } = body;
         if (!message) return res.status(400).json({ error: 'Message required.' });
+        if (message.length > 500) return res.status(400).json({ error: 'Message is too long (max 500 chars).' });
 
         const sid = session_id || 'anonymous_' + Date.now();
 
@@ -94,20 +95,25 @@ module.exports = async function handler(req, res) {
             baseURL: "https://api.groq.com/openai/v1"
         });
 
+        // Timeout: 10s max for AI response
+        const controller = new AbortController();
+        const aiTimeout = setTimeout(() => controller.abort(), 10000);
+
         const completion = await openai.chat.completions.create({
             model: 'meta-llama/llama-4-scout-17b-16e-instruct',
             messages: messages,
             max_tokens: 200,
             temperature: 0.7
-        });
+        }, { signal: controller.signal });
 
+        clearTimeout(aiTimeout);
         const reply = completion.choices[0].message.content;
 
-        // Log chat
-        await supabase.from('chat_logs').insert([
+        // Log chat (fire-and-forget — don't block response)
+        supabase.from('chat_logs').insert([
             { session_id: sid, role: 'user', message },
             { session_id: sid, role: 'assistant', message: reply }
-        ]);
+        ]).then(() => {}).catch(logErr => console.error('Chat log error:', logErr));
 
         return res.status(200).json({ reply, session_id: sid });
 

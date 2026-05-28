@@ -56,11 +56,20 @@
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=604800, stale-while-revalidate=2592000" }
       ]
+    },
+    {
+      "source": "/(.*).html",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, s-maxage=60, stale-while-revalidate=300" }
+      ]
     }
   ],
   "rewrites": [
-    { "source": "/tracker",    "destination": "/tracker/index.html" },
-    { "source": "/calculator", "destination": "/calculator/index.html" },
-    { "source": "/admin",      "destination": "/admin/index.html" }
+    { "source": "/tracker",     "destination": "/tracker/index.html" },
+    { "source": "/tracker/",    "destination": "/tracker/index.html" },
+    { "source": "/calculator",  "destination": "/calculator/index.html" },
+    { "source": "/calculator/", "destination": "/calculator/index.html" },
+    { "source": "/admin",       "destination": "/admin/index.html" },
+    { "source": "/admin/",      "destination": "/admin/index.html" }
   ]
 }

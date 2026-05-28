@@ -64,6 +64,11 @@ module.exports = async function handler(req, res) {
                 return res.status(400).json({ error: 'Full name, phone, and trade are required.' });
             }
 
+            // Input validation
+            if (full_name.length > 100) return res.status(400).json({ error: 'Name is too long.' });
+            if (phone.length > 20) return res.status(400).json({ error: 'Phone number is too long.' });
+            if (trade.length > 100) return res.status(400).json({ error: 'Trade is too long.' });
+
             const { data, error } = await supabase
                 .from('talent_pool')
                 .insert({

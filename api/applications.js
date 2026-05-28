@@ -222,6 +222,30 @@ async function handlePost(req, res, supabase) {
             return res.status(400).json({ error: 'Full name, phone, job title, and country are required.' });
         }
 
+        // ── Input validation ──
+        if (full_name.length > 100) return res.status(400).json({ error: 'Name is too long.' });
+        if (phone.length > 20) return res.status(400).json({ error: 'Phone number is too long.' });
+        if (job_title.length > 200) return res.status(400).json({ error: 'Job title is too long.' });
+        if (country.length > 50) return res.status(400).json({ error: 'Country name is too long.' });
+        if (cover_note && cover_note.length > 2000) return res.status(400).json({ error: 'Cover note is too long (max 2000 chars).' });
+        if (email && email.length > 100) return res.status(400).json({ error: 'Email is too long.' });
+
+        // Sanitize phone: keep only digits and leading +
+        const cleanPhone = phone.replace(/[^\d+]/g, '');
+        if (cleanPhone.length < 7) return res.status(400).json({ error: 'Phone number is too short.' });
+
+        // ── Anti-spam: max 3 applications per phone per hour ──
+        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+        const { count: recentCount } = await supabase
+            .from('applications')
+            .select('*', { count: 'exact', head: true })
+            .eq('phone', cleanPhone)
+            .gte('created_at', oneHourAgo);
+
+        if (recentCount >= 3) {
+            return res.status(429).json({ error: 'Too many applications. Please try again later.' });
+        }
+
         // Generate unique tracking ID (retry on DB-level collision)
         let tracking_id;
         let data;
@@ -233,7 +257,7 @@ async function handlePost(req, res, supabase) {
                 .insert({
                     tracking_id,
                     full_name: full_name.trim(),
-                    phone: phone.replace(/\s/g, ''),
+                    phone: cleanPhone,
                     email: email?.trim() || null,
                     job_title,
                     country,

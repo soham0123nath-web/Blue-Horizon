@@ -45,7 +45,7 @@ module.exports = async function handler(req, res) {
 
             const { data, error } = await supabase
                 .from('video_testimonials')
-                .select('*')
+                .select('id, candidate_name, job_title, country, video_url, thumbnail_url, quote, rating')
                 .eq('is_active', true)
                 .order('display_order', { ascending: true });
 
@@ -68,6 +68,10 @@ module.exports = async function handler(req, res) {
                 if (!candidate_name || !quote || !rating) {
                     return res.status(400).json({ error: 'Name, review text, and rating are required.' });
                 }
+
+                // Input validation
+                if (candidate_name.length > 100) return res.status(400).json({ error: 'Name is too long.' });
+                if (quote.length > 1000) return res.status(400).json({ error: 'Review text is too long (max 1000 chars).' });
 
                 const { data, error } = await supabase
                     .from('video_testimonials')

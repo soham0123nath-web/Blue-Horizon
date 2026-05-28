@@ -27,7 +27,7 @@ module.exports = async function handler(req, res) {
 
             let query = supabase
                 .from('job_listings')
-                .select('*')
+                .select('id, title, emoji, country, division, salary_display, salary_inr_display, details, is_urgent, is_active, spots_remaining, display_order')
                 .order('display_order', { ascending: true });
 
             if (!req.query.admin) {

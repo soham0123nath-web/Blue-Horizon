@@ -97,20 +97,25 @@ Recent 10 Apps: ${JSON.stringify(recentApps?.map(a => `${a.full_name} - ${a.job_
             { role: 'user', content: message }
         ];
 
+        // Timeout: 15s max for AI response
+        const controller = new AbortController();
+        const aiTimeout = setTimeout(() => controller.abort(), 15000);
+
         const completion = await openai.chat.completions.create({
             model: 'llama-3.3-70b-versatile',
             messages,
             max_tokens: 500,
             temperature: 0.7
-        });
+        }, { signal: controller.signal });
 
+        clearTimeout(aiTimeout);
         const reply = completion.choices[0].message.content;
 
-        // Log chat
-        await supabase.from('chat_logs').insert([
+        // Log chat (fire-and-forget)
+        supabase.from('chat_logs').insert([
             { session_id: user.email, role: 'user', message },
             { session_id: user.email, role: 'assistant', message: reply }
-        ]);
+        ]).then(() => {}).catch(logErr => console.error('Admin chat log error:', logErr));
 
         return res.status(200).json({ reply });
 

@@ -64,6 +64,13 @@ module.exports = async function handler(req, res) {
                 return res.status(400).json({ error: 'Company name, contact person, and phone are required.' });
             }
 
+            // Input validation
+            if (company_name.length > 150) return res.status(400).json({ error: 'Company name is too long.' });
+            if (contact_person.length > 100) return res.status(400).json({ error: 'Contact person name is too long.' });
+            if (phone.length > 20) return res.status(400).json({ error: 'Phone number is too long.' });
+            if (email && email.length > 100) return res.status(400).json({ error: 'Email is too long.' });
+            if (roles_needed && roles_needed.length > 500) return res.status(400).json({ error: 'Roles description is too long.' });
+
             const { data, error } = await supabase
                 .from('employer_inquiries')
                 .insert({

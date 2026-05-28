@@ -31,7 +31,7 @@ module.exports = async function handler(req, res) {
 
                 const { data, error } = await supabase
                     .from('salary_config')
-                    .select('*')
+                    .select('id, job_title, country, base_salary_usd, overtime_rate_per_hour, typical_overtime_hours, accommodation_value_usd, food_value_usd, medical_value_usd, deductions_usd, currency_rate')
                     .eq('is_active', true)
                     .order('country', { ascending: true })
                     .order('job_title', { ascending: true });
@@ -139,16 +139,29 @@ Provide a short, encouraging, personalized savings advice in 3-4 bullet points. 
 
 Keep it warm, professional, and under 200 words. Use ₹ for INR amounts.`;
 
-                const completion = await openai.chat.completions.create({
-                    model: 'gpt-4o-mini',
-                    messages: [{ role: 'user', content: prompt }],
-                    max_tokens: 300,
-                    temperature: 0.7
-                });
+                // Timeout: 10s max for AI response
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 10000);
 
-                return res.status(200).json({
-                    advice: completion.choices[0].message.content
-                });
+                try {
+                    const completion = await openai.chat.completions.create({
+                        model: 'gpt-4o-mini',
+                        messages: [{ role: 'user', content: prompt }],
+                        max_tokens: 300,
+                        temperature: 0.7
+                    }, { signal: controller.signal });
+
+                    clearTimeout(timeout);
+                    return res.status(200).json({
+                        advice: completion.choices[0].message.content
+                    });
+                } catch (aiErr) {
+                    clearTimeout(timeout);
+                    // Fallback to generic advice on timeout/error
+                    return res.status(200).json({
+                        advice: `Based on the ${role.job_title} role in ${role.country}, you can expect to earn approximately $${role.base_salary_usd}/month (₹${Math.round(role.base_salary_usd * role.currency_rate).toLocaleString()}) with free accommodation and food. This means most of your salary can be saved. We recommend applying soon — these positions fill quickly!`
+                    });
+                }
             }
 
             // Admin actions

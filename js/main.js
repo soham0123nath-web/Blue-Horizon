@@ -304,7 +304,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (videoModalClose) videoModalClose.addEventListener('click', closeVideoModal);
   if (videoModalOverlay) videoModalOverlay.addEventListener('click', closeVideoModal);
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && videoModal.classList.contains('active')) closeVideoModal();
+    if (e.key === 'Escape') {
+      if (videoModal.classList.contains('active')) closeVideoModal();
+      if (applyModal.classList.contains('open')) closeModal();
+    }
   });
 
   // Delegate click on video play buttons
@@ -624,19 +627,26 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Scroll events: Progress bar and Nav sticky styling
+  // Scroll events: Progress bar and Nav sticky styling (rAF-throttled)
+  let scrollTicking = false;
   window.addEventListener("scroll", () => {
-    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    const scrolled = (winScroll / height) * 100;
-    progress.style.width = scrolled + "%";
+    if (!scrollTicking) {
+      requestAnimationFrame(() => {
+        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        progress.style.width = scrolled + "%";
 
-    if (window.scrollY > 50) {
-      nav.classList.add("scrolled");
-    } else {
-      nav.classList.remove("scrolled");
+        if (window.scrollY > 50) {
+          nav.classList.add("scrolled");
+        } else {
+          nav.classList.remove("scrolled");
+        }
+        scrollTicking = false;
+      });
+      scrollTicking = true;
     }
-  });
+  }, { passive: true });
 
 
 
@@ -671,59 +681,62 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-// ── SEARCH AND FILTER ──
-const filterJobs = () => {
-  const query = jobSearchInput.value.toLowerCase().trim();
-  // Search within active country group
-  const activeGroup = dynamicJobGroups.querySelector('.country-job-group.active');
-  if (!activeGroup) return;
-  const cards = activeGroup.querySelectorAll(".job-card");
-  const divisions = activeGroup.querySelectorAll(".division-line");
-  let hasMatches = false;
+  // ── SEARCH AND FILTER ──
+  const filterJobs = () => {
+    const query = jobSearchInput.value.toLowerCase().trim();
+    // Search within active country group
+    const activeGroup = dynamicJobGroups.querySelector('.country-job-group.active');
+    if (!activeGroup) return;
+    const cards = activeGroup.querySelectorAll(".job-card");
+    const divisions = activeGroup.querySelectorAll(".division-line");
+    let hasMatches = false;
 
-  cards.forEach(card => {
-    const title = card.querySelector("h3").textContent.toLowerCase();
-    const tag = card.querySelector(".job-tag").textContent.toLowerCase();
-    const details = card.querySelector(".job-details") ? card.querySelector(".job-details").textContent.toLowerCase() : "";
+    cards.forEach(card => {
+      const title = card.querySelector("h3").textContent.toLowerCase();
+      const tag = card.querySelector(".job-tag").textContent.toLowerCase();
+      const details = card.querySelector(".job-details") ? card.querySelector(".job-details").textContent.toLowerCase() : "";
 
-    const isMatch = !query || title.includes(query) || tag.includes(query) || details.includes(query);
+      const isMatch = !query || title.includes(query) || tag.includes(query) || details.includes(query);
 
-    if (isMatch) {
-      card.style.display = "block";
-      hasMatches = true;
-    } else {
-      card.style.display = "none";
-    }
-  });
-
-  // Toggle division lines depending on whether they contain visible cards
-  const grids = activeGroup.querySelectorAll('.job-grid');
-  divisions.forEach((div, i) => {
-    const grid = grids[i];
-    if (grid) {
-      const visibleCards = Array.from(grid.querySelectorAll(".job-card")).filter(c => c.style.display !== "none");
-      if (visibleCards.length > 0) {
-        div.style.display = "flex";
-        grid.style.display = "grid";
+      if (isMatch) {
+        card.style.display = "block";
+        hasMatches = true;
       } else {
-        div.style.display = "none";
-        grid.style.display = "none";
+        card.style.display = "none";
       }
+    });
+
+    // Toggle division lines depending on whether they contain visible cards
+    const grids = activeGroup.querySelectorAll('.job-grid');
+    divisions.forEach((div, i) => {
+      const grid = grids[i];
+      if (grid) {
+        const visibleCards = Array.from(grid.querySelectorAll(".job-card")).filter(c => c.style.display !== "none");
+        if (visibleCards.length > 0) {
+          div.style.display = "flex";
+          grid.style.display = "grid";
+        } else {
+          div.style.display = "none";
+          grid.style.display = "none";
+        }
+      }
+    });
+
+    // Show / Hide No Results element
+    if (hasMatches || !query) {
+      noResults.style.display = "none";
+    } else {
+      noResults.style.display = "block";
     }
-  });
+  };
 
-  // Show / Hide No Results element
-  if (hasMatches || !query) {
-    noResults.style.display = "none";
-  } else {
-    noResults.style.display = "block";
-  }
-};
-
-jobSearchInput.addEventListener("input", filterJobs);
+  jobSearchInput.addEventListener("input", filterJobs);
 
 // ── MODAL & APPLICATION SYSTEM ──
+let _modalTrigger = null; // Track which element opened the modal
+
 const openModal = (jobTitle) => {
+  _modalTrigger = document.activeElement; // Remember trigger for focus restoration
   modalJobTitle.textContent = jobTitle;
   // Reset to form view (in case success panel was showing)
   document.getElementById('applyFormFields').style.display = '';
@@ -731,12 +744,19 @@ const openModal = (jobTitle) => {
   applyModal.classList.add("open");
   applyModal.setAttribute("aria-hidden", "false");
   body.style.overflow = "hidden"; // Lock page scroll
+  // Focus first input after a brief delay for DOM update
+  setTimeout(() => { if (applicantName) applicantName.focus(); }, 100);
 };
 
 const closeModal = () => {
   applyModal.classList.remove("open");
   applyModal.setAttribute("aria-hidden", "true");
   body.style.overflow = ""; // Unlock page scroll
+  // Restore focus to the element that opened the modal
+  if (_modalTrigger && typeof _modalTrigger.focus === 'function') {
+    _modalTrigger.focus();
+    _modalTrigger = null;
+  }
 
   // Clear inputs
   applicantName.value = "";
@@ -760,6 +780,20 @@ const closeModal = () => {
 modalClose.addEventListener("click", closeModal);
 applyModal.addEventListener("click", (e) => {
   if (e.target === applyModal) closeModal();
+});
+
+// Focus trap: keep Tab cycling within the modal
+applyModal.addEventListener('keydown', (e) => {
+  if (e.key !== 'Tab') return;
+  const focusable = applyModal.querySelectorAll('input, select, textarea, button, [tabindex]:not([tabindex="-1"])');
+  if (focusable.length === 0) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (e.shiftKey) {
+    if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+  } else {
+    if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
 });
 
 // Attach modal triggers to job cards
@@ -942,18 +976,21 @@ async function sendChatbotMessage() {
       addChatbotMsg("bot", data.reply);
       if (data.session_id) chatbotSessionId = data.session_id;
     } else {
-      addChatbotMsg("bot", getLocalChatbotReply(message));
+      addChatbotMsg("bot", getLocalChatbotReply(message), true);
     }
   } catch {
     typingEl.remove();
-    addChatbotMsg("bot", getLocalChatbotReply(message));
+    addChatbotMsg("bot", getLocalChatbotReply(message), true);
   }
 }
 
-function addChatbotMsg(role, content) {
+function addChatbotMsg(role, content, isTrustedHtml) {
   const div = document.createElement("div");
   div.className = `cb-msg ${role}`;
-  div.innerHTML = `<div class="cb-bubble">${content.replace(/\n/g, "<br>")}</div>`;
+  // Sanitize external content (AI API responses) to prevent XSS
+  // Local fallback replies contain intentional HTML links so they pass isTrustedHtml=true
+  const safe = isTrustedHtml ? content : esc(content);
+  div.innerHTML = `<div class="cb-bubble">${safe.replace(/\n/g, "<br>")}</div>`;
   chatbotMessages.appendChild(div);
   chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
 
