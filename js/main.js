@@ -684,49 +684,60 @@ document.addEventListener("DOMContentLoaded", () => {
   // ── SEARCH AND FILTER ──
   const filterJobs = () => {
     const query = jobSearchInput.value.toLowerCase().trim();
-    // Search within active country group
-    const activeGroup = dynamicJobGroups.querySelector('.country-job-group.active');
-    if (!activeGroup) return;
-    const cards = activeGroup.querySelectorAll(".job-card");
-    const divisions = activeGroup.querySelectorAll(".division-line");
-    let hasMatches = false;
+    const allGroups = dynamicJobGroups.querySelectorAll('.country-job-group');
 
-    cards.forEach(card => {
-      const title = card.querySelector("h3").textContent.toLowerCase();
-      const tag = card.querySelector(".job-tag").textContent.toLowerCase();
-      const details = card.querySelector(".job-details") ? card.querySelector(".job-details").textContent.toLowerCase() : "";
+    // ── Universal search: when query exists, search ALL countries ──
+    if (query) {
+      let globalHasMatches = false;
 
-      const isMatch = !query || title.includes(query) || tag.includes(query) || details.includes(query);
+      allGroups.forEach(group => {
+        const cards = group.querySelectorAll(".job-card");
+        const divisions = group.querySelectorAll(".division-line");
+        const grids = group.querySelectorAll('.job-grid');
+        let groupHasMatches = false;
 
-      if (isMatch) {
-        card.style.display = "block";
-        hasMatches = true;
-      } else {
-        card.style.display = "none";
-      }
-    });
+        cards.forEach(card => {
+          const title = card.querySelector("h3").textContent.toLowerCase();
+          const tag = card.querySelector(".job-tag").textContent.toLowerCase();
+          const details = card.querySelector(".job-details") ? card.querySelector(".job-details").textContent.toLowerCase() : "";
 
-    // Toggle division lines depending on whether they contain visible cards
-    const grids = activeGroup.querySelectorAll('.job-grid');
-    divisions.forEach((div, i) => {
-      const grid = grids[i];
-      if (grid) {
-        const visibleCards = Array.from(grid.querySelectorAll(".job-card")).filter(c => c.style.display !== "none");
-        if (visibleCards.length > 0) {
-          div.style.display = "flex";
-          grid.style.display = "grid";
-        } else {
-          div.style.display = "none";
-          grid.style.display = "none";
-        }
-      }
-    });
+          const isMatch = title.includes(query) || tag.includes(query) || details.includes(query);
 
-    // Show / Hide No Results element
-    if (hasMatches || !query) {
-      noResults.style.display = "none";
+          card.style.display = isMatch ? "block" : "none";
+          if (isMatch) { groupHasMatches = true; globalHasMatches = true; }
+        });
+
+        // Show this country group if it has matching cards, hide otherwise
+        group.classList.toggle('active', groupHasMatches);
+
+        // Toggle division lines based on visible cards in their grid
+        divisions.forEach((div, i) => {
+          const grid = grids[i];
+          if (grid) {
+            const visibleCards = Array.from(grid.querySelectorAll(".job-card")).filter(c => c.style.display !== "none");
+            div.style.display = visibleCards.length > 0 ? "flex" : "none";
+            grid.style.display = visibleCards.length > 0 ? "grid" : "none";
+          }
+        });
+      });
+
+      noResults.style.display = globalHasMatches ? "none" : "block";
+
     } else {
-      noResults.style.display = "block";
+      // ── No query: revert to active country only ──
+      allGroups.forEach(group => {
+        const isActive = group.dataset.country === activeCountry;
+        group.classList.toggle('active', isActive);
+
+        if (isActive) {
+          // Reset all cards and divisions to visible
+          group.querySelectorAll(".job-card").forEach(c => c.style.display = "");
+          group.querySelectorAll(".division-line").forEach(d => d.style.display = "");
+          group.querySelectorAll(".job-grid").forEach(g => g.style.display = "");
+        }
+      });
+
+      noResults.style.display = "none";
     }
   };
 

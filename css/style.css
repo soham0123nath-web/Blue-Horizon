@@ -789,24 +789,29 @@ section {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
+  flex-wrap: wrap;
   margin: 0 auto 50px;
-  max-width: 580px;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 8px;
-  border-radius: 100px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  max-width: 900px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 12px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(212, 175, 55, 0.12);
   position: relative;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  transition: all 0.4s cubic-bezier(.4, 0, .2, 1);
 }
 
 .switcher-btn {
-  flex: 1;
+  flex: 0 1 auto;
   background: none;
   border: none;
-  padding: 14px 28px;
-  border-radius: 90px;
+  padding: 12px 24px;
+  border-radius: 14px;
   color: var(--text-dim);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   font-family: 'Poppins', sans-serif;
@@ -817,6 +822,12 @@ section {
   transition: var(--transition);
   position: relative;
   z-index: 2;
+  margin: 2px;
+}
+
+.switcher-btn:hover {
+  background: rgba(212, 175, 55, 0.08);
+  color: var(--gold-light);
 }
 
 .switcher-btn img {
@@ -830,6 +841,8 @@ section {
 .switcher-btn.active {
   color: var(--navy);
   background: var(--gold);
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3);
 }
 
 body.theme-vietnam .switcher-btn.active {
@@ -839,14 +852,14 @@ body.theme-vietnam .switcher-btn.active {
 
 /* ── SALARY HIGHLIGHT ── */
 .salary-highlight {
-  max-width: 620px;
+  max-width: 900px;
   margin: 0 auto 50px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.05);
   padding: 40px;
-  border-radius: 28px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(var(--accent-rgb), 0.2);
+  border-radius: 24px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 175, 55, 0.12);
   text-align: center;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
   position: relative;
@@ -898,49 +911,59 @@ body.theme-vietnam .switcher-btn.active {
 .search-container {
   display: flex;
   justify-content: center;
-  margin-bottom: 40px;
+  margin-bottom: 36px;
 }
 
 .search-wrap {
   position: relative;
   width: 100%;
-  max-width: 680px;
+  max-width: 780px;
 }
 
 .search-icon {
   position: absolute;
-  left: 24px;
+  left: 26px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 20px;
+  font-size: 22px;
   pointer-events: none;
-  transition: color var(--transition);
+  transition: color var(--transition), transform 0.3s ease;
   z-index: 5;
 }
 
 #jobSearch {
   width: 100%;
-  padding: 18px 28px 18px 58px;
-  border-radius: 60px;
-  border: 1.5px solid rgba(255, 255, 255, 0.13);
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  padding: 22px 32px 22px 64px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(212, 175, 55, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   color: white;
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: 500;
   outline: none;
   transition: var(--transition);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  letter-spacing: 0.3px;
 }
 
 #jobSearch::placeholder {
   color: var(--text-dim);
+  font-weight: 400;
 }
 
 #jobSearch:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15), 0 10px 30px rgba(0, 0, 0, 0.2);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.12), 0 12px 40px rgba(0, 0, 0, 0.3);
   transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+#jobSearch:focus ~ .search-icon,
+.search-wrap:focus-within .search-icon {
+  color: var(--gold);
+  transform: translateY(-50%) scale(1.1);
 }
 
 #no-results {

@@ -90,6 +90,198 @@
     .chat-msg .bubble { display: inline-block; padding: 12px 18px; border-radius: 16px; font-size: 0.875rem; line-height: 1.5; }
     .chat-msg.user .bubble { background: rgba(37, 99, 235, 0.15); color: #60a5fa; border-bottom-right-radius: 4px; border: 1px solid rgba(37, 99, 235, 0.3); }
     .chat-msg.assistant .bubble { background: rgba(255, 255, 255, 0.05); color: #f3f4f6; border-bottom-left-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.1); }
+    /* ━━━━━━━━━━━━━━━ MOBILE OVERRIDES (≤767px) ━━━━━━━━━━━━━━━
+       All rules below are strictly mobile-only.
+       Zero desktop impact (min-width:768px is untouched).
+       Pattern adapted from ZyroEditz Command Center.          */
+    @media (max-width: 767px) {
+
+      /* Allow body to scroll on mobile (fixed layout breaks small screens) */
+      body {
+        overflow: auto !important;
+      }
+
+      /* App wrapper stacks vertically, full height at minimum */
+      #app-container {
+        flex-direction: column !important;
+        height: auto !important;
+        min-height: 100dvh !important;
+        overflow: visible !important;
+      }
+
+      /* Main area: fill width, allow overflow */
+      main {
+        width: 100% !important;
+        overflow: visible !important;
+        flex: none !important;
+      }
+
+      /* Main scroll area: let it grow naturally */
+      #main-scroll {
+        overflow: visible !important;
+        padding: 12px !important;
+        padding-bottom: 24px !important;
+      }
+
+      /* Mobile header: comfortable padding, allow wrapping */
+      header {
+        height: auto !important;
+        min-height: 56px !important;
+        padding: 10px 14px !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+      }
+
+      /* Tab headings — smaller on mobile */
+      .tab-panel h1 {
+        font-size: 1.5rem !important;
+      }
+
+      .tab-panel p {
+        font-size: 0.8rem !important;
+      }
+
+      /* Dashboard KPI grid — tighter padding */
+      #dashStats {
+        gap: 10px !important;
+      }
+
+      #dashStats .glass-panel {
+        padding: 14px !important;
+      }
+
+      #dashStats .text-3xl {
+        font-size: 1.25rem !important;
+      }
+
+      /* Pipeline breakdown — 2-col grid on small screens */
+      #pipelineBreakdown {
+        gap: 8px !important;
+      }
+
+      #pipelineBreakdown > div {
+        min-width: 80px !important;
+        flex: 1 1 calc(50% - 8px) !important;
+      }
+
+      /* Prevent iOS Safari auto-zoom (any input <16px zooms the page) */
+      input,
+      select,
+      textarea,
+      .glass-input {
+        font-size: 16px !important;
+      }
+
+      /* Tables scroll horizontally with momentum on touch */
+      .overflow-x-auto,
+      table {
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Data table cells — tighter on mobile */
+      .data-table th {
+        padding: 0.65rem 0.5rem !important;
+        font-size: 0.65rem !important;
+      }
+
+      .data-table td {
+        padding: 0.65rem 0.5rem !important;
+        font-size: 0.8rem !important;
+      }
+
+      /* Application filter bar — full-width stacked */
+      #tab-applications .glass-panel.flex {
+        flex-direction: column !important;
+      }
+
+      /* Modals must not overflow below screen on small phones */
+      #jobModal > div,
+      #testimonialModal > div,
+      #salaryModal > div,
+      #addAdminModal > div {
+        max-height: 85dvh !important;
+        overflow-y: auto !important;
+        margin: 8px !important;
+      }
+
+      /* Modal form grids — single column on mobile */
+      #jobForm .flex.gap-4,
+      #jobForm .grid-cols-1.sm\:grid-cols-2,
+      #jobForm .grid-cols-1.sm\:grid-cols-3,
+      #testimonialForm .grid-cols-1.sm\:grid-cols-2,
+      #salaryForm .grid-cols-1.sm\:grid-cols-2,
+      #salaryForm .grid-cols-1.sm\:grid-cols-3 {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* AI chat panel — responsive height instead of fixed 500px */
+      #tab-ai .glass-panel {
+        height: auto !important;
+        max-height: 70dvh !important;
+      }
+
+      .chat-messages {
+        height: 250px !important;
+      }
+
+      /* AI chat input row — comfortable for fat fingers */
+      #tab-ai .flex.gap-3 input {
+        padding: 12px 14px !important;
+      }
+
+      /* Toast notifications — mobile safe positioning */
+      #toast-container {
+        bottom: 16px !important;
+        right: 12px !important;
+        left: 12px !important;
+      }
+
+      .toast {
+        font-size: 13px !important;
+        padding: 12px 16px !important;
+      }
+
+      /* Sidebar: 80vw width capped at 280px (matches Zyro pattern) */
+      #sidebar {
+        width: 80vw !important;
+        max-width: 280px !important;
+      }
+
+      /* Tab panels — allow natural overflow, remove fixed heights */
+      .tab-panel {
+        min-height: 0 !important;
+        overflow: visible !important;
+      }
+
+      /* Action buttons in tab headers — full width on mobile */
+      .tab-panel .flex.justify-between {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+      }
+
+      /* Admins tab header fix */
+      #tab-admins .flex.justify-between {
+        flex-direction: column !important;
+        align-items: stretch !important;
+      }
+
+      /* Login screen — comfortable on small phones */
+      #loginScreen .glass-panel {
+        padding: 1.5rem !important;
+      }
+
+      #loginScreen h1 {
+        font-size: 1.5rem !important;
+      }
+
+      /* Canvas/chart overflow fix */
+      canvas {
+        max-width: 100% !important;
+      }
+    }
+
+    /* ━━━━━━━━━━━━━━━ END MOBILE OVERRIDES ━━━━━━━━━━━━━━━ */
   </style>
 </head>
 <body>
