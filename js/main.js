@@ -124,8 +124,17 @@ document.addEventListener("DOMContentLoaded", () => {
         let groupsHtml = '';
         allCountries.forEach((country, i) => {
           const slug = country.toLowerCase().replace(/\s+/g, '-');
+          const info = getCountryInfo(country);
+          const flagImg = info.code
+            ? `<img src="https://flagcdn.com/w40/${info.code}.png" alt="${esc(country)}" style="width:28px;height:auto;border-radius:4px;vertical-align:middle;box-shadow:0 2px 8px rgba(0,0,0,0.3);">`
+            : '';
           groupsHtml += `
             <div class="country-job-group ${i === 0 ? 'active' : ''}" id="group-${slug}" data-country="${esc(country)}" role="tabpanel">
+              <div class="search-country-header" style="display:none; text-align:center; margin:30px 0 20px; padding:16px 24px; background:rgba(212,175,55,0.06); border:1px solid rgba(212,175,55,0.15); border-radius:16px; backdrop-filter:blur(12px);">
+                <span style="font-size:20px; font-weight:700; color:var(--gold); letter-spacing:1px; display:inline-flex; align-items:center; gap:10px;">
+                  ${flagImg} ${info.flag} ${esc(country)} Placements
+                </span>
+              </div>
               <div class="division-filters" id="${slug}-division-filters"></div>
               <div id="${slug}-jobs-container" class="dynamic-jobs-container"></div>
             </div>
@@ -694,6 +703,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const cards = group.querySelectorAll(".job-card");
         const divisions = group.querySelectorAll(".division-line");
         const grids = group.querySelectorAll('.job-grid');
+        const countryHeader = group.querySelector('.search-country-header');
         let groupHasMatches = false;
 
         cards.forEach(card => {
@@ -709,6 +719,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Show this country group if it has matching cards, hide otherwise
         group.classList.toggle('active', groupHasMatches);
+
+        // Show country header when group is visible during search
+        if (countryHeader) countryHeader.style.display = groupHasMatches ? 'block' : 'none';
 
         // Toggle division lines based on visible cards in their grid
         divisions.forEach((div, i) => {
@@ -728,6 +741,10 @@ document.addEventListener("DOMContentLoaded", () => {
       allGroups.forEach(group => {
         const isActive = group.dataset.country === activeCountry;
         group.classList.toggle('active', isActive);
+
+        // Hide country headers when not searching
+        const countryHeader = group.querySelector('.search-country-header');
+        if (countryHeader) countryHeader.style.display = 'none';
 
         if (isActive) {
           // Reset all cards and divisions to visible
