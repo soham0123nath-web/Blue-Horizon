@@ -1038,6 +1038,25 @@ body.theme-vietnam .switcher-btn.active {
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 }
 
+.card-country-flag {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: auto;
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  z-index: 3;
+  opacity: 0.85;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.job-card:hover .card-country-flag {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
 .job-card::after {
   content: '';
   position: absolute;
