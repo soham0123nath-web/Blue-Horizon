@@ -1039,7 +1039,7 @@ body.theme-vietnam .switcher-btn.active {
 }
 
 .card-country-flag {
-  position: absolute;
+  position: absolute !important;
   top: 14px;
   right: 14px;
   width: 32px;
